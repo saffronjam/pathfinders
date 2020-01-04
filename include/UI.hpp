@@ -86,7 +86,9 @@ private:
                  InputUtility &iu,
                  bool &value,
                  bool const &start,
-                 sf::Vector2f const &position = sf::Vector2f(0.0f, 0.0f));
+                 sf::Vector2f const &position = sf::Vector2f(0.0f, 0.0f),
+                 std::function<void()> invokeOnTrue = {},
+                 std::function<void()> invokeOnFalse = {});
 
         void Update() override;
         void Draw() override;
@@ -98,6 +100,8 @@ private:
 
     private:
         bool &m_value;
+        std::function<void()> m_invokeOnTrue;
+        std::function<void()> m_invokeOnFalse;
 
         sf::RectangleShape m_checkbox;
 
@@ -111,7 +115,8 @@ private:
                        InputUtility &iu,
                        std::vector<bool *> values,
                        std::vector<bool> start,
-                       std::vector<sf::Vector2f> positions);
+                       std::vector<sf::Vector2f> positions,
+                       std::function<void()> invokeOnChange);
 
         void Update() override;
         void Draw() override;
@@ -121,6 +126,7 @@ private:
 
     private:
         std::vector<bool *> m_values;
+        std::function<void()> m_invokeOnChange;
 
         std::vector<sf::CircleShape> m_radioButtons;
         float m_radius;
@@ -187,8 +193,8 @@ public:
     auto GetFloatSlider(int const &key) { return m_floatSliders.find(key); }
 
     void CreateStaticButton(int const &key, std::function<void()> caller, std::string const &description, sf::Vector2f const &position = sf::Vector2f(0.0f, 0.0f));
-    void CreateStaticCheckbox(int const &key, bool &value, bool const &start = false, sf::Vector2f const &position = sf::Vector2f(0.0f, 0.0f));
-    void CreateStaticRadioButtonSet(int const &key, std::vector<bool *> values, std::vector<bool> start, std::vector<sf::Vector2f> positions);
+    void CreateStaticCheckbox(int const &key, bool &value, bool const &start = false, sf::Vector2f const &position = sf::Vector2f(0.0f, 0.0f), std::function<void()> invokeOnTrue = {}, std::function<void()> invokeOnFalse = {});
+    void CreateStaticRadioButtonSet(int const &key, std::vector<bool *> values, std::vector<bool> start, std::vector<sf::Vector2f> positions, std::function<void()> invokeOnChange);
     void CreateStaticIntSlider(int const &key, int &value, int const &low = 1, int const &high = 100, int const &start = 50, sf::Vector2f const &position = sf::Vector2f(0.0f, 0.0f));
     void CreateStaticFloatSlider(int const &key, float &value, float const &low = 1.0f, float const &high = 100.0f, float const &start = 50.0f, sf::Vector2f const &position = sf::Vector2f(0.0f, 0.0f));
 

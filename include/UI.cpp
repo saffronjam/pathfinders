@@ -93,9 +93,11 @@ void UI::Button::UpdateButtonBox()
     }
 }
 
-UI::Checkbox::Checkbox(Graphics &gfx, InputUtility &iu, bool &value, bool const &start, sf::Vector2f const &position)
+UI::Checkbox::Checkbox(Graphics &gfx, InputUtility &iu, bool &value, bool const &start, sf::Vector2f const &position, std::function<void()> invokeOnTrue, std::function<void()> invokeOnFalse)
     : FormBase(gfx, iu, position),
       m_value(value),
+      m_invokeOnTrue(invokeOnTrue),
+      m_invokeOnFalse(invokeOnFalse),
       m_checkbox(sf::Vector2f(10.0f, 10.0f)),
       m_clickInhib(true)
 {
@@ -148,11 +150,15 @@ void UI::Checkbox::UpdateCheckbox()
         {
             m_clickInhib = false;
             m_value = false;
+            if (m_invokeOnFalse)
+                m_invokeOnFalse();
         }
         else if (!m_value && m_clickInhib)
         {
             m_clickInhib = false;
             m_value = true;
+            if (m_invokeOnTrue)
+                m_invokeOnTrue();
         }
     }
     else if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
@@ -161,9 +167,10 @@ void UI::Checkbox::UpdateCheckbox()
     }
 }
 
-UI::RadioButtonSet::RadioButtonSet(Graphics &gfx, InputUtility &iu, std::vector<bool *> values, std::vector<bool> start, std::vector<sf::Vector2f> positions)
+UI::RadioButtonSet::RadioButtonSet(Graphics &gfx, InputUtility &iu, std::vector<bool *> values, std::vector<bool> start, std::vector<sf::Vector2f> positions, std::function<void()> invokeOnChange)
     : FormBase(gfx, iu, positions),
       m_values(values),
+      m_invokeOnChange(invokeOnChange),
       m_radius(4.0f),
       m_clickInhib(true)
 {
@@ -237,17 +244,37 @@ void UI::RadioButtonSet::UpdateRadioButtons()
         }
         if (index != -1)
         {
+            std::vector<bool> old;
+            for (size_t i = 0; i < m_values.size(); i++)
+            {
+                old.push_back(*m_values[i]);
+            }
             for (int i = 0; i < (int)m_radioButtons.size(); i++)
             {
                 if (i == index)
                 {
-                    *m_values[i] = true;
+                    if (!*m_values[i])
+                    {
+                        *m_values[i] = true;
+                    }
                     m_radioButtons[i].setFillColor(m_fillColor);
                 }
                 else
                 {
-                    *m_values[i] = false;
+                    if (*m_values[i])
+                    {
+                        *m_values[i] = false;
+                    }
                     m_radioButtons[i].setFillColor(m_altFillColor);
+                }
+            }
+            for (size_t i = 0; i < m_values.size(); i++)
+            {
+                if (old[i] != *m_values[i])
+                {
+                    if (m_invokeOnChange)
+                        m_invokeOnChange();
+                    break;
                 }
             }
         }
@@ -264,8 +291,8 @@ UI::Slider<T>::Slider(Graphics &gfx, InputUtility &iu, T &value, T const &low, T
       m_value(value),
       m_low(low),
       m_high(high),
-      m_bar(sf::Vector2f(100.0f, 20.0f)),
-      m_slider(sf::Vector2f(25.0f, 20.0f)),
+      m_bar(sf::Vector2f(140.0f, 20.0f)),
+      m_slider(sf::Vector2f(45.0f, 20.0f)),
       m_mouseDeltaX(0.0f),
       m_engaged(false),
       m_missed(false)
@@ -448,14 +475,14 @@ void UI::CreateStaticButton(int const &key, std::function<void()> caller, std::s
     m_buttons.emplace(key, Button(m_gfx, m_iu, caller, description, position));
 }
 
-void UI::CreateStaticCheckbox(int const &key, bool &value, bool const &start, sf::Vector2f const &position)
+void UI::CreateStaticCheckbox(int const &key, bool &value, bool const &start, sf::Vector2f const &position, std::function<void()> invokeOnTrue, std::function<void()> invokeOnFalse)
 {
-    m_checkboxes.emplace(key, Checkbox(m_gfx, m_iu, value, start, position));
+    m_checkboxes.emplace(key, Checkbox(m_gfx, m_iu, value, start, position, invokeOnTrue, invokeOnFalse));
 }
 
-void UI::CreateStaticRadioButtonSet(int const &key, std::vector<bool *> values, std::vector<bool> start, std::vector<sf::Vector2f> positions)
+void UI::CreateStaticRadioButtonSet(int const &key, std::vector<bool *> values, std::vector<bool> start, std::vector<sf::Vector2f> positions, std::function<void()> invokeOnChange)
 {
-    m_radioButtonSets.emplace(key, RadioButtonSet(m_gfx, m_iu, values, start, positions));
+    m_radioButtonSets.emplace(key, RadioButtonSet(m_gfx, m_iu, values, start, positions, invokeOnChange));
 }
 
 void UI::CreateStaticIntSlider(int const &key, int &value, int const &low, int const &high, int const &start, sf::Vector2f const &position)

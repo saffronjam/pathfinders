@@ -47,7 +47,8 @@ Application::Application(sf::Time &dt)
 									{sf::Vector2f((float)Graphics::ScreenWidth - 160.0f, 85.0f),
 									 sf::Vector2f((float)Graphics::ScreenWidth - 145.0f, 85.0f),
 									 sf::Vector2f((float)Graphics::ScreenWidth - 130.0f, 85.0f),
-									 sf::Vector2f((float)Graphics::ScreenWidth - 115.0f, 85.0f)});
+									 sf::Vector2f((float)Graphics::ScreenWidth - 115.0f, 85.0f)},
+									{});
 
 	m_UIBackground.setPosition((float)Graphics::ScreenWidth - m_UIBackground.getSize().x, 0.0f);
 	m_UIBackground.setFillColor(sf::Color(100, 100, 100, 100));
