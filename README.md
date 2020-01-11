@@ -14,9 +14,7 @@ The visualization can be ran in both a square grid and in a polyogon map (Vorono
 <b> 2. </b> Run command <i>make br</i> (See "MakeFile")
 
 ### Windows
-<b> 1. </b> Download SFML-dev pack from <a href="https://www.sfml-dev.org/download.php">here</a>
-
-<b> 2. </b> Compile the .exe-file using roughly the same command as <i>make br</i> in "MakeFile" but change the .lib-location to where you put the files
+<b> 1. </b> Run command <i>make br</i> (See "MakeFile")
 
 ### Mac
 Should be similar to Linux ;)
