@@ -78,6 +78,16 @@ void Window::DrawRect(const sf::FloatRect rect, sf::Color fillColor, bool outlin
     Window::Draw(rectShape);
 }
 
+void Window::DrawLine(const sf::Vector2f &first, const sf::Vector2f &second, sf::Color color)
+{
+    sf::VertexArray line(sf::PrimitiveType::Lines, 2);
+    line[0].color = color;
+    line[1].color = color;
+    line[0].position = first;
+    line[1].position = second;
+    Window::Draw(line);
+}
+
 void Window::Clear()
 {
     assert("Attempted to handle the window without creating it" && m_sfWindow);

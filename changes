@@ -1,0 +1,2 @@
+Remove Box2D and Camera include in ClientMainScreen.h
+Add DrawLine to Camera and Window

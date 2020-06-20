@@ -56,6 +56,7 @@ target_include_directories(Client PRIVATE
   src/netmodules
   src/physics
   src/project
+  src/project/pathfinders
   src/res
   src/screens
   src/throwmacros

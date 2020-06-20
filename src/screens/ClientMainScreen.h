@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Box2D/Box2D.h>
-
 #include "IScreen.h"
-#include "Camera.h"
+
+#include "PathfinderMgr.h"
 
 class AppClient;
 
@@ -34,4 +33,6 @@ private:
 
 private:
     AppClient &m_parent;
+
+    PathfinderMgr m_pathfinderMgr;
 };

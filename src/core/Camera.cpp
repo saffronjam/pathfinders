@@ -131,6 +131,16 @@ void Camera::DrawRect(const sf::FloatRect rect, sf::Color fillColor, bool outlin
     Camera::Draw(rectShape);
 }
 
+void Camera::DrawLine(const sf::Vector2f &first, const sf::Vector2f &second, sf::Color color)
+{
+    sf::VertexArray line(sf::PrimitiveType::Lines, 2);
+    line[0].color = color;
+    line[1].color = color;
+    line[0].position = first;
+    line[1].position = second;
+    Camera::Draw(line);
+}
+
 void Camera::Move(const sf::Vector2f &offset) noexcept
 {
     SetCenter(m_position + offset);
