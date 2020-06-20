@@ -1,0 +1,30 @@
+{
+    "configurations": [
+        {
+            "name": "Windows",
+            "includePath": [
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/src/apps",
+                "${workspaceFolder}/src/core",
+                "${workspaceFolder}/src/etc",
+                "${workspaceFolder}/src/input",
+                "${workspaceFolder}/src/interfaces",
+                "${workspaceFolder}/src/lightning",
+                "${workspaceFolder}/src/net",
+                "${workspaceFolder}/src/netmodules",
+                "${workspaceFolder}/src/physics",
+                "${workspaceFolder}/src/project",
+                "${workspaceFolder}/src/res",
+                "${workspaceFolder}/src/screens",
+                "${workspaceFolder}/src/throwmacros",
+                "${workspaceFolder}/deps/SFML/include",
+                "${workspaceFolder}/deps/SFGUI/include",
+                "${workspaceFolder}/deps/Box2D/include"
+            ],
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "C:\\mingw64\\bin\\g++.exe",
+            "cppStandard": "c++20"
+        }
+    ],
+    "version": 4
+}
