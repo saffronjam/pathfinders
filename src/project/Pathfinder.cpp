@@ -2,17 +2,33 @@
 
 Pathfinder::Pathfinder()
     : m_state(State::WaitingForStart),
+      m_activeNode(nullptr),
       m_sleepDelay(sf::seconds(0.01f)),
       m_minorDelayTimer(0),
       m_minorDelay(false)
 {
 }
 
-void Pathfinder::DrawProgress()
+Pathfinder::~Pathfinder()
+{
+    CollectFinder();
+}
+
+void Pathfinder::DrawAnticipation()
+{
+    if (m_activeNode)
+        for (Node *node = m_activeNode; node->GetVia(); node = node->GetVia())
+        {
+            Camera::DrawLine(node->GetPosition(), node->GetVia()->GetPosition(), sf::Color::Red);
+        }
+}
+
+void Pathfinder::DrawViaConnections()
 {
     for (auto &[uid, node] : m_nodes)
     {
-        Camera::DrawLine(node.GetPosition(), node.GetVia()->GetPosition());
+        if (node.GetVia())
+            Camera::DrawLine(node.GetPosition(), node.GetVia()->GetPosition());
     }
 }
 
@@ -40,6 +56,16 @@ void Pathfinder::DrawResult()
     {
         Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetStartNodeUID()).GetPosition(), sf::Color::Red, 10.0f);
         Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetGoalNodeUID()).GetPosition(), sf::Color::Red, 10.0f);
+    }
+}
+
+void Pathfinder::Start()
+{
+    if (m_state == State::WaitingForStart)
+    {
+        CollectFinder();
+        m_state = State::Finding;
+        m_finder = std::thread(Pathfinder::FindPathThreadFn, this);
     }
 }
 

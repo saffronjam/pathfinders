@@ -21,8 +21,39 @@ void PathfinderMgr::DrawPathfinders()
 {
     for (auto &pathfinder : m_pathfinders)
     {
-        pathfinder->DrawProgress();
+        pathfinder->DrawAnticipation();
+        pathfinder->DrawViaConnections();
         if (pathfinder->IsDone())
             pathfinder->DrawResult();
     }
+}
+
+void PathfinderMgr::Start()
+{
+    for (auto &pathfinder : m_pathfinders)
+        pathfinder->Start();
+}
+
+void PathfinderMgr::Pause()
+{
+    for (auto &pathfinder : m_pathfinders)
+        pathfinder->Pause();
+}
+
+void PathfinderMgr::Resume()
+{
+    for (auto &pathfinder : m_pathfinders)
+        pathfinder->Resume();
+}
+
+void PathfinderMgr::Restart()
+{
+    for (auto &pathfinder : m_pathfinders)
+        pathfinder->Restart();
+}
+
+void PathfinderMgr::Reset()
+{
+    for (auto &pathfinder : m_pathfinders)
+        pathfinder->Reset();
 }

@@ -59,13 +59,15 @@ void TraverseGrid::GenerateGrid()
         int uid = 0;
         sf::Vector2f boxSize(m_visRect.width / m_nBoxes.x, m_visRect.height / m_nBoxes.y);
         sf::Vector2f topLeft = sf::Vector2f(m_visRect.left, m_visRect.top) + sf::Vector2f(boxSize.x, boxSize.y) / 2.0f;
-        for (int i = 0; i < m_nBoxes.x; i++)
+        for (int i = 0; i < m_nBoxes.y; i++)
         {
-            for (int j = 0; j < m_nBoxes.y; j++)
+            for (int j = 0; j < m_nBoxes.x; j++)
             {
-                m_nodes.emplace(std::make_pair(uid++, Node(uid, sf::Vector2f(topLeft.x + i * boxSize.x, topLeft.y + j * boxSize.y))));
+                m_nodes.emplace(std::make_pair(uid++, Node(uid, sf::Vector2f(topLeft.x + j * boxSize.x, topLeft.y + i * boxSize.y))));
             }
         }
+        m_startUID = 0;
+        m_goalUID = m_nodes.size() - 1;
         break;
     }
     case Type::Voronoi:

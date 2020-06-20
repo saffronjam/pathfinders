@@ -21,6 +21,7 @@ void ClientMainScreen::Destroy()
 void ClientMainScreen::OnEntry()
 {
     LightningMgr::SetAmbientLight(sf::Color(255, 255, 255));
+    m_pathfinderMgr.Start();
 }
 
 void ClientMainScreen::OnExit()
@@ -34,6 +35,7 @@ void ClientMainScreen::Update()
 void ClientMainScreen::Draw()
 {
     m_pathfinderMgr.DrawGrid();
+    m_pathfinderMgr.DrawPathfinders();
 }
 
 int ClientMainScreen::GetNextScreenIndex() const

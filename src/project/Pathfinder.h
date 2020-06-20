@@ -22,8 +22,10 @@ protected:
 
 public:
     Pathfinder();
+    ~Pathfinder();
 
-    void DrawProgress();
+    void DrawAnticipation();
+    void DrawViaConnections();
     void DrawNeighbors();
     void DrawResult();
 
@@ -57,6 +59,7 @@ protected:
     State m_state;
     std::thread m_finder;
     const TraverseGrid *m_traverseGrid;
+    Node *m_activeNode;
 
     sf::Time m_sleepDelay;
     bool m_minorDelay;
