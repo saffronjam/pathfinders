@@ -91,7 +91,6 @@ void Window::DrawLine(const sf::Vector2f &first, const sf::Vector2f &second, sf:
 void Window::Clear()
 {
     assert("Attempted to handle the window without creating it" && m_sfWindow);
-    // m_sfWindow->clear(sf::Color(100, 100, 100, 255));
     m_sfWindow->clear();
 }
 

@@ -35,7 +35,6 @@ void IApp::Run()
         GuiMgr::Update();
         Camera::Update();
         Window::Clear();
-        LightningMgr::ClearOccluders();
         try
         {
             Update();
@@ -43,9 +42,6 @@ void IApp::Run()
             Draw();
         }
         LogOnly;
-        LightningMgr::DisplayOccluders();
-        LightningMgr::Render();
-        LightningMgr::Draw();
         GuiMgr::Draw();
         Window::Present();
         Clock::Mark();
@@ -53,6 +49,7 @@ void IApp::Run()
         FPSLimiter::Adjust();
     }
 }
+
 void IApp::Exit()
 {
     if (m_currentScreen)

@@ -51,16 +51,27 @@ void Pathfinder::DrawResult()
         {
             Camera::DrawPoint(node->GetPosition(), sf::Color::Green, 5.0f);
         }
+        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color::Green, 5.0f);
     }
     else
     {
-        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetStartNodeUID()).GetPosition(), sf::Color::Red, 10.0f);
-        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetGoalNodeUID()).GetPosition(), sf::Color::Red, 10.0f);
+        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color::Red, 10.0f);
+        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetGoalUID()).GetPosition(), sf::Color::Red, 10.0f);
     }
+}
+
+void Pathfinder::AssignNodes(const std::map<long, Node> &nodes) noexcept
+{
+    m_nodes = nodes;
+    m_traverseGrid->CalculateNeighbors(m_nodes);
 }
 
 void Pathfinder::Start()
 {
+    if (m_state == State::Finished)
+    {
+        Restart();
+    }
     if (m_state == State::WaitingForStart)
     {
         CollectFinder();
@@ -87,15 +98,22 @@ void Pathfinder::Restart()
     {
         CollectFinder();
         m_state = State::WaitingForStart;
-        m_nodes = m_nodesRestart;
+        for (auto &[uid, node] : m_nodes)
+        {
+            node.ResetPath();
+        }
     }
 }
 
 void Pathfinder::Reset()
 {
-    CollectFinder();
-    m_state = State::WaitingForStart;
-    m_nodes = m_nodesReset;
+    if (m_state != State::WaitingForStart)
+    {
+        CollectFinder();
+        m_state = State::WaitingForStart;
+        for (auto &[uid, node] : m_nodes)
+            node.ResetAll();
+    }
 }
 
 void Pathfinder::SetSleepDelay(sf::Time delay)
@@ -136,17 +154,16 @@ void Pathfinder::FindPathThreadFn()
 
 void Pathfinder::OnFinish()
 {
-    m_pathWasFound = static_cast<bool>(GetNodes().at(m_traverseGrid->GetGoalNodeUID()).GetVia());
+    m_pathWasFound = static_cast<bool>(GetNodes().at(m_traverseGrid->GetGoalUID()).GetVia());
     if (m_pathWasFound)
     {
         m_finalPath.clear();
-        long start = m_traverseGrid->GetStartNodeUID();
-        long goal = m_traverseGrid->GetGoalNodeUID();
-        for (const Node *node = &m_nodes.at(goal); node != &m_nodes.at(start); node = node->GetVia())
+        for (const Node *node = &m_nodes.at(m_traverseGrid->GetGoalUID()); node != &m_nodes.at(m_traverseGrid->GetStartUID()); node = node->GetVia())
         {
             m_finalPath.emplace(node);
         }
     }
+    m_state = State::Finished;
 }
 
 void Pathfinder::CollectFinder()

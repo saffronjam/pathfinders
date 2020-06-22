@@ -18,31 +18,38 @@ public:
     void Draw();
 
     void ChangeGridType(TraverseGrid::Type type);
-
-    const Node *GetStartNode() const { return &m_nodes.at(GetStartNodeUID()); };
-    const Node *GetGoalNode() const { return &m_nodes.at(GetGoalNodeUID()); };
-    long GetStartNodeUID() const noexcept { return m_startUID; }
-    long GetGoalNodeUID() const noexcept { return m_goalUID; }
-
-    void SetStart(const sf::Vector2f &start);
-    void SetGoal(const sf::Vector2f &goal);
+    void CalculateNeighbors(std::map<long, Node> &nodes) const;
 
     std::map<long, Node> &GetNodes() noexcept { return m_nodes; }
+    long GetNodeUIDByPosition(const sf::Vector2f &position) const;
+    long GetStartUID() const noexcept { return m_startUID; }
+    long GetGoalUID() const noexcept { return m_goalUID; }
+    bool IsObstacle(long uid) const { return m_obstacles.find(uid) != m_obstacles.end(); }
+    bool IsStart(long uid) const noexcept { return m_startUID == uid; }
+    bool IsGoal(long uid) const noexcept { return m_goalUID == uid; }
+
+    void SetStart(const sf::Vector2f &start);
+    void SetStart(long uid);
+    void SetGoal(const sf::Vector2f &goal);
+    void SetGoal(long uid);
+    void SetIsObstacle(long uid, bool isObstacle);
 
 private:
     void DrawSquareGrid();
     void DrawVoronoiGrid();
 
     void GenerateGrid();
-    void CalculateNeighbors();
 
 private:
     TraverseGrid::Type m_currentType;
 
-    long m_startUID;
-    long m_goalUID;
     std::map<long, Node> m_nodes;
+    std::set<long> m_obstacles;
 
     sf::FloatRect m_visRect;
     sf::Vector2i m_nBoxes;
+
+    // Cached
+    long m_startUID;
+    long m_goalUID;
 };

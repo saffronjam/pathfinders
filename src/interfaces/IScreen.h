@@ -13,6 +13,7 @@
 #include <SFGUI/Scale.hpp>
 #include <SFGUI/Scrollbar.hpp>
 #include <SFGUI/SFGUI.hpp>
+#include <SFGUI/RadioButton.hpp>
 #include <SFGUI/Window.hpp>
 
 #include "Window.h"

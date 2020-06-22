@@ -5,14 +5,12 @@
 class AStar : public Pathfinder
 {
 public:
-    AStar()
-        : m_maxCost(-1.0f)
-    {
-    }
-
     void FindPath() override;
+
+    const std::string &GetName() override { return m_name; }
 
 private:
     std::deque<Node *> m_checkingQueue;
     float m_maxCost;
+    std::string m_name = "A*";
 };

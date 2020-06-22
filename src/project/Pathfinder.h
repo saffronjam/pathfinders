@@ -29,9 +29,11 @@ public:
     void DrawNeighbors();
     void DrawResult();
 
-    void AssignNodes(const std::map<long, Node> &nodes) noexcept { m_nodes = nodes; }
-    void SetSleepDelay(const sf::Time &delay) noexcept { m_sleepDelay = delay; }
+    void AssignNodes(const std::map<long, Node> &nodes) noexcept;
     void SetTraverseGrid(const TraverseGrid *traverseGrid) noexcept { m_traverseGrid = traverseGrid; }
+    void SetStart(long startUID) noexcept;
+    void SetGoal(long goalUID) noexcept;
+    void SetSleepDelay(sf::Time delay);
 
     void Start();
     void Pause();
@@ -39,9 +41,9 @@ public:
     void Restart();
     void Reset();
 
-    void SetSleepDelay(sf::Time delay);
-
     bool IsDone() const noexcept { return m_state == State::Finished; }
+
+    virtual const std::string &GetName() = 0;
 
 protected:
     std::map<long, Node> &GetNodes() noexcept { return m_nodes; }
@@ -69,8 +71,6 @@ protected:
 
 private:
     std::map<long, Node> m_nodes;
-    std::map<long, Node> m_nodesRestart;
-    std::map<long, Node> m_nodesReset;
 
     std::set<const Node *> m_finalPath;
 };

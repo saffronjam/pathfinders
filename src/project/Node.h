@@ -11,19 +11,13 @@ class Node
     friend class TraverseGrid;
 
 public:
-    Node(int uid, const sf::Vector2f &position)
-        : m_uid(uid),
-          m_position(position),
-          m_FCost(-1.0f),
-          m_HCost(-1.0f),
-          m_GCost(-1.0f)
-    {
-    }
+    Node(int uid, const sf::Vector2f &position);
 
-    void AddNeighbor(Node *node) { m_neighbors.emplace(node); }
+    void AddNeighbor(Node *node, float cost);
     void RemoveNeighbor(Node *node) { m_neighbors.erase(node); }
 
-    bool IsObstacle() const noexcept { return m_isObstacle; }
+    void ResetPath() noexcept;
+    void ResetAll() noexcept;
 
     int GetUID() const noexcept { return m_uid; }
     const sf::Vector2f &GetPosition() const noexcept { return m_position; }
@@ -32,7 +26,7 @@ public:
     float GetFCost() const noexcept { return m_FCost; }
     float GetHCost() const noexcept { return m_HCost; }
     float GetGCost() const noexcept { return m_GCost; }
-    float GetUCost(Node *neighbor) const noexcept { return m_UCosts.at(neighbor); }
+    float GetUCost(Node *neighbor) const { return m_UCosts.at(neighbor); }
 
     void SetVia(Node *via) { m_via = via; }
     void SetFCost(float FCost) { m_FCost = FCost; }
@@ -46,8 +40,6 @@ private:
     std::set<Node *> m_neighbors;
 
     Node *m_via;
-
-    bool m_isObstacle;
 
     float m_FCost;
     float m_HCost;
