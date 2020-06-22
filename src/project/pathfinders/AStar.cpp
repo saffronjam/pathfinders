@@ -6,10 +6,11 @@ void AStar::FindPath()
     m_maxCost = -1.0f;
     while (m_checkingQueue.size() && m_state != State::BeingCollected)
     {
+        PauseCheck();
         m_activeNode = m_checkingQueue.front();
         if (m_traverseGrid->IsGoal(m_activeNode->GetUID()))
         {
-            // Algorithm is reach goal, start check other ways that could be faster
+            // Algorithm is done
             m_checkingQueue.clear();
             m_maxCost = m_activeNode->GetGCost();
         }
@@ -20,6 +21,7 @@ void AStar::FindPath()
                 if (m_state == State::BeingCollected)
                     break;
                 SleepDelay();
+                PauseCheck();
                 if (!m_traverseGrid->IsObstacle(neighbor->GetUID()) && neighbor != m_activeNode->GetVia())
                 {
                     float suggestedGCost = m_activeNode->GetGCost() + m_activeNode->GetUCost(neighbor);
