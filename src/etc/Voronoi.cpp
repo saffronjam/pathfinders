@@ -74,6 +74,30 @@ void Voronoi::Relax(int iterations)
     }
 }
 
+sf::ConvexShape &Voronoi::GetPolygon(const sf::Vector2f &position)
+{
+    float minDistance = std::numeric_limits<float>::infinity();
+    sf::ConvexShape *closest = nullptr;
+    for (auto &polygon : m_polygons)
+    {
+        float distance = vl::LengthSq(Lib::Mid(polygon) - position);
+        if (distance < minDistance)
+        {
+            minDistance = distance;
+            closest = &polygon;
+        }
+    }
+
+    if (closest != nullptr)
+    {
+        return *closest;
+    }
+    else
+    {
+        throw Voronoi::Exception(__LINE__, __FILE__, "Failed to find any polygons closer than std::numeric_limits<float>::infinity() units from given position");
+    }
+}
+
 void Voronoi::GenerateVoronoi()
 {
     if (m_boundingBox.width > 0.0f &&

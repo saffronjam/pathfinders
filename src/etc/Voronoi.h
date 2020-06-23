@@ -6,6 +6,7 @@
 #include <cstring>
 
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/ConvexShape.hpp>
 #include <jcv/jc_voronoi.h>
 
 #include "Camera.h"
@@ -27,6 +28,9 @@ public:
 
     void Relax(int iterations = 1);
 
+    const std::vector<sf::ConvexShape> &GetPolygons() const noexcept { return m_polygons; }
+    sf::ConvexShape &GetPolygon(const sf::Vector2f &position);
+
 protected:
     void GenerateVoronoi();
     static jcv_rect ConvertBoundingBox(const sf::FloatRect &boundingBox);
@@ -37,6 +41,7 @@ private:
     std::optional<jcv_diagram> m_diagram;
     sf::FloatRect m_boundingBox;
     std::vector<sf::Vector2f> m_points;
+    std::vector<sf::ConvexShape> m_polygons;
 
     std::vector<sf::Color> m_fillColors;
     sf::Color m_outlineColor;
