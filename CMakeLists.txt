@@ -73,6 +73,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     deps/SFML/include
     deps/SFGUI/include
     deps/Box2D/include
+    deps/JCash/include
   )
   target_link_directories(Client PRIVATE
     deps/SFML/lib
@@ -143,6 +144,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     deps/SFML/include
     deps/SFGUI/include
     deps/Box2D/include
+    deps/JCash/include
   )
   target_link_directories(Server PRIVATE
     deps/SFML/lib

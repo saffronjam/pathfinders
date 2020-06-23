@@ -1,2 +1,5 @@
 Remove Box2D and Camera include in ClientMainScreen.h
 Add DrawLine to Camera and Window
+Add JCash header file in deps and CMakeLists.txt (Voronoi)
+Add Voronoi.h and Voronoi.cpp
+Change exception string to from "V-2DEngine" to "V-2DFramework"

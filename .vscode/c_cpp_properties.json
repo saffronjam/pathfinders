@@ -20,7 +20,8 @@
                 "${workspaceFolder}/src/throwmacros",
                 "${workspaceFolder}/deps/SFML/include",
                 "${workspaceFolder}/deps/SFGUI/include",
-                "${workspaceFolder}/deps/Box2D/include"
+                "${workspaceFolder}/deps/Box2D/include",
+                "${workspaceFolder}/deps/JCash/include"
             ],
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "C:\\mingw64\\bin\\g++.exe",
