@@ -44,6 +44,14 @@ void Voronoi::SetBoundingBox(const sf::FloatRect &boundingBox)
     GenerateVoronoi();
 }
 
+void Voronoi::SetOutlineThickness(float thickness) noexcept
+{
+    for (auto &polygon : m_polygons)
+    {
+        polygon.setOutlineThickness(thickness);
+    }
+}
+
 void Voronoi::Relax(int iterations)
 {
     if (m_diagram.has_value())
@@ -80,13 +88,22 @@ sf::ConvexShape &Voronoi::GetPolygon(const sf::Vector2f &position)
     sf::ConvexShape *closest = nullptr;
     for (auto &polygon : m_polygons)
     {
-        float distance = vl::LengthSq(Lib::Mid(polygon) - position);
+        float distance = vl::LengthSq(polygon.getVoronoiPoint() - position);
         if (distance < minDistance)
         {
             minDistance = distance;
             closest = &polygon;
         }
     }
+    printf("Found a polygon with color: ");
+    auto color = closest->getFillColor();
+    if (color == sf::Color::Green)
+        printf("Green");
+    if (color == sf::Color::Red)
+        printf("Red");
+    if (color == sf::Color::Blue)
+        printf("Blue");
+    printf("\n");
 
     if (closest != nullptr)
     {
@@ -113,6 +130,28 @@ void Voronoi::GenerateVoronoi()
         }
         m_diagram = jcv_diagram();
         jcv_diagram_generate(m_points.size(), reinterpret_cast<const jcv_point *>(m_points.data()), &rect, nullptr, &m_diagram.value());
+
+        // Generate polygon list from sites
+        const jcv_site *sites = jcv_diagram_get_sites(&m_diagram.value());
+        m_polygons.clear();
+        m_polygons.reserve(m_diagram.value().numsites);
+        for (int i = 0; i < m_diagram.value().numsites; ++i)
+        {
+            const jcv_site *site = &sites[i];
+
+            std::vector<sf::Vector2f> polygonPoints;
+            for (jcv_graphedge *edge = site->edges; edge != nullptr; edge = edge->next)
+            {
+                polygonPoints.emplace_back(edge->pos[0].x, edge->pos[0].y);
+            }
+            sf::ConvexShape convexShape = Lib::CreateConvexShape(polygonPoints);
+            Voronoi::Polygon polygon(convexShape, vl::ConvertTo<sf::Vector2f>(site->p));
+            polygon.setFillColor(m_fillColors[i % m_fillColors.size()]);
+            polygon.setOutlineColor(m_outlineColor);
+            polygon.setOutlineThickness(1);
+
+            m_polygons.emplace_back(polygon);
+        }
     }
 }
 
@@ -125,36 +164,10 @@ void Voronoi::draw(sf::RenderTarget &target, sf::RenderStates states) const
 {
     if (m_diagram.has_value())
     {
-        sf::VertexArray triangle(sf::PrimitiveType::Triangles, 3);
-        const jcv_site *sites = jcv_diagram_get_sites(&m_diagram.value());
-        for (int i = 0; i < m_diagram.value().numsites; ++i)
+        for (auto &polygon : m_polygons)
         {
-            const jcv_site *site = &sites[i];
-
-            for (jcv_graphedge *edge = site->edges; edge != nullptr; edge = edge->next)
-            {
-                triangle[0].position = vl::ConvertTo<sf::Vector2f>(site->p);
-                triangle[1].position = vl::ConvertTo<sf::Vector2f>(edge->pos[0]);
-                triangle[2].position = vl::ConvertTo<sf::Vector2f>(edge->pos[1]);
-                triangle[0].color = sf::Color::Blue;
-                triangle[1].color = sf::Color::Blue;
-                triangle[2].color = sf::Color::Blue;
-                Window::GetSFWindow()->draw(triangle, states);
-            }
-        }
-        if (m_outlineColor != sf::Color::Transparent)
-        {
-            sf::VertexArray line(sf::PrimitiveType::Lines, 2);
-            for (const jcv_edge *edge = jcv_diagram_get_edges(&m_diagram.value()); edge != nullptr; edge = jcv_diagram_get_next_edge(edge))
-            {
-                sf::Vector2f first(edge->pos[0].x, edge->pos[0].y);
-                sf::Vector2f second(edge->pos[1].x, edge->pos[1].y);
-                line[0].position = first;
-                line[1].position = second;
-                line[0].color = m_outlineColor;
-                line[1].color = m_outlineColor;
-                Window::GetSFWindow()->draw(line, states);
-            }
+            target.draw(polygon, states);
+            Camera::DrawPoint(polygon.getVoronoiPoint());
         }
     }
     else

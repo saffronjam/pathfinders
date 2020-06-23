@@ -7,6 +7,8 @@
 #include <SFML/Graphics/ConvexShape.hpp>
 #include <SFML/Graphics/Color.hpp>
 
+#include "VectorLib.h"
+
 #define GET_VARIABLE_NAME(Variable) (#Variable)
 
 template <typename T = float>
@@ -40,6 +42,15 @@ public:
 
     template <typename T>
     static sf::Color ValueToSpectrum(T value, T maxValue);
+
+    static sf::ConvexShape CreateConvexShape(const std::vector<sf::Vector2f> &points);
+
+    template <typename T>
+    static std::vector<sf::Vector2<T>> WrapPoints(const std::vector<sf::Vector2<T>> &points);
+
+private:
+    template <typename T>
+    static void ClearPointsRecursively(const std::pair<sf::Vector2<T>, sf::Vector2<T>> &line, const std::vector<sf::Vector2<T>> &points, std::vector<sf::Vector2<T>> &finalPoints);
 };
 
 template <typename T, typename U>
@@ -123,3 +134,94 @@ sf::Color Lib::ValueToSpectrum(T value, T maxValue)
         break;
     }
 };
+
+template <typename T>
+std::vector<sf::Vector2<T>> Lib::WrapPoints(const std::vector<sf::Vector2<T>> &points)
+{
+    std::vector<sf::Vector2f> finalPoints;
+
+    std::vector<sf::Vector2f> topPoints;
+    std::vector<sf::Vector2f> bottomPoints;
+    std::pair<sf::Vector2f, sf::Vector2f> startLine;
+
+    sf::Vector2f biggestX = {static_cast<T>(-std::numeric_limits<T>::infinity()), -std::numeric_limits<T>::infinity()};
+    sf::Vector2f smallestX = {static_cast<T>(std::numeric_limits<T>::infinity()), std::numeric_limits<T>::infinity()};
+    for (auto &point : points)
+    {
+        if (point.x > biggestX.x)
+        {
+            biggestX = point;
+        }
+        if (point.x < smallestX.x)
+        {
+            smallestX = point;
+        }
+    }
+    startLine = std::make_pair(smallestX, biggestX);
+
+    //Inital removal of center-points
+    for (auto &point : points)
+    {
+        if (!vl::IsLeft(startLine.first, startLine.second, point))
+        {
+            topPoints.emplace_back(point);
+        }
+        else
+        {
+            bottomPoints.emplace_back(point);
+        }
+    }
+
+    Lib::ClearPointsRecursively(startLine, topPoints, finalPoints);
+    Lib::ClearPointsRecursively(std::make_pair(startLine.second, startLine.first), bottomPoints, finalPoints);
+
+    return finalPoints;
+}
+
+template <typename T>
+void Lib::ClearPointsRecursively(const std::pair<sf::Vector2<T>, sf::Vector2<T>> &line, const std::vector<sf::Vector2<T>> &points, std::vector<sf::Vector2<T>> &finalPoints)
+{
+    //Find the point which is the furthest away
+    float biggestDistance = 0.0f;
+    int biggestIndex = -1;
+    for (size_t i = 0; i < points.size(); i++)
+    {
+        float currentCheck = vl::DistanceFromLine(line.first, line.second, points[i]);
+        if (currentCheck > biggestDistance)
+        {
+            biggestDistance = currentCheck;
+            biggestIndex = i;
+        }
+    }
+
+    auto lineCpy = line;
+    //Continues only if it can find a new point
+    if (biggestIndex != -1)
+    {
+        sf::Vector2f furthest = points[biggestIndex];
+        std::pair<sf::Vector2f, sf::Vector2f> newLine = {lineCpy.first, furthest};
+        lineCpy.first = furthest;
+
+        std::vector<sf::Vector2f> consideredPoints1;
+        std::vector<sf::Vector2f> consideredPoints2;
+        for (auto &point : points)
+        {
+            if (!vl::IsLeft(newLine.first, newLine.second, point))
+            {
+                consideredPoints1.push_back(point);
+            }
+            else if (!vl::IsLeft(lineCpy.first, lineCpy.second, point))
+            {
+                consideredPoints2.push_back(point);
+            }
+        }
+
+        ClearPointsRecursively(newLine, consideredPoints1, finalPoints);
+        ClearPointsRecursively(lineCpy, consideredPoints2, finalPoints);
+    }
+    else
+    {
+        finalPoints.push_back(lineCpy.first);
+        finalPoints.push_back(lineCpy.second);
+    }
+}

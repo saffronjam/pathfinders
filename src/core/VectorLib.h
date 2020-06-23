@@ -48,6 +48,8 @@ public:
     static sf::Vector3<T> ByColor(const sf::Color &color);
     template <typename T, typename U>
     static T ConvertTo(const U &in);
+    template <typename T>
+    static bool IsLeft(const sf::Vector2<T> &a, const sf::Vector2<T> &b, const sf::Vector2<T> &point);
 };
 
 template <typename T>
@@ -172,4 +174,10 @@ template <typename T, typename U>
 T vl::ConvertTo(const U &in)
 {
     return T(in.x, in.y);
+}
+
+template <typename T>
+bool vl::IsLeft(const sf::Vector2<T> &a, const sf::Vector2<T> &b, const sf::Vector2<T> &point)
+{
+    return (b.x - a.x) * (point.y - a.y) - (b.y - a.y) * (point.x - a.x) > 0.0f;
 }
