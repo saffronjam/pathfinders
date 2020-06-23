@@ -235,7 +235,7 @@ const char *INetMgr::Exception::what() const noexcept
 }
 const char *INetMgr::Exception::GetType() const noexcept
 {
-    return "V-2DEngine NetMgr Exception";
+    return "V-2DFramework NetMgr Exception";
 }
 const char *INetMgr::Exception::GetErrorString() const noexcept
 {

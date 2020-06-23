@@ -143,7 +143,7 @@ const char *IApp::Exception::what() const noexcept
 
 const char *IApp::Exception::GetType() const noexcept
 {
-    return "V-2DEngine App Exception";
+    return "V-2DFramework App Exception";
 }
 
 const char *IApp::Exception::GetErrorString() const noexcept

@@ -34,7 +34,7 @@ public:
         }
         virtual const char *GetType() const noexcept override
         {
-            return "V-2DEngine ResourceMgr Exception";
+            return "V-2DFramework ResourceMgr Exception";
         }
         const char *GetErrorString() const noexcept
         {

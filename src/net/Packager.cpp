@@ -96,7 +96,7 @@ const char *Packager::Exception::what() const noexcept
 }
 const char *Packager::Exception::GetType() const noexcept
 {
-    return "V-2DEngine Packager Exception";
+    return "V-2DFramework Packager Exception";
 }
 const char *Packager::Exception::GetErrorString() const noexcept
 {

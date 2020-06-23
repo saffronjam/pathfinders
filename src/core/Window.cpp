@@ -236,7 +236,7 @@ const char *Window::Exception::what() const noexcept
 
 const char *Window::Exception::GetType() const noexcept
 {
-    return "V-2DEngine Window Exception";
+    return "V-2DFramework Window Exception";
 }
 
 const char *Window::Exception::GetErrorString() const noexcept
