@@ -31,8 +31,6 @@ public:
 
     void AssignNodes(const std::map<long, Node> &nodes) noexcept;
     void SetTraverseGrid(const TraverseGrid *traverseGrid) noexcept { m_traverseGrid = traverseGrid; }
-    void SetStart(long startUID) noexcept;
-    void SetGoal(long goalUID) noexcept;
     void SetSleepDelay(sf::Time delay);
 
     void Start();

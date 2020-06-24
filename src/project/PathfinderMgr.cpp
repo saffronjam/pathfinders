@@ -83,12 +83,23 @@ void PathfinderMgr::Reset()
 {
     for (auto &pathfinder : m_pathfinders)
         pathfinder->Reset();
+    m_traverseGrid.ClearObstacles();
 }
 
 void PathfinderMgr::SetSleepDelay(sf::Time delay) noexcept
 {
     for (auto &pathfinder : m_pathfinders)
         pathfinder->SetSleepDelay(delay);
+}
+
+void PathfinderMgr::SetVisType(TraverseGrid::Type type)
+{
+    m_traverseGrid.ChangeGridType(type);
+    for (auto &pathfinder : m_pathfinders)
+    {
+        pathfinder->Reset();
+        pathfinder->AssignNodes(m_traverseGrid.GetNodes());
+    }
 }
 
 void PathfinderMgr::Activate(const std::string &name)

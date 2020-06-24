@@ -37,6 +37,7 @@ public:
 
     void SetSleepDelay(sf::Time delay) noexcept;
     void SetEditState(EditState editState) noexcept { m_editState = editState; }
+    void SetVisType(TraverseGrid::Type type);
 
     void Activate(const std::string &name);
     void Deactivate(const std::string &name);

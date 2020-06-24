@@ -152,9 +152,31 @@ void ClientMainScreen::OnEntry()
     allButtonBox->Pack(buttonsBoxRow0, false);
     allButtonBox->Pack(buttonsBoxRow1, false);
 
+    // ------------- VisType, Voronoi/Squares.. --------------
+    auto visStyleComboBox = sfg::ComboBox::Create();
+    visStyleComboBox->AppendItem("Squares");
+    visStyleComboBox->AppendItem("Voronoi");
+    visStyleComboBox->SelectItem(0);
+
+    visStyleComboBox->GetSignal(sfg::ComboBox::OnSelect).Connect([visStyleComboBox, this] {
+        const auto selectedItem = visStyleComboBox->GetSelectedItem();
+        switch (selectedItem)
+        {
+        case 0:
+            m_pathfinderMgr.SetVisType(TraverseGrid::Type::Square);
+            break;
+        case 1:
+            m_pathfinderMgr.SetVisType(TraverseGrid::Type::Voronoi);
+            break;
+        default:
+            break;
+        }
+    });
+
     // -------------- ADD TO MAIN BOX ------------------
     auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
     mainBox->Pack(allButtonBox, false);
+    mainBox->Pack(visStyleComboBox, false);
     mainBox->Pack(checkButtonsBox, false);
     mainBox->Pack(editstateBox, false);
     mainBox->Pack(scaleBox, false);
