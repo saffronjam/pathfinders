@@ -36,6 +36,7 @@ public:
 
     void SetIsObstacle(long uid, bool isObstacle);
     void ClearObstacles();
+    void ResetStartGoal();
 
 private:
     void DrawSquareGrid();
@@ -44,7 +45,6 @@ private:
     void GenerateGrids();
     void CalculateSquareGridNeighbors();
     void CalculateVoronoiGridNeighbors();
-    void ResetStartGoal();
 
     void ClearNodeColor(long uid);
     void SetNodeColor(long uid, const sf::Color &color);

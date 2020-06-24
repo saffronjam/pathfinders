@@ -138,6 +138,12 @@ void TraverseGrid::ClearObstacles()
     }
 }
 
+void TraverseGrid::ResetStartGoal()
+{
+    SetStart(-Camera::GetOffset());
+    SetGoal(Camera::GetOffset() - sf::Vector2f(200.0f, 0.0f));
+}
+
 void TraverseGrid::DrawSquareGrid()
 {
     for (auto &[uid, rect] : m_squareGrid)
@@ -256,12 +262,6 @@ void TraverseGrid::CalculateVoronoiGridNeighbors()
             m_voronoiGridNodes.at(i).AddNeighbor(nodeNeighborUID, vl::Length(Lib::Mid(polygons[i]) - m_voronoiGridNodes.at(nodeNeighborUID).GetPosition()));
         }
     }
-}
-
-void TraverseGrid::ResetStartGoal()
-{
-    SetStart(-Camera::GetOffset());
-    SetGoal(Camera::GetOffset() - sf::Vector2f(200.0f, 0.0f));
 }
 
 void TraverseGrid::ClearNodeColor(long uid)

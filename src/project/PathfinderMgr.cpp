@@ -97,6 +97,7 @@ void PathfinderMgr::Reset()
     for (auto &pathfinder : m_pathfinders)
         pathfinder->Reset();
     m_traverseGrid.ClearObstacles();
+    m_traverseGrid.ResetStartGoal();
 }
 
 void PathfinderMgr::SetSleepDelay(sf::Time delay) noexcept
