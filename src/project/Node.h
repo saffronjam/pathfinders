@@ -16,8 +16,8 @@ public:
     void AddNeighbor(long uid, float cost);
     void RemoveNeighbor(long uid) { m_neighbors.erase(uid); }
 
+    void ResetCosts() noexcept;
     void ResetPath() noexcept;
-    void ResetAll() noexcept;
 
     int GetUID() const noexcept { return m_uid; }
     const sf::Vector2f &GetPosition() const noexcept { return m_position; }
@@ -27,6 +27,7 @@ public:
     float GetHCost() const noexcept { return m_HCost; }
     float GetGCost() const noexcept { return m_GCost; }
     float GetUCost(long uid) const { return m_UCosts.at(uid); }
+    bool WasVisited() const noexcept { return m_viaUID != -1; }
 
     void SetVia(long uid) { m_viaUID = uid; }
     void SetFCost(float FCost) { m_FCost = FCost; }

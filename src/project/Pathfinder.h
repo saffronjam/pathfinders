@@ -33,7 +33,7 @@ public:
     void SetTraverseGrid(const TraverseGrid *traverseGrid) noexcept { m_traverseGrid = traverseGrid; }
     void SetSleepDelay(sf::Time delay);
 
-    void Start(long startUID, long goalUID, std::vector<long> subGoalsUIDs);
+    void Start(long startUID, long goalUID, const std::vector<long> &subGoalsUIDs);
     void Pause();
     void Resume();
     void Restart();
@@ -46,14 +46,15 @@ public:
 protected:
     std::map<long, Node> &GetNodes() noexcept { return m_nodes; }
     Node &GetNode(long uid) { return GetNodes().at(uid); };
-    virtual void FindPath(long startUID, long goalUID, std::vector<long> subGoalsUIDs) = 0;
+    virtual void FindPath(long startUID, long goalUID) = 0;
 
     void PauseCheck();
     void SleepDelay();
 
 private:
-    void FindPathThreadFn(long startUID, long goalUID, std::vector<long> subGoalsUIDs);
-    void OnFinish();
+    void FindPathThreadFn(long startUID, long goalUID, const std::vector<long> &subGoalsUIDs);
+    bool CheckFindPathResult(long fromUID, long toUID);
+    void AppendFinalPath(long startUID, long goalUID);
     void CollectFinder();
 
 protected:
@@ -70,9 +71,5 @@ protected:
 
 private:
     std::map<long, Node> m_nodes;
-    long m_startUID;
-    long m_goalUID;
-    std::vector<long> m_subGoalUIDs;
-
     std::set<const Node *> m_finalPath;
 };

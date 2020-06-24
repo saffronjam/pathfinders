@@ -16,14 +16,14 @@ void Node::AddNeighbor(long uid, float cost)
     m_UCosts.emplace(std::make_pair(uid, cost));
 }
 
-void Node::ResetPath() noexcept
+void Node::ResetCosts() noexcept
 {
     SetFCost(-1.0f);
     SetGCost(-1.0f);
-    SetVia(-1);
 }
 
-void Node::ResetAll() noexcept
+void Node::ResetPath() noexcept
 {
-    ResetPath();
+    ResetCosts();
+    SetVia(-1);
 }

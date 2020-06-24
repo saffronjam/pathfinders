@@ -5,7 +5,7 @@
 class AStar : public Pathfinder
 {
 public:
-    void FindPath(long startUID, long goalUID, std::vector<long> subGoalsUIDs) override;
+    void FindPath(long startUID, long goalUID) override;
 
     const std::string &GetName() override { return m_name; }
 

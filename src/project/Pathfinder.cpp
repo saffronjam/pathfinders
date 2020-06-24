@@ -68,7 +68,7 @@ void Pathfinder::AssignNodes(const std::map<long, Node> &nodes) noexcept
     m_nodes = nodes;
 }
 
-void Pathfinder::Start(long startUID, long goalUID, std::vector<long> subGoalsUIDs)
+void Pathfinder::Start(long startUID, long goalUID, const std::vector<long> &subGoalsUIDs)
 {
     if (m_state == State::Finished)
     {
@@ -114,7 +114,7 @@ void Pathfinder::Reset()
         CollectFinder();
         m_state = State::WaitingForStart;
         for (auto &[uid, node] : m_nodes)
-            node.ResetAll();
+            node.ResetPath();
     }
 }
 
@@ -147,25 +147,59 @@ void Pathfinder::SleepDelay()
     }
 }
 
-void Pathfinder::FindPathThreadFn(long startUID, long goalUID, std::vector<long> subGoalsUIDs)
+void Pathfinder::FindPathThreadFn(long startUID, long goalUID, const std::vector<long> &subGoalsUIDs)
 {
-    FindPath(startUID, goalUID, subGoalsUIDs);
-    if (m_state != State::BeingCollected)
-        OnFinish();
+    m_finalPath.clear();
+
+    long fromUID = startUID;
+    long toUID;
+    for (int i = 0; i < subGoalsUIDs.size(); i++)
+    {
+        toUID = subGoalsUIDs[i];
+        FindPath(fromUID, toUID);
+        bool result = CheckFindPathResult(fromUID, toUID);
+        if (!result)
+        {
+            m_pathWasFound = false;
+            m_state = State::Finished;
+            return;
+        }
+        fromUID = subGoalsUIDs[i];
+    };
+    toUID = goalUID;
+    FindPath(fromUID, toUID);
+    m_pathWasFound = CheckFindPathResult(fromUID, toUID);
+    m_state = State::Finished;
 }
 
-void Pathfinder::OnFinish()
+bool Pathfinder::CheckFindPathResult(long fromUID, long toUID)
 {
-    m_pathWasFound = static_cast<bool>(GetNodes().at(m_traverseGrid->GetGoalUID()).GetViaUID() != -1);
-    if (m_pathWasFound)
+    if (m_state == State::BeingCollected)
+        return false;
+
+    bool foundPath = (GetNodes().at(toUID).WasVisited());
+    if (foundPath)
     {
-        m_finalPath.clear();
-        for (const Node *node = &GetNode(m_traverseGrid->GetGoalUID()); node != &GetNode(m_traverseGrid->GetStartUID()); node = &GetNode(node->GetViaUID()))
+        AppendFinalPath(fromUID, toUID);
+        for (auto &[uid, node] : m_nodes)
         {
-            m_finalPath.emplace(node);
+            node.ResetPath();
         }
+        return true;
     }
-    m_state = State::Finished;
+    else
+    {
+        m_pathWasFound = false;
+        return false;
+    }
+}
+
+void Pathfinder::AppendFinalPath(long startUID, long goalUID)
+{
+    for (const Node *node = &GetNode(goalUID); node != &GetNode(startUID); node = &GetNode(node->GetViaUID()))
+    {
+        m_finalPath.emplace(node);
+    }
 }
 
 void Pathfinder::CollectFinder()

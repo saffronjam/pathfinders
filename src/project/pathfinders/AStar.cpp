@@ -1,6 +1,6 @@
 #include "AStar.h"
 
-void AStar::FindPath(long startUID, long goalUID, std::vector<long> subGoalsUIDs)
+void AStar::FindPath(long startUID, long goalUID)
 {
     m_checkingQueue.push_front(startUID);
     m_maxCost = -1.0f;
