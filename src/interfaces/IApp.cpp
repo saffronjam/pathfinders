@@ -3,7 +3,7 @@
 
 IApp::IApp()
     : m_videoMode(sf::VideoMode::getDesktopMode()),
-      m_window("V-2DFramework", m_videoMode.width * 0.4f, m_videoMode.height * 0.4f),
+      m_window("V-Pathfinders", m_videoMode.width * 0.7f, m_videoMode.height * 0.7f),
       m_screenList(std::make_unique<ScreenList>(this)),
       m_currentScreen(nullptr),
       m_isRunning(true)

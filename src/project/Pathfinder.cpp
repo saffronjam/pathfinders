@@ -28,7 +28,7 @@ void Pathfinder::DrawViaConnections()
     for (auto &[uid, node] : m_nodes)
     {
         if (node.GetVia())
-            Camera::DrawLine(node.GetPosition(), node.GetVia()->GetPosition());
+            Camera::DrawLine(node.GetPosition(), node.GetVia()->GetPosition(), sf::Color(150, 150, 150, 20));
     }
 }
 
@@ -38,7 +38,7 @@ void Pathfinder::DrawNeighbors()
     {
         for (auto &neighbor : node.GetNeighbors())
         {
-            Camera::DrawLine(node.GetPosition(), neighbor->GetPosition());
+            Camera::DrawLine(node.GetPosition(), neighbor->GetPosition(), sf::Color::Magenta);
         }
     }
 }

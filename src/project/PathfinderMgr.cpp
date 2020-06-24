@@ -48,8 +48,8 @@ void PathfinderMgr::DrawPathfinders()
 {
     for (auto &pathfinder : m_pathfinders)
     {
-        pathfinder->DrawAnticipation();
         pathfinder->DrawViaConnections();
+        pathfinder->DrawAnticipation();
         if (pathfinder->IsDone())
             pathfinder->DrawResult();
     }
