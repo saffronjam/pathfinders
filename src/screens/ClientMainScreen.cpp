@@ -129,12 +129,16 @@ void ClientMainScreen::OnEntry()
     auto editstateRemObs = sfg::RadioButton::Create("Remove obstacle", editstateNone->GetGroup());
     auto editstateSetStart = sfg::RadioButton::Create("Set start", editstateNone->GetGroup());
     auto editstateSetGoal = sfg::RadioButton::Create("Set goal", editstateNone->GetGroup());
+    auto editstateAddSubGoal = sfg::RadioButton::Create("Add sub-goal", editstateNone->GetGroup());
+    auto editstateRemSubGoal = sfg::RadioButton::Create("Remove sub-goal", editstateNone->GetGroup());
 
     editstateNone->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_pathfinderMgr.SetEditState(PathfinderMgr::EditState::None); });
     editstateAddObs->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_pathfinderMgr.SetEditState(PathfinderMgr::EditState::AddObstacles); });
     editstateRemObs->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_pathfinderMgr.SetEditState(PathfinderMgr::EditState::RemObstacles); });
     editstateSetStart->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_pathfinderMgr.SetEditState(PathfinderMgr::EditState::SetStart); });
     editstateSetGoal->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_pathfinderMgr.SetEditState(PathfinderMgr::EditState::SetGoal); });
+    editstateAddSubGoal->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_pathfinderMgr.SetEditState(PathfinderMgr::EditState::AddSubGoal); });
+    editstateRemSubGoal->GetSignal(sfg::ToggleButton::OnToggle).Connect([this] { m_pathfinderMgr.SetEditState(PathfinderMgr::EditState::RemSubGoal); });
 
     editstateNone->SetActive(true);
 
@@ -144,6 +148,8 @@ void ClientMainScreen::OnEntry()
     editstateBox->Pack(editstateRemObs);
     editstateBox->Pack(editstateSetStart);
     editstateBox->Pack(editstateSetGoal);
+    editstateBox->Pack(editstateAddSubGoal);
+    editstateBox->Pack(editstateRemSubGoal);
 
     // -------------- ALL BUTTONS ------------------
     auto startButton = sfg::Button::Create("Start");

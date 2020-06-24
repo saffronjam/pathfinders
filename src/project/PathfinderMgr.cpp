@@ -24,17 +24,30 @@ void PathfinderMgr::Update()
         switch (m_editState)
         {
         case EditState::AddObstacles:
-            m_traverseGrid.SetIsObstacle(nodeUID, true);
+            m_traverseGrid.AddObstacle(nodeUID);
             break;
         case EditState::RemObstacles:
-            m_traverseGrid.SetIsObstacle(nodeUID, false);
+            m_traverseGrid.RemoveObstacle(nodeUID);
             break;
         case EditState::SetStart:
             m_traverseGrid.SetStart(nodeUID);
             break;
         case EditState::SetGoal:
+        {
             m_traverseGrid.SetGoal(nodeUID);
             break;
+        }
+        case EditState::AddSubGoal:
+        {
+            m_traverseGrid.AddSubGoal(nodeUID);
+            break;
+        }
+        case EditState::RemSubGoal:
+        {
+            m_traverseGrid.RemoveSubGoal(nodeUID);
+            break;
+        }
+        break;
         default:
             break;
         }
@@ -71,7 +84,7 @@ void PathfinderMgr::DrawPathfinders()
 void PathfinderMgr::Start()
 {
     for (auto &pathfinder : m_pathfinders)
-        pathfinder->Start();
+        pathfinder->Start(m_traverseGrid.GetStartUID(), m_traverseGrid.GetGoalUID(), m_traverseGrid.GetSubGoalUIDs());
 }
 
 void PathfinderMgr::Pause()
@@ -97,6 +110,7 @@ void PathfinderMgr::Reset()
     for (auto &pathfinder : m_pathfinders)
         pathfinder->Reset();
     m_traverseGrid.ClearObstacles();
+    m_traverseGrid.ClearSubGoals();
     m_traverseGrid.ResetStartGoal();
 }
 

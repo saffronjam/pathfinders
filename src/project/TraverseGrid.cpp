@@ -89,52 +89,41 @@ long TraverseGrid::GetNodeUID(const sf::Vector2f &position, Type type) const
     return closestUID;
 }
 
-void TraverseGrid::SetStart(const sf::Vector2f &start)
+bool TraverseGrid::IsClear(long uid) const noexcept
 {
-    SetStart(GetNodeUID(start));
+    return !IsObstacle(uid) &&
+           !IsStart(uid) &&
+           !IsGoal(uid) &&
+           !IsSubGoal(uid);
+}
+
+void TraverseGrid::SetStart(const sf::Vector2f &position)
+{
+    SetStart(GetNodeUID(position));
 }
 
 void TraverseGrid::SetStart(long uid)
 {
-    ClearNodeColor(m_startUID);
-    m_startUID = uid;
-    SetNodeColor(uid, m_startColor);
+    if (IsClear(uid))
+    {
+        ClearNodeColor(m_startUID);
+        m_startUID = uid;
+        SetNodeColor(uid, m_startColor);
+    }
 }
 
-void TraverseGrid::SetGoal(const sf::Vector2f &goal)
+void TraverseGrid::SetGoal(const sf::Vector2f &position)
 {
-    SetGoal(GetNodeUID(goal));
+    SetGoal(GetNodeUID(position));
 }
 
 void TraverseGrid::SetGoal(long uid)
 {
-    ClearNodeColor(m_goalUID);
-    m_goalUID = uid;
-    SetNodeColor(uid, m_goalColor);
-}
-
-void TraverseGrid::SetIsObstacle(long uid, bool isObstacle)
-{
-    if (uid == m_startUID || uid == m_goalUID)
-        return;
-
-    if (isObstacle)
+    if (IsClear(uid))
     {
-        m_obstacles.emplace(uid);
-        SetNodeColor(uid, m_obstacleColor);
-    }
-    else
-    {
-        m_obstacles.erase(uid);
-        ClearNodeColor(uid);
-    }
-}
-
-void TraverseGrid::ClearObstacles()
-{
-    for (auto &obstacle : m_obstacles)
-    {
-        SetIsObstacle(obstacle, false);
+        ClearNodeColor(m_goalUID);
+        m_goalUID = uid;
+        SetNodeColor(uid, m_goalColor);
     }
 }
 
@@ -142,6 +131,80 @@ void TraverseGrid::ResetStartGoal()
 {
     SetStart(-Camera::GetOffset());
     SetGoal(Camera::GetOffset() - sf::Vector2f(200.0f, 0.0f));
+}
+
+void TraverseGrid::AddSubGoal(const sf::Vector2f &position)
+{
+    AddSubGoal(GetNodeUID(position));
+}
+
+void TraverseGrid::AddSubGoal(long uid)
+{
+    if (IsClear(uid))
+    {
+        m_subGoalUIDs.push_back(uid);
+        SetNodeColor(uid, sf::Color::Blue);
+    }
+}
+
+void TraverseGrid::RemoveSubGoal(const sf::Vector2f &position)
+{
+    RemoveSubGoal(GetNodeUID(position));
+}
+
+void TraverseGrid::RemoveSubGoal(long uid)
+{
+    if (IsSubGoal(uid))
+    {
+        m_subGoalUIDs.erase(std::find(m_subGoalUIDs.begin(), m_subGoalUIDs.end(), uid));
+        ClearNodeColor(uid);
+    }
+}
+
+void TraverseGrid::ClearSubGoals()
+{
+    for (auto &uid : m_subGoalUIDs)
+    {
+        ClearNodeColor(uid);
+    }
+    m_subGoalUIDs.clear();
+}
+
+void TraverseGrid::AddObstacle(const sf::Vector2f &position)
+{
+    AddObstacle(GetNodeUID(position));
+}
+
+void TraverseGrid::AddObstacle(long uid)
+{
+    if (IsClear(uid))
+    {
+        m_obstacleUIDs.emplace(uid);
+        SetNodeColor(uid, m_obstacleColor);
+    }
+}
+
+void TraverseGrid::RemoveObstacle(const sf::Vector2f &position)
+{
+    RemoveObstacle(GetNodeUID(position));
+}
+
+void TraverseGrid::RemoveObstacle(long uid)
+{
+    if (IsObstacle(uid))
+    {
+        m_obstacleUIDs.erase(uid);
+        ClearNodeColor(uid);
+    }
+}
+
+void TraverseGrid::ClearObstacles()
+{
+    for (auto &uid : m_obstacleUIDs)
+    {
+        ClearNodeColor(uid);
+    }
+    m_obstacleUIDs.clear();
 }
 
 void TraverseGrid::DrawSquareGrid()

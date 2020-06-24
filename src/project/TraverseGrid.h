@@ -25,18 +25,31 @@ public:
     long GetNodeUID(const sf::Vector2f &position, Type type) const;
     long GetStartUID() const noexcept { return m_startUID; }
     long GetGoalUID() const noexcept { return m_goalUID; }
-    bool IsObstacle(long uid) const { return m_obstacles.find(uid) != m_obstacles.end(); }
+    std::vector<long> &GetSubGoalUIDs() noexcept { return m_subGoalUIDs; }
+
+    bool IsObstacle(long uid) const { return m_obstacleUIDs.find(uid) != m_obstacleUIDs.end(); }
     bool IsStart(long uid) const noexcept { return m_startUID == uid; }
     bool IsGoal(long uid) const noexcept { return m_goalUID == uid; }
+    bool IsSubGoal(long uid) const noexcept { return std::find(m_subGoalUIDs.begin(), m_subGoalUIDs.end(), uid) != m_subGoalUIDs.end(); }
+    bool IsClear(long uid) const noexcept;
 
-    void SetStart(const sf::Vector2f &start);
+    void SetStart(const sf::Vector2f &position);
     void SetStart(long uid);
-    void SetGoal(const sf::Vector2f &goal);
+    void SetGoal(const sf::Vector2f &position);
     void SetGoal(long uid);
-
-    void SetIsObstacle(long uid, bool isObstacle);
-    void ClearObstacles();
     void ResetStartGoal();
+
+    void AddSubGoal(const sf::Vector2f &position);
+    void AddSubGoal(long uid);
+    void RemoveSubGoal(const sf::Vector2f &position);
+    void RemoveSubGoal(long uid);
+    void ClearSubGoals();
+
+    void AddObstacle(const sf::Vector2f &position);
+    void AddObstacle(long uid);
+    void RemoveObstacle(const sf::Vector2f &position);
+    void RemoveObstacle(long uid);
+    void ClearObstacles();
 
 private:
     void DrawSquareGrid();
@@ -57,7 +70,7 @@ private:
 
     std::map<long, Node> m_squareGridNodes;
     std::map<long, Node> m_voronoiGridNodes;
-    std::set<long> m_obstacles;
+    std::set<long> m_obstacleUIDs;
 
     sf::FloatRect m_visRect;
     sf::Vector2i m_nBoxes;
@@ -72,4 +85,5 @@ private:
     // Cached
     long m_startUID;
     long m_goalUID;
+    std::vector<long> m_subGoalUIDs;
 };

@@ -1,15 +1,15 @@
 #include "AStar.h"
 
-void AStar::FindPath()
+void AStar::FindPath(long startUID, long goalUID, std::vector<long> subGoalsUIDs)
 {
-    m_checkingQueue.push_front(m_traverseGrid->GetStartUID());
+    m_checkingQueue.push_front(startUID);
     m_maxCost = -1.0f;
     while (m_checkingQueue.size() && m_state != State::BeingCollected)
     {
         PauseCheck();
         m_activeNodeUID = m_checkingQueue.front();
         Node &activeNode = GetNodes().at(m_activeNodeUID);
-        if (m_traverseGrid->IsGoal(m_activeNodeUID))
+        if (m_activeNodeUID == goalUID)
         {
             // Algorithm is done
             m_checkingQueue.clear();
@@ -35,7 +35,7 @@ void AStar::FindPath()
                         }
                         neighbor.SetVia(m_activeNodeUID);
                         neighbor.SetGCost(suggestedGCost);
-                        neighbor.SetHCost(vl::Length(neighbor.GetPosition() - GetNodes().at(m_traverseGrid->GetGoalUID()).GetPosition()));
+                        neighbor.SetHCost(vl::Length(neighbor.GetPosition() - GetNodes().at(goalUID).GetPosition()));
                         neighbor.SetFCost(suggestedGCost + neighbor.GetHCost());
                     }
                 }

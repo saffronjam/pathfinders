@@ -16,7 +16,9 @@ public:
         AddObstacles,
         RemObstacles,
         SetStart,
-        SetGoal
+        SetGoal,
+        AddSubGoal,
+        RemSubGoal
     };
 
 public:

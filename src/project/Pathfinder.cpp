@@ -68,7 +68,7 @@ void Pathfinder::AssignNodes(const std::map<long, Node> &nodes) noexcept
     m_nodes = nodes;
 }
 
-void Pathfinder::Start()
+void Pathfinder::Start(long startUID, long goalUID, std::vector<long> subGoalsUIDs)
 {
     if (m_state == State::Finished)
     {
@@ -78,7 +78,7 @@ void Pathfinder::Start()
     {
         CollectFinder();
         m_state = State::Finding;
-        m_finder = std::thread(Pathfinder::FindPathThreadFn, this);
+        m_finder = std::thread(Pathfinder::FindPathThreadFn, this, startUID, goalUID, subGoalsUIDs);
     }
 }
 
@@ -147,9 +147,9 @@ void Pathfinder::SleepDelay()
     }
 }
 
-void Pathfinder::FindPathThreadFn()
+void Pathfinder::FindPathThreadFn(long startUID, long goalUID, std::vector<long> subGoalsUIDs)
 {
-    FindPath();
+    FindPath(startUID, goalUID, subGoalsUIDs);
     if (m_state != State::BeingCollected)
         OnFinish();
 }
