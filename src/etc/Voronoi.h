@@ -3,6 +3,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
+#include <set>
 #include <cstring>
 
 #include <SFML/Graphics/Rect.hpp>
@@ -30,10 +31,15 @@ public:
         {
         }
 
-        void setVoronoiPoint(const sf::Vector2f &voronoiPoint) noexcept { m_voronoiPoint = voronoiPoint; }
+        void addNeighbor(Polygon *neighbor) { m_neighbors.emplace(neighbor); }
+
         const sf::Vector2f &getVoronoiPoint() const noexcept { return m_voronoiPoint; }
+        const std::set<Polygon *> &getNeighbors() const noexcept { return m_neighbors; }
+
+        void setVoronoiPoint(const sf::Vector2f &voronoiPoint) noexcept { m_voronoiPoint = voronoiPoint; }
 
     private:
+        std::set<Polygon *> m_neighbors;
         sf::Vector2f m_voronoiPoint;
     };
 
@@ -46,13 +52,13 @@ public:
     void SetPoints(const std::vector<sf::Vector2f> &points);
     void SetBoundingBox(const sf::FloatRect &boundingBox);
     void SetFillColors(const std::vector<sf::Color> &fillColors) noexcept { m_fillColors = fillColors; }
-    void SetOutlineColor(const sf::Color &color) noexcept { m_outlineColor = m_outlineColor; }
+    void SetOutlineColor(const sf::Color &color) noexcept;
     void SetOutlineThickness(float thickness) noexcept;
 
     void Relax(int iterations = 1);
 
     const std::vector<Voronoi::Polygon> &GetPolygons() const noexcept { return m_polygons; }
-    sf::ConvexShape &GetPolygon(const sf::Vector2f &position);
+    Voronoi::Polygon &GetPolygon(const sf::Vector2f &position);
 
 protected:
     void GenerateVoronoi();
@@ -67,7 +73,6 @@ private:
     std::vector<Voronoi::Polygon> m_polygons;
 
     std::vector<sf::Color> m_fillColors;
-    sf::Color m_outlineColor;
 
 public:
     class Exception : public IException

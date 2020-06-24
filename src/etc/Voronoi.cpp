@@ -10,16 +10,14 @@ Voronoi::Voronoi()
 Voronoi::Voronoi(const sf::FloatRect &boundingBox, const std::vector<sf::Vector2f> &points)
     : m_boundingBox(boundingBox),
       m_points(m_points),
-      m_fillColors({sf::Color::Red, sf::Color::Green, sf::Color::Blue}),
-      m_outlineColor(sf::Color::White)
+      m_fillColors({sf::Color::Transparent})
 {
     GenerateVoronoi();
 }
 
 Voronoi::Voronoi(const sf::FloatRect &boundingBox, int nRandomPoints)
     : m_boundingBox(boundingBox),
-      m_fillColors({sf::Color::Red, sf::Color::Green, sf::Color::Blue}),
-      m_outlineColor(sf::Color::White)
+      m_fillColors({sf::Color::Transparent})
 {
     for (int i = 0; i < nRandomPoints; i++)
         m_points.push_back(Random::Vec2(boundingBox.left, boundingBox.top, boundingBox.left + boundingBox.width, boundingBox.top + boundingBox.height));
@@ -42,6 +40,14 @@ void Voronoi::SetBoundingBox(const sf::FloatRect &boundingBox)
 {
     m_boundingBox = boundingBox;
     GenerateVoronoi();
+}
+
+void Voronoi::SetOutlineColor(const sf::Color &color) noexcept
+{
+    for (auto &polygon : m_polygons)
+    {
+        polygon.setOutlineColor(color);
+    }
 }
 
 void Voronoi::SetOutlineThickness(float thickness) noexcept
@@ -82,10 +88,10 @@ void Voronoi::Relax(int iterations)
     }
 }
 
-sf::ConvexShape &Voronoi::GetPolygon(const sf::Vector2f &position)
+Voronoi::Polygon &Voronoi::GetPolygon(const sf::Vector2f &position)
 {
     float minDistance = std::numeric_limits<float>::infinity();
-    sf::ConvexShape *closest = nullptr;
+    Voronoi::Polygon *closest = nullptr;
     for (auto &polygon : m_polygons)
     {
         float distance = vl::LengthSq(polygon.getVoronoiPoint() - position);
@@ -95,15 +101,6 @@ sf::ConvexShape &Voronoi::GetPolygon(const sf::Vector2f &position)
             closest = &polygon;
         }
     }
-    printf("Found a polygon with color: ");
-    auto color = closest->getFillColor();
-    if (color == sf::Color::Green)
-        printf("Green");
-    if (color == sf::Color::Red)
-        printf("Red");
-    if (color == sf::Color::Blue)
-        printf("Blue");
-    printf("\n");
 
     if (closest != nullptr)
     {
@@ -147,10 +144,24 @@ void Voronoi::GenerateVoronoi()
             sf::ConvexShape convexShape = Lib::CreateConvexShape(polygonPoints);
             Voronoi::Polygon polygon(convexShape, vl::ConvertTo<sf::Vector2f>(site->p));
             polygon.setFillColor(m_fillColors[i % m_fillColors.size()]);
-            polygon.setOutlineColor(m_outlineColor);
+            polygon.setOutlineColor(sf::Color::White);
             polygon.setOutlineThickness(1);
 
             m_polygons.emplace_back(polygon);
+        }
+
+        for (int i = 0; i < m_diagram.value().numsites; ++i)
+        {
+            const jcv_site *site = &sites[i];
+
+            for (jcv_graphedge *edge = site->edges; edge != nullptr; edge = edge->next)
+            {
+                if (edge->neighbor)
+                {
+                    Voronoi::Polygon &neighbor = GetPolygon(vl::ConvertTo<sf::Vector2f>(edge->neighbor->p));
+                    m_polygons[i].addNeighbor(&neighbor);
+                }
+            }
         }
     }
 }
@@ -167,7 +178,6 @@ void Voronoi::draw(sf::RenderTarget &target, sf::RenderStates states) const
         for (auto &polygon : m_polygons)
         {
             target.draw(polygon, states);
-            Camera::DrawPoint(polygon.getVoronoiPoint());
         }
     }
     else
