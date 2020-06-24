@@ -10,7 +10,7 @@ public:
     const std::string &GetName() override { return m_name; }
 
 private:
-    std::deque<Node *> m_checkingQueue;
+    std::deque<long> m_checkingQueue;
     float m_maxCost;
     std::string m_name = "A*";
 };

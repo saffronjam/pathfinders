@@ -2,7 +2,7 @@
 
 Pathfinder::Pathfinder()
     : m_state(State::WaitingForStart),
-      m_activeNode(nullptr),
+      m_activeNodeUID(-1),
       m_sleepDelay(sf::seconds(0.01f)),
       m_minorDelayTimer(0),
       m_minorDelay(false)
@@ -16,13 +16,13 @@ Pathfinder::~Pathfinder()
 
 void Pathfinder::DrawAnticipation()
 {
-    if (m_activeNode && m_state == State::Finding || m_state == State::Paused || m_state == State::Finished)
+    if (m_activeNodeUID != -1 && m_state == State::Finding || m_state == State::Paused || m_state == State::Finished)
     {
-        for (Node *node = m_activeNode; node->GetVia(); node = node->GetVia())
+        for (Node *node = &GetNode(m_activeNodeUID); node->GetViaUID() != -1; node = &GetNode(node->GetViaUID()))
         {
-            Camera::DrawLine(node->GetPosition(), node->GetVia()->GetPosition(), sf::Color::Red);
+            Camera::DrawLine(node->GetPosition(), GetNode(node->GetViaUID()).GetPosition(), sf::Color::Red);
         }
-        Camera::DrawPoint(m_activeNode->GetPosition(), sf::Color::Red);
+        Camera::DrawPoint(GetNodes().at(m_activeNodeUID).GetPosition(), sf::Color::Red);
     }
 }
 
@@ -30,8 +30,8 @@ void Pathfinder::DrawViaConnections()
 {
     for (auto &[uid, node] : m_nodes)
     {
-        if (node.GetVia())
-            Camera::DrawLine(node.GetPosition(), node.GetVia()->GetPosition(), sf::Color(150, 150, 150, 20));
+        if (node.GetViaUID() != -1)
+            Camera::DrawLine(node.GetPosition(), GetNode(node.GetViaUID()).GetPosition(), sf::Color(150, 150, 150, 20));
     }
 }
 
@@ -39,9 +39,9 @@ void Pathfinder::DrawNeighbors()
 {
     for (auto &[uid, node] : m_nodes)
     {
-        for (auto &neighbor : node.GetNeighbors())
+        for (auto &neighborUID : node.GetNeighbors())
         {
-            Camera::DrawLine(node.GetPosition(), neighbor->GetPosition(), sf::Color(255, 0, 255, 50));
+            Camera::DrawLine(node.GetPosition(), GetNode(neighborUID).GetPosition(), sf::Color(255, 0, 255, 50));
         }
     }
 }
@@ -54,12 +54,12 @@ void Pathfinder::DrawResult()
         {
             Camera::DrawPoint(node->GetPosition(), sf::Color::Green, 5.0f);
         }
-        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color::Green, 5.0f);
+        Camera::DrawPoint(GetNode(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color::Green, 5.0f);
     }
     else
     {
-        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color::Red, 10.0f);
-        Camera::DrawPoint(m_nodes.at(m_traverseGrid->GetGoalUID()).GetPosition(), sf::Color::Red, 10.0f);
+        Camera::DrawPoint(GetNode(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color::Red, 10.0f);
+        Camera::DrawPoint(GetNode(m_traverseGrid->GetGoalUID()).GetPosition(), sf::Color::Red, 10.0f);
     }
 }
 
@@ -157,11 +157,11 @@ void Pathfinder::FindPathThreadFn()
 
 void Pathfinder::OnFinish()
 {
-    m_pathWasFound = static_cast<bool>(GetNodes().at(m_traverseGrid->GetGoalUID()).GetVia());
+    m_pathWasFound = static_cast<bool>(GetNodes().at(m_traverseGrid->GetGoalUID()).GetViaUID());
     if (m_pathWasFound)
     {
         m_finalPath.clear();
-        for (const Node *node = &m_nodes.at(m_traverseGrid->GetGoalUID()); node != &m_nodes.at(m_traverseGrid->GetStartUID()); node = node->GetVia())
+        for (const Node *node = &GetNode(m_traverseGrid->GetGoalUID()); node != &GetNode(m_traverseGrid->GetStartUID()); node = &GetNode(node->GetViaUID()))
         {
             m_finalPath.emplace(node);
         }

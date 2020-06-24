@@ -65,28 +65,28 @@ void TraverseGrid::CalculateNeighbors(std::map<long, Node> &nodes) const
                 switch (j)
                 {
                 case 0:
-                    nodes.at(i).AddNeighbor(&nodes.at(i - 1), boxSize.x);
+                    nodes.at(i).AddNeighbor(i - 1, boxSize.x);
                     break;
                 case 1:
-                    nodes.at(i).AddNeighbor(&nodes.at(i - 1 - m_nBoxes.x), diagonalLength);
+                    nodes.at(i).AddNeighbor(i - 1 - m_nBoxes.x, diagonalLength);
                     break;
                 case 2:
-                    nodes.at(i).AddNeighbor(&nodes.at(i - m_nBoxes.x), boxSize.y);
+                    nodes.at(i).AddNeighbor(i - m_nBoxes.x, boxSize.y);
                     break;
                 case 3:
-                    nodes.at(i).AddNeighbor(&nodes.at(i + 1 - m_nBoxes.x), diagonalLength);
+                    nodes.at(i).AddNeighbor(i + 1 - m_nBoxes.x, diagonalLength);
                     break;
                 case 4:
-                    nodes.at(i).AddNeighbor(&nodes.at(i + 1), boxSize.x);
+                    nodes.at(i).AddNeighbor(i + 1, boxSize.x);
                     break;
                 case 5:
-                    nodes.at(i).AddNeighbor(&nodes.at(i + 1 + m_nBoxes.x), diagonalLength);
+                    nodes.at(i).AddNeighbor(i + 1 + m_nBoxes.x, diagonalLength);
                     break;
                 case 6:
-                    nodes.at(i).AddNeighbor(&nodes.at(i + m_nBoxes.x), boxSize.y);
+                    nodes.at(i).AddNeighbor(i + m_nBoxes.x, boxSize.y);
                     break;
                 case 7:
-                    nodes.at(i).AddNeighbor(&nodes.at(i - 1 + m_nBoxes.x), diagonalLength);
+                    nodes.at(i).AddNeighbor(i - 1 + m_nBoxes.x, diagonalLength);
                     break;
                 default:
                     break;
@@ -103,8 +103,8 @@ void TraverseGrid::CalculateNeighbors(std::map<long, Node> &nodes) const
             auto &neighbors = polygons[i].getNeighbors();
             for (auto &neighbor : polygons[i].getNeighbors())
             {
-                Node &nodeNeighbor = nodes.at(GetNodeUIDByPosition(Lib::Mid(*neighbor)));
-                nodes.at(i).AddNeighbor(&nodeNeighbor, vl::Length(Lib::Mid(polygons[i]) - nodeNeighbor.GetPosition()));
+                long nodeNeighborUID = GetNodeUIDByPosition(Lib::Mid(*neighbor));
+                nodes.at(i).AddNeighbor(nodeNeighborUID, vl::Length(Lib::Mid(polygons[i]) - nodes.at(nodeNeighborUID).GetPosition()));
             }
         }
     }

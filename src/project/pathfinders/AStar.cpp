@@ -2,39 +2,41 @@
 
 void AStar::FindPath()
 {
-    m_checkingQueue.push_front(&GetNodes().at(m_traverseGrid->GetStartUID()));
+    m_checkingQueue.push_front(m_traverseGrid->GetStartUID());
     m_maxCost = -1.0f;
     while (m_checkingQueue.size() && m_state != State::BeingCollected)
     {
         PauseCheck();
-        m_activeNode = m_checkingQueue.front();
-        if (m_traverseGrid->IsGoal(m_activeNode->GetUID()))
+        m_activeNodeUID = m_checkingQueue.front();
+        Node &activeNode = GetNodes().at(m_activeNodeUID);
+        if (m_traverseGrid->IsGoal(m_activeNodeUID))
         {
             // Algorithm is done
             m_checkingQueue.clear();
-            m_maxCost = m_activeNode->GetGCost();
+            m_maxCost = activeNode.GetGCost();
         }
-        else if (m_activeNode->GetGCost() < m_maxCost || m_maxCost == -1.0f)
+        else if (activeNode.GetGCost() < m_maxCost || m_maxCost == -1.0f)
         {
-            for (auto &neighbor : m_activeNode->GetNeighbors())
+            for (auto &neighborUID : activeNode.GetNeighbors())
             {
+                Node &neighbor = GetNodes().at(neighborUID);
                 if (m_state == State::BeingCollected)
                     break;
                 SleepDelay();
                 PauseCheck();
-                if (!m_traverseGrid->IsObstacle(neighbor->GetUID()) && neighbor != m_activeNode->GetVia())
+                if (!m_traverseGrid->IsObstacle(neighbor.GetUID()) && neighbor.GetUID() != activeNode.GetViaUID())
                 {
-                    float suggestedGCost = m_activeNode->GetGCost() + m_activeNode->GetUCost(neighbor);
-                    if (suggestedGCost < neighbor->GetGCost() || neighbor->GetGCost() == -1.0f)
+                    float suggestedGCost = activeNode.GetGCost() + activeNode.GetUCost(neighborUID);
+                    if (suggestedGCost < neighbor.GetGCost() || neighbor.GetGCost() == -1.0f)
                     {
-                        if (std::find(m_checkingQueue.begin(), m_checkingQueue.end(), neighbor) == m_checkingQueue.end())
+                        if (std::find(m_checkingQueue.begin(), m_checkingQueue.end(), neighborUID) == m_checkingQueue.end())
                         {
-                            m_checkingQueue.push_back(neighbor);
+                            m_checkingQueue.push_back(neighborUID);
                         }
-                        neighbor->SetVia(m_activeNode);
-                        neighbor->SetGCost(suggestedGCost);
-                        neighbor->SetHCost(vl::Length(neighbor->GetPosition() - GetNodes().at(m_traverseGrid->GetGoalUID()).GetPosition()));
-                        neighbor->SetFCost(suggestedGCost + neighbor->GetHCost());
+                        neighbor.SetVia(m_activeNodeUID);
+                        neighbor.SetGCost(suggestedGCost);
+                        neighbor.SetHCost(vl::Length(neighbor.GetPosition() - GetNodes().at(m_traverseGrid->GetGoalUID()).GetPosition()));
+                        neighbor.SetFCost(suggestedGCost + neighbor.GetHCost());
                     }
                 }
             }
@@ -46,7 +48,7 @@ void AStar::FindPath()
         }
         std::sort(m_checkingQueue.begin(),
                   m_checkingQueue.end(),
-                  [](const auto &lhs, const auto &rhs) { return lhs->GetFCost() < rhs->GetFCost(); });
+                  [this](const auto &lhs, const auto &rhs) { return GetNode(lhs).GetFCost() < GetNode(rhs).GetFCost(); });
     };
     m_checkingQueue.clear();
 }

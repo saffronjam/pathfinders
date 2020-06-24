@@ -45,6 +45,7 @@ public:
 
 protected:
     std::map<long, Node> &GetNodes() noexcept { return m_nodes; }
+    Node &GetNode(long uid) { return GetNodes().at(uid); };
     virtual void FindPath() = 0;
 
     void PauseCheck();
@@ -59,7 +60,7 @@ protected:
     State m_state;
     std::thread m_finder;
     const TraverseGrid *m_traverseGrid;
-    Node *m_activeNode;
+    long m_activeNodeUID;
 
     sf::Time m_sleepDelay;
     bool m_minorDelay;
