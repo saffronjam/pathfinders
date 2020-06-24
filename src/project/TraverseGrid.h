@@ -19,10 +19,10 @@ public:
     void Draw();
 
     void ChangeGridType(TraverseGrid::Type type);
-    void CalculateNeighbors(std::map<long, Node> &nodes) const;
 
-    std::map<long, Node> &GetNodes() noexcept { return m_nodes; }
-    long GetNodeUIDByPosition(const sf::Vector2f &position) const;
+    std::map<long, Node> &GetNodes() noexcept { return GetActiveNodes(); }
+    long GetNodeUID(const sf::Vector2f &position) const;
+    long GetNodeUID(const sf::Vector2f &position, Type type) const;
     long GetStartUID() const noexcept { return m_startUID; }
     long GetGoalUID() const noexcept { return m_goalUID; }
     bool IsObstacle(long uid) const { return m_obstacles.find(uid) != m_obstacles.end(); }
@@ -41,15 +41,22 @@ private:
     void DrawSquareGrid();
     void DrawVoronoiGrid();
 
-    void GenerateGrid();
+    void GenerateGrids();
+    void CalculateSquareGridNeighbors();
+    void CalculateVoronoiGridNeighbors();
+    void ResetStartGoal();
 
     void ClearNodeColor(long uid);
     void SetNodeColor(long uid, const sf::Color &color);
 
+    std::map<long, Node> &GetActiveNodes() noexcept;
+    const std::map<long, Node> &GetActiveNodesConst() const noexcept;
+
 private:
     TraverseGrid::Type m_currentType;
 
-    std::map<long, Node> m_nodes;
+    std::map<long, Node> m_squareGridNodes;
+    std::map<long, Node> m_voronoiGridNodes;
     std::set<long> m_obstacles;
 
     sf::FloatRect m_visRect;

@@ -18,7 +18,7 @@ void PathfinderMgr::Update()
 {
     if (Mouse::IsDown(sf::Mouse::Button::Left) && Mouse::GetPos().x < static_cast<float>(Window::GetWidth() - 200))
     {
-        long nodeUID = m_traverseGrid.GetNodeUIDByPosition(Camera::ScreenToWorld(Mouse::GetPos()));
+        long nodeUID = m_traverseGrid.GetNodeUID(Camera::ScreenToWorld(Mouse::GetPos()));
         switch (m_editState)
         {
         case EditState::AddObstacles:
@@ -49,9 +49,14 @@ void PathfinderMgr::DrawPathfinders()
     for (auto &pathfinder : m_pathfinders)
     {
         pathfinder->DrawViaConnections();
-        pathfinder->DrawAnticipation();
-        if (pathfinder->IsDone())
+        if (!pathfinder->IsDone())
+        {
+            pathfinder->DrawAnticipation();
+        }
+        else
+        {
             pathfinder->DrawResult();
+        }
     }
 }
 

@@ -66,7 +66,6 @@ void Pathfinder::DrawResult()
 void Pathfinder::AssignNodes(const std::map<long, Node> &nodes) noexcept
 {
     m_nodes = nodes;
-    m_traverseGrid->CalculateNeighbors(m_nodes);
 }
 
 void Pathfinder::Start()
@@ -157,7 +156,7 @@ void Pathfinder::FindPathThreadFn()
 
 void Pathfinder::OnFinish()
 {
-    m_pathWasFound = static_cast<bool>(GetNodes().at(m_traverseGrid->GetGoalUID()).GetViaUID());
+    m_pathWasFound = static_cast<bool>(GetNodes().at(m_traverseGrid->GetGoalUID()).GetViaUID() != -1);
     if (m_pathWasFound)
     {
         m_finalPath.clear();

@@ -12,7 +12,10 @@ TraverseGrid::TraverseGrid(TraverseGrid::Type type, const sf::FloatRect &visRect
       m_goalColor(sf::Color::Yellow)
 {
     m_voronoiGrid.Relax(50);
+    GenerateGrids();
     ChangeGridType(type);
+    CalculateSquareGridNeighbors();
+    CalculateVoronoiGridNeighbors();
 }
 
 void TraverseGrid::Draw()
@@ -36,89 +39,45 @@ void TraverseGrid::ChangeGridType(TraverseGrid::Type type)
     m_currentType = type;
     m_startUID = -1;
     m_goalUID = -1;
-    GenerateGrid();
+    ResetStartGoal();
 }
 
-void TraverseGrid::CalculateNeighbors(std::map<long, Node> &nodes) const
+long TraverseGrid::GetNodeUID(const sf::Vector2f &position) const
 {
-    switch (m_currentType)
-    {
-    case Type::Square:
-    {
-        sf::Vector2f boxSize(m_visRect.width / m_nBoxes.x, m_visRect.height / m_nBoxes.y);
-        float diagonalLength = vl::Length(boxSize);
-        for (int i = 0; i < m_nBoxes.x * m_nBoxes.y; i++)
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                if (((i % m_nBoxes.x == 0) && j == 0) ||
-                    ((i % m_nBoxes.x == 0 || (i >= 0 && i < m_nBoxes.x)) && j == 1) ||
-                    ((i >= 0 && i < m_nBoxes.x) && j == 2) ||
-                    (((i >= 0 && i < m_nBoxes.x) || (i + 1) % m_nBoxes.x == 0) && j == 3) ||
-                    (((i + 1) % m_nBoxes.x == 0) && j == 4) ||
-                    (((i + 1) % m_nBoxes.x == 0 || i >= m_nBoxes.x * (m_nBoxes.y - 1)) && j == 5) ||
-                    ((i >= m_nBoxes.x * (m_nBoxes.y - 1) && (i <= (m_nBoxes.x * m_nBoxes.y))) && j == 6) ||
-                    ((i >= m_nBoxes.x * (m_nBoxes.y - 1) || i % m_nBoxes.x == 0) && j == 7))
-                {
-                    continue;
-                }
-                switch (j)
-                {
-                case 0:
-                    nodes.at(i).AddNeighbor(i - 1, boxSize.x);
-                    break;
-                case 1:
-                    nodes.at(i).AddNeighbor(i - 1 - m_nBoxes.x, diagonalLength);
-                    break;
-                case 2:
-                    nodes.at(i).AddNeighbor(i - m_nBoxes.x, boxSize.y);
-                    break;
-                case 3:
-                    nodes.at(i).AddNeighbor(i + 1 - m_nBoxes.x, diagonalLength);
-                    break;
-                case 4:
-                    nodes.at(i).AddNeighbor(i + 1, boxSize.x);
-                    break;
-                case 5:
-                    nodes.at(i).AddNeighbor(i + 1 + m_nBoxes.x, diagonalLength);
-                    break;
-                case 6:
-                    nodes.at(i).AddNeighbor(i + m_nBoxes.x, boxSize.y);
-                    break;
-                case 7:
-                    nodes.at(i).AddNeighbor(i - 1 + m_nBoxes.x, diagonalLength);
-                    break;
-                default:
-                    break;
-                }
-            }
-        }
-        break;
-    }
-    case Type::Voronoi:
-    {
-        auto &polygons = m_voronoiGrid.GetPolygons();
-        for (size_t i = 0; i < polygons.size(); i++)
-        {
-            auto &neighbors = polygons[i].getNeighbors();
-            for (auto &neighbor : polygons[i].getNeighbors())
-            {
-                long nodeNeighborUID = GetNodeUIDByPosition(Lib::Mid(*neighbor));
-                nodes.at(i).AddNeighbor(nodeNeighborUID, vl::Length(Lib::Mid(polygons[i]) - nodes.at(nodeNeighborUID).GetPosition()));
-            }
-        }
-    }
-    break;
-    default:
-        break;
-    }
-}
+    auto &nodeMap = GetActiveNodesConst();
 
-long TraverseGrid::GetNodeUIDByPosition(const sf::Vector2f &position) const
-{
     float closestDistance = std::numeric_limits<float>::infinity();
     long closestUID;
-    for (auto &[uid, node] : m_nodes)
+
+    for (auto &[uid, node] : nodeMap)
+    {
+        auto dist = vl::LengthSq(node.GetPosition() - position);
+        if (dist < closestDistance)
+        {
+            closestUID = uid;
+            closestDistance = dist;
+        }
+    }
+    return closestUID;
+}
+
+long TraverseGrid::GetNodeUID(const sf::Vector2f &position, Type type) const
+{
+    const std::map<long, Node> *nodeMap;
+    switch (type)
+    {
+    case Type::Square:
+        nodeMap = &m_squareGridNodes;
+        break;
+    case Type::Voronoi:
+        nodeMap = &m_voronoiGridNodes;
+        break;
+    }
+
+    float closestDistance = std::numeric_limits<float>::infinity();
+    long closestUID;
+
+    for (auto &[uid, node] : *nodeMap)
     {
         auto dist = vl::LengthSq(node.GetPosition() - position);
         if (dist < closestDistance)
@@ -132,7 +91,7 @@ long TraverseGrid::GetNodeUIDByPosition(const sf::Vector2f &position) const
 
 void TraverseGrid::SetStart(const sf::Vector2f &start)
 {
-    SetStart(GetNodeUIDByPosition(start));
+    SetStart(GetNodeUID(start));
 }
 
 void TraverseGrid::SetStart(long uid)
@@ -144,7 +103,7 @@ void TraverseGrid::SetStart(long uid)
 
 void TraverseGrid::SetGoal(const sf::Vector2f &goal)
 {
-    SetGoal(GetNodeUIDByPosition(goal));
+    SetGoal(GetNodeUID(goal));
 }
 
 void TraverseGrid::SetGoal(long uid)
@@ -192,56 +151,117 @@ void TraverseGrid::DrawVoronoiGrid()
     Camera::Draw(m_voronoiGrid);
 }
 
-void TraverseGrid::GenerateGrid()
+void TraverseGrid::GenerateGrids()
 {
-    m_nodes.clear();
-    switch (m_currentType)
-    {
-    case Type::Square:
-    {
-        int uid = 0;
-        sf::Vector2f boxSize(m_visRect.width / m_nBoxes.x, m_visRect.height / m_nBoxes.y);
-        sf::Vector2f topLeft = sf::Vector2f(m_visRect.left, m_visRect.top) + sf::Vector2f(boxSize.x, boxSize.y) / 2.0f;
+    m_squareGridNodes.clear();
+    m_voronoiGridNodes.clear();
 
-        for (int i = 0; i < m_nBoxes.y; i++)
+    // ---- SQUARE ----
+    int uid = 0;
+    sf::Vector2f boxSize(m_visRect.width / m_nBoxes.x, m_visRect.height / m_nBoxes.y);
+    sf::Vector2f topLeft = sf::Vector2f(m_visRect.left, m_visRect.top) + sf::Vector2f(boxSize.x, boxSize.y) / 2.0f;
+
+    for (int i = 0; i < m_nBoxes.y; i++)
+    {
+        for (int j = 0; j < m_nBoxes.x; j++)
         {
-            for (int j = 0; j < m_nBoxes.x; j++)
+            m_squareGridNodes.emplace(std::make_pair(uid++, Node(uid, sf::Vector2f(topLeft.x + j * boxSize.x, topLeft.y + i * boxSize.y))));
+        }
+    }
+
+    sf::RectangleShape rect;
+    rect.setSize(sf::Vector2f(boxSize.x, boxSize.y));
+    rect.setFillColor(sf::Color::Transparent);
+    rect.setOutlineColor(sf::Color::Blue);
+    rect.setOutlineThickness(1.0f);
+    for (auto &[uid, node] : m_squareGridNodes)
+    {
+        rect.setPosition(node.GetPosition() - rect.getSize() / 2.0f);
+        m_squareGrid.emplace(std::make_pair(uid, rect));
+    }
+
+    // ---- VORONOI ----
+    uid = 0;
+    auto &polygons = m_voronoiGrid.GetPolygons();
+    for (size_t i = 0; i < polygons.size(); i++)
+    {
+        m_voronoiGridNodes.emplace(uid++, Node(uid, Lib::Mid(polygons[i])));
+    }
+    m_voronoiGrid.SetOutlineColor(sf::Color::Blue);
+
+    ResetStartGoal();
+}
+
+void TraverseGrid::CalculateSquareGridNeighbors()
+{
+    sf::Vector2f boxSize(m_visRect.width / m_nBoxes.x, m_visRect.height / m_nBoxes.y);
+    float diagonalLength = vl::Length(boxSize);
+    for (int i = 0; i < m_nBoxes.x * m_nBoxes.y; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            if (((i % m_nBoxes.x == 0) && j == 0) ||
+                ((i % m_nBoxes.x == 0 || (i >= 0 && i < m_nBoxes.x)) && j == 1) ||
+                ((i >= 0 && i < m_nBoxes.x) && j == 2) ||
+                (((i >= 0 && i < m_nBoxes.x) || (i + 1) % m_nBoxes.x == 0) && j == 3) ||
+                (((i + 1) % m_nBoxes.x == 0) && j == 4) ||
+                (((i + 1) % m_nBoxes.x == 0 || i >= m_nBoxes.x * (m_nBoxes.y - 1)) && j == 5) ||
+                ((i >= m_nBoxes.x * (m_nBoxes.y - 1) && (i <= (m_nBoxes.x * m_nBoxes.y))) && j == 6) ||
+                ((i >= m_nBoxes.x * (m_nBoxes.y - 1) || i % m_nBoxes.x == 0) && j == 7))
             {
-                m_nodes.emplace(std::make_pair(uid++, Node(uid, sf::Vector2f(topLeft.x + j * boxSize.x, topLeft.y + i * boxSize.y))));
+                continue;
+            }
+            switch (j)
+            {
+            case 0:
+                m_squareGridNodes.at(i).AddNeighbor(i - 1, boxSize.x);
+                break;
+            case 1:
+                m_squareGridNodes.at(i).AddNeighbor(i - 1 - m_nBoxes.x, diagonalLength);
+                break;
+            case 2:
+                m_squareGridNodes.at(i).AddNeighbor(i - m_nBoxes.x, boxSize.y);
+                break;
+            case 3:
+                m_squareGridNodes.at(i).AddNeighbor(i + 1 - m_nBoxes.x, diagonalLength);
+                break;
+            case 4:
+                m_squareGridNodes.at(i).AddNeighbor(i + 1, boxSize.x);
+                break;
+            case 5:
+                m_squareGridNodes.at(i).AddNeighbor(i + 1 + m_nBoxes.x, diagonalLength);
+                break;
+            case 6:
+                m_squareGridNodes.at(i).AddNeighbor(i + m_nBoxes.x, boxSize.y);
+                break;
+            case 7:
+                m_squareGridNodes.at(i).AddNeighbor(i - 1 + m_nBoxes.x, diagonalLength);
+                break;
+            default:
+                break;
             }
         }
-
-        sf::RectangleShape rect;
-        rect.setSize(sf::Vector2f(boxSize.x, boxSize.y));
-        rect.setFillColor(sf::Color::Transparent);
-        rect.setOutlineColor(sf::Color::Blue);
-        rect.setOutlineThickness(1.0f);
-        for (auto &[uid, node] : m_nodes)
-        {
-            rect.setPosition(node.GetPosition() - rect.getSize() / 2.0f);
-            m_squareGrid.emplace(std::make_pair(uid, rect));
-        }
-
-        SetStart(0);
-        SetGoal(m_nodes.size() - 1);
-        break;
     }
-    case Type::Voronoi:
+}
+
+void TraverseGrid::CalculateVoronoiGridNeighbors()
+{
+    auto &polygons = m_voronoiGrid.GetPolygons();
+    for (size_t i = 0; i < polygons.size(); i++)
     {
-        int uid = 0;
-        auto &polygons = m_voronoiGrid.GetPolygons();
-        for (size_t i = 0; i < polygons.size(); i++)
+        auto &neighbors = polygons[i].getNeighbors();
+        for (auto &neighbor : polygons[i].getNeighbors())
         {
-            m_nodes.emplace(uid++, Node(uid, Lib::Mid(polygons[i])));
+            long nodeNeighborUID = GetNodeUID(Lib::Mid(*neighbor), Type::Voronoi);
+            m_voronoiGridNodes.at(i).AddNeighbor(nodeNeighborUID, vl::Length(Lib::Mid(polygons[i]) - m_voronoiGridNodes.at(nodeNeighborUID).GetPosition()));
         }
-        SetStart(-Camera::GetOffset());
-        SetGoal(Camera::GetOffset() - sf::Vector2f(200.0f, 0.0f));
-        m_voronoiGrid.SetOutlineColor(sf::Color::Blue);
     }
-    break;
-    default:
-        break;
-    }
+}
+
+void TraverseGrid::ResetStartGoal()
+{
+    SetStart(-Camera::GetOffset());
+    SetGoal(Camera::GetOffset() - sf::Vector2f(200.0f, 0.0f));
 }
 
 void TraverseGrid::ClearNodeColor(long uid)
@@ -258,7 +278,7 @@ void TraverseGrid::ClearNodeColor(long uid)
     }
     case Type::Voronoi:
     {
-        m_voronoiGrid.GetPolygon(m_nodes.at(uid).GetPosition()).setFillColor(sf::Color::Transparent);
+        m_voronoiGrid.GetPolygon(m_voronoiGridNodes.at(uid).GetPosition()).setFillColor(sf::Color::Transparent);
         break;
     }
     }
@@ -278,8 +298,30 @@ void TraverseGrid::SetNodeColor(long uid, const sf::Color &color)
     }
     case Type::Voronoi:
     {
-        m_voronoiGrid.GetPolygon(m_nodes.at(uid).GetPosition()).setFillColor(color);
+        m_voronoiGrid.GetPolygon(m_voronoiGridNodes.at(uid).GetPosition()).setFillColor(color);
         break;
     }
+    }
+}
+
+std::map<long, Node> &TraverseGrid::GetActiveNodes() noexcept
+{
+    switch (m_currentType)
+    {
+    case Type::Square:
+        return m_squareGridNodes;
+    case Type::Voronoi:
+        return m_voronoiGridNodes;
+    }
+}
+
+const std::map<long, Node> &TraverseGrid::GetActiveNodesConst() const noexcept
+{
+    switch (m_currentType)
+    {
+    case Type::Square:
+        return m_squareGridNodes;
+    case Type::Voronoi:
+        return m_voronoiGridNodes;
     }
 }
