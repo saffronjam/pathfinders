@@ -16,11 +16,14 @@ Pathfinder::~Pathfinder()
 
 void Pathfinder::DrawAnticipation()
 {
-    if (m_activeNode)
+    if (m_activeNode && m_state == State::Finding || m_state == State::Paused || m_state == State::Finished)
+    {
         for (Node *node = m_activeNode; node->GetVia(); node = node->GetVia())
         {
             Camera::DrawLine(node->GetPosition(), node->GetVia()->GetPosition(), sf::Color::Red);
         }
+        Camera::DrawPoint(m_activeNode->GetPosition(), sf::Color::Red);
+    }
 }
 
 void Pathfinder::DrawViaConnections()
@@ -38,7 +41,7 @@ void Pathfinder::DrawNeighbors()
     {
         for (auto &neighbor : node.GetNeighbors())
         {
-            Camera::DrawLine(node.GetPosition(), neighbor->GetPosition(), sf::Color::Magenta);
+            Camera::DrawLine(node.GetPosition(), neighbor->GetPosition(), sf::Color(255, 0, 255, 50));
         }
     }
 }

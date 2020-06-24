@@ -94,10 +94,13 @@ void PathfinderMgr::SetSleepDelay(sf::Time delay) noexcept
 
 void PathfinderMgr::SetVisType(TraverseGrid::Type type)
 {
-    m_traverseGrid.ChangeGridType(type);
     for (auto &pathfinder : m_pathfinders)
     {
         pathfinder->Reset();
+    }
+    m_traverseGrid.ChangeGridType(type);
+    for (auto &pathfinder : m_pathfinders)
+    {
         pathfinder->AssignNodes(m_traverseGrid.GetNodes());
     }
 }

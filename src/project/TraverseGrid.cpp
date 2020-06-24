@@ -32,6 +32,7 @@ void TraverseGrid::Draw()
 
 void TraverseGrid::ChangeGridType(TraverseGrid::Type type)
 {
+    ClearObstacles();
     m_currentType = type;
     m_startUID = -1;
     m_goalUID = -1;
