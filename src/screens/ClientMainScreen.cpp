@@ -22,9 +22,10 @@ void ClientMainScreen::OnEntry()
 {
 
     // -------------- ALL LABELS ------------------
-    auto visStyleLabel = sfg::Label::Create("--- Visualisation Style ---");
-    auto visAlgLabel = sfg::Label::Create("--- Visible Algorithms ---");
-    auto settingsLabel = sfg::Label::Create("--- Settings ---");
+    auto labelGrid = sfg::Label::Create("Grid");
+    auto labelAlgorithms = sfg::Label::Create("Algorithms");
+    auto labelTools = sfg::Label::Create("Tools");
+    auto labelSettings = sfg::Label::Create("Settings");
 
     // -------------- SLEEP DELAY ------------------
     auto sleepDelayLabel = sfg::Label::Create();
@@ -89,20 +90,38 @@ void ClientMainScreen::OnEntry()
     auto scaleBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 10.0f);
     scaleBox->Pack(sleepDelaySettingsBox);
 
-    // -------------- ALL CHECK BOXES ------------------
-    std::vector<sfg::CheckButton::Ptr> checkButtons;
+    // -------------- ACTIVE ALGORITHMS BOXES ------------------
+    std::vector<sfg::CheckButton::Ptr> activeAlgCheckButtons;
     for (auto &pathfinder : m_pathfinderMgr.GetPathfinders())
-        checkButtons.push_back(sfg::CheckButton::Create(pathfinder->GetName()));
+        activeAlgCheckButtons.push_back(sfg::CheckButton::Create(pathfinder->GetName()));
 
-    auto checkButtonsBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 3.0f);
-    for (auto &checkButton : checkButtons)
+    auto activeAlgCheckButtonsBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 3.0f);
+    for (auto &checkButton : activeAlgCheckButtons)
     {
         checkButton->GetSignal(sfg::ToggleButton::OnToggle).Connect([checkButton, this] {
             checkButton->IsActive() ? m_pathfinderMgr.Activate(checkButton->GetLabel()) : m_pathfinderMgr.Deactivate(checkButton->GetLabel());
         });
         checkButton->SetActive(true);
-        checkButtonsBox->Pack(checkButton);
+        activeAlgCheckButtonsBox->Pack(checkButton);
     }
+
+    // -------------- DRAW SETTINGS CHECK BOXES -----------------
+    auto drawWorkerCheckButton = sfg::CheckButton::Create("Worker");
+    auto drawConnectionsCheckButton = sfg::CheckButton::Create("Connections");
+    auto drawNeighborsCheckButton = sfg::CheckButton::Create("Neighbors");
+
+    auto drawSettingsCheckButtonsBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 3.0f);
+    drawSettingsCheckButtonsBox->Pack(drawWorkerCheckButton);
+    drawSettingsCheckButtonsBox->Pack(drawConnectionsCheckButton);
+    drawSettingsCheckButtonsBox->Pack(drawNeighborsCheckButton);
+
+    drawWorkerCheckButton->GetSignal(sfg::ToggleButton::OnToggle).Connect([this, drawWorkerCheckButton] { m_pathfinderMgr.SetDrawWorker(drawWorkerCheckButton->IsActive()); });
+    drawConnectionsCheckButton->GetSignal(sfg::ToggleButton::OnToggle).Connect([this, drawConnectionsCheckButton] { m_pathfinderMgr.SetDrawViaConnections(drawConnectionsCheckButton->IsActive()); });
+    drawNeighborsCheckButton->GetSignal(sfg::ToggleButton::OnToggle).Connect([this, drawNeighborsCheckButton] { m_pathfinderMgr.SetDrawNeighbors(drawNeighborsCheckButton->IsActive()); });
+
+    drawWorkerCheckButton->SetActive(true);
+    drawConnectionsCheckButton->SetActive(true);
+    drawNeighborsCheckButton->SetActive(false);
 
     // -------------- EDIT MODE RADIO BUTTONS -------------------
     auto editstateNone = sfg::RadioButton::Create("None");
@@ -133,9 +152,9 @@ void ClientMainScreen::OnEntry()
     auto pauseButton = sfg::Button::Create("Pause");
     auto resumeButton = sfg::Button::Create("Resume");
 
-    startButton->GetSignal(sfg::Widget::OnLeftClick).Connect([checkButtonsBox, this] { m_pathfinderMgr.Start(); });
-    restartButton->GetSignal(sfg::Widget::OnLeftClick).Connect([checkButtonsBox, this] { m_pathfinderMgr.Restart(); });
-    resetButton->GetSignal(sfg::Widget::OnLeftClick).Connect([checkButtonsBox, this] { m_pathfinderMgr.Reset(); });
+    startButton->GetSignal(sfg::Widget::OnLeftClick).Connect([this] { m_pathfinderMgr.Start(); });
+    restartButton->GetSignal(sfg::Widget::OnLeftClick).Connect([this] { m_pathfinderMgr.Restart(); });
+    resetButton->GetSignal(sfg::Widget::OnLeftClick).Connect([this] { m_pathfinderMgr.Reset(); });
     pauseButton->GetSignal(sfg::Widget::OnLeftClick).Connect([this] { m_pathfinderMgr.Pause(); });
     resumeButton->GetSignal(sfg::Widget::OnLeftClick).Connect([this] { m_pathfinderMgr.Resume(); });
 
@@ -173,13 +192,32 @@ void ClientMainScreen::OnEntry()
         }
     });
 
+    // --------------- SUB BOXES ----------------------
+    auto boxGrid = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
+    boxGrid->Pack(labelGrid);
+    boxGrid->Pack(visStyleComboBox);
+
+    auto boxAlgorithm = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
+    boxAlgorithm->Pack(labelAlgorithms);
+    boxAlgorithm->Pack(activeAlgCheckButtonsBox);
+
+    auto boxEditState = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
+    boxEditState->Pack(labelTools);
+    boxEditState->Pack(editstateBox);
+
+    auto boxSettings = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
+    boxSettings->Pack(labelSettings);
+    boxSettings->Pack(scaleBox);
+    boxSettings->Pack(drawSettingsCheckButtonsBox);
+
     // -------------- ADD TO MAIN BOX ------------------
     auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
     mainBox->Pack(allButtonBox, false);
-    mainBox->Pack(visStyleComboBox, false);
-    mainBox->Pack(checkButtonsBox, false);
-    mainBox->Pack(editstateBox, false);
-    mainBox->Pack(scaleBox, false);
+    mainBox->Pack(boxGrid, false);
+    mainBox->Pack(boxAlgorithm, false);
+    mainBox->Pack(boxEditState, false);
+    mainBox->Pack(boxSettings, false);
+    mainBox->Pack(boxSettings, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
     auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);

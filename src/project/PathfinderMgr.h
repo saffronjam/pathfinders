@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <bitset>
 
 #include "AStar.h"
 #include "Mouse.h"
@@ -32,6 +33,10 @@ public:
     void Restart();
     void Reset();
 
+    void SetDrawWorker(bool onoff) noexcept { m_drawWorker = onoff; }
+    void SetDrawViaConnections(bool onoff) noexcept { m_drawViaConnections = onoff; }
+    void SetDrawNeighbors(bool onoff) noexcept { m_drawNeighbors = onoff; }
+
     const auto &GetPathfinders() const noexcept { return m_pathfinders; }
     EditState GetEditState() const noexcept { return m_editState; }
 
@@ -46,4 +51,8 @@ private:
     EditState m_editState;
     TraverseGrid m_traverseGrid;
     std::vector<std::unique_ptr<Pathfinder>> m_pathfinders;
+
+    bool m_drawWorker;
+    bool m_drawViaConnections;
+    bool m_drawNeighbors;
 };

@@ -2,8 +2,10 @@
 
 PathfinderMgr::PathfinderMgr()
     : m_editState(EditState::None),
-      m_traverseGrid(TraverseGrid::Type::Square, sf::FloatRect(-Camera::GetOffset(), sf::Vector2f(static_cast<float>(Window::GetWidth()) - 200.0f, static_cast<float>(Window::GetHeight()))))
-
+      m_traverseGrid(TraverseGrid::Type::Square, sf::FloatRect(-Camera::GetOffset(), sf::Vector2f(static_cast<float>(Window::GetWidth()) - 200.0f, static_cast<float>(Window::GetHeight())))),
+      m_drawWorker(true),
+      m_drawViaConnections(true),
+      m_drawNeighbors(false)
 {
     m_pathfinders.emplace_back(std::make_unique<AStar>());
 
@@ -48,14 +50,20 @@ void PathfinderMgr::DrawPathfinders()
 {
     for (auto &pathfinder : m_pathfinders)
     {
-        pathfinder->DrawViaConnections();
-        if (!pathfinder->IsDone())
+        if (m_drawNeighbors)
+            pathfinder->DrawNeighbors();
+        if (m_drawViaConnections)
+            pathfinder->DrawViaConnections();
+        if (m_drawWorker)
         {
-            pathfinder->DrawAnticipation();
-        }
-        else
-        {
-            pathfinder->DrawResult();
+            if (!pathfinder->IsDone())
+            {
+                pathfinder->DrawAnticipation();
+            }
+            else
+            {
+                pathfinder->DrawResult();
+            }
         }
     }
 }

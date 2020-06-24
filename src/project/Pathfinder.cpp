@@ -41,7 +41,7 @@ void Pathfinder::DrawNeighbors()
     {
         for (auto &neighborUID : node.GetNeighbors())
         {
-            Camera::DrawLine(node.GetPosition(), GetNode(neighborUID).GetPosition(), sf::Color(255, 0, 255, 50));
+            Camera::DrawLine(node.GetPosition(), GetNode(neighborUID).GetPosition(), sf::Color(255, 0, 255, 20));
         }
     }
 }

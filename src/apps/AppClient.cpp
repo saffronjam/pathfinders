@@ -2,7 +2,7 @@
 
 void AppClient::OnInit()
 {
-    Window::SetTitle("Client");
+    Window::SetTitle("V-Pathfinders");
 }
 
 void AppClient::OnExit()
