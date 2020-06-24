@@ -45,7 +45,7 @@ public:
 
 protected:
     std::map<long, Node> &GetNodes() noexcept { return m_nodes; }
-    Node &GetNode(long uid) { return GetNodes().at(uid); };
+    Node &GetNode(long uid) { return GetNodes().at(uid); }
     virtual void FindPath(long startUID, long goalUID) = 0;
 
     void PauseCheck();
@@ -71,5 +71,7 @@ protected:
 
 private:
     std::map<long, Node> m_nodes;
-    std::set<const Node *> m_finalPath;
+    std::vector<const Node *> m_finalPath;
+    sf::Time m_finalPathTimer;
+    int m_nFinalPathNodes;
 };

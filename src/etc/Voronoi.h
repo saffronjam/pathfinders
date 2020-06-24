@@ -21,7 +21,7 @@ public:
     {
     public:
         Polygon(const sf::Vector2f &voronoiPoint, size_t pointCount = 0)
-            : sf::ConvexShape(0),
+            : sf::ConvexShape(pointCount),
               m_voronoiPoint(voronoiPoint)
         {
         }

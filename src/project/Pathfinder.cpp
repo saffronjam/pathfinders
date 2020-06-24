@@ -22,6 +22,10 @@ void Pathfinder::DrawAnticipation()
         {
             Camera::DrawLine(node->GetPosition(), GetNode(node->GetViaUID()).GetPosition(), sf::Color::Red);
         }
+        for (auto &node : m_finalPath)
+        {
+            Camera::DrawPoint(node->GetPosition(), sf::Color::Magenta, 3.0f);
+        }
         Camera::DrawPoint(GetNodes().at(m_activeNodeUID).GetPosition(), sf::Color::Red);
     }
 }
@@ -50,11 +54,21 @@ void Pathfinder::DrawResult()
 {
     if (m_pathWasFound)
     {
-        for (auto &node : m_finalPath)
+        if (m_nFinalPathNodes < m_finalPath.size() - 1)
         {
-            Camera::DrawPoint(node->GetPosition(), sf::Color::Green, 5.0f);
+            m_finalPathTimer += Clock::Delta();
+            if (m_finalPathTimer.asSeconds() > 0.05f)
+            {
+                m_nFinalPathNodes++;
+                m_finalPathTimer = sf::Time::Zero;
+            }
         }
-        Camera::DrawPoint(GetNode(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color::Green, 5.0f);
+        for (size_t i = 0; i < m_nFinalPathNodes; i++)
+        {
+            Camera::DrawPoint(m_finalPath[i]->GetPosition(), sf::Color(0, 150, 0), 3.0f);
+        }
+        Camera::DrawPoint(GetNode(m_traverseGrid->GetStartUID()).GetPosition(), sf::Color(0, 150, 0));
+        Camera::DrawPoint(m_finalPath[m_nFinalPathNodes]->GetPosition(), sf::Color::Green, 5.0f);
     }
     else
     {
@@ -170,6 +184,9 @@ void Pathfinder::FindPathThreadFn(long startUID, long goalUID, const std::vector
     FindPath(fromUID, toUID);
     m_pathWasFound = CheckFindPathResult(fromUID, toUID);
     m_state = State::Finished;
+
+    m_nFinalPathNodes = 0;
+    m_finalPathTimer = sf::Time::Zero;
 }
 
 bool Pathfinder::CheckFindPathResult(long fromUID, long toUID)
@@ -196,10 +213,12 @@ bool Pathfinder::CheckFindPathResult(long fromUID, long toUID)
 
 void Pathfinder::AppendFinalPath(long startUID, long goalUID)
 {
+    std::vector<const Node *> tmp;
     for (const Node *node = &GetNode(goalUID); node != &GetNode(startUID); node = &GetNode(node->GetViaUID()))
     {
-        m_finalPath.emplace(node);
+        tmp.push_back(node);
     }
+    std::reverse_copy(tmp.begin(), tmp.end(), std::back_inserter(m_finalPath));
 }
 
 void Pathfinder::CollectFinder()
