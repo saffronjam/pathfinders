@@ -10,5 +10,7 @@ public:
     const std::string &GetName() override { return m_name; }
 
 private:
+    std::deque<long> m_checkingQueue;
+    float m_maxCost;
     std::string m_name = "Dijkstra";
 };
