@@ -29,7 +29,7 @@ public:
 
     void SetVia(long uid) { m_viaUID = uid; }
     void SetCost(const std::string &type, float cost);
-    void SetUCost(float UCost, long uid) { m_neighborCosts.at(uid) = UCost; }
+    void SetNeighborCost(float UCost, long uid) { m_neighborCosts.at(uid) = UCost; }
 
 private:
     int m_uid;

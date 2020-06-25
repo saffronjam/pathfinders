@@ -8,6 +8,7 @@
 
 #include "AStar.h"
 #include "Dijkstra.h"
+#include "GreedyBFS.h"
 
 class PathfinderMgr
 {

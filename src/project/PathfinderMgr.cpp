@@ -10,6 +10,7 @@ PathfinderMgr::PathfinderMgr()
 {
     m_pathfinders.push_back(std::make_unique<AStar>());
     m_pathfinders.push_back(std::make_unique<Dijkstra>());
+    m_pathfinders.push_back(std::make_unique<GreedyBFS>());
     SetActiveAlgorithm("A*");
 
     for (auto &pathfinder : m_pathfinders)
