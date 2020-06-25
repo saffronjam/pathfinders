@@ -16,6 +16,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   file(COPY "res" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
 else()
   find_package(SFML REQUIRED network audio graphics window system)
+  find_package(Box2D REQUIRED)
 endif()
 
 find_package(Threads REQUIRED)
@@ -100,11 +101,19 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     ogg
     ws2_32
   )
-else() 
+else()
   target_include_directories(Client PRIVATE
     ${SFML_INCLUDE_DIR}
+    deps/SFGUI/include
+    ${BOX2D_INCLUDE_DIR}
+    deps/JCash/include
+  )
+  target_link_directories(Client PRIVATE
+    deps/SFGUI/lib
   )
   target_link_libraries(Client PRIVATE
+    ${BOX2D_LIBRARY}
+    SFGUI
     ${SFML_LIBRARIES}
     Threads::Threads
   )
@@ -123,13 +132,13 @@ target_include_directories(Server PRIVATE
   src/input
   src/interfaces
   src/lightning
-  src/physics
-  src/project
   src/net
   src/netmodules
+  src/physics
+  src/project
+  src/project/pathfinders
   src/res
   src/screens
-  src/primitives
   src/throwmacros
 )
 
@@ -139,7 +148,7 @@ set_target_properties(Server PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
   )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   target_include_directories(Server PRIVATE
     deps/SFML/include
     deps/SFGUI/include
@@ -152,7 +161,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     deps/Box2D/lib
   )
   target_link_libraries(Server PRIVATE
-    Threads::Threads
+    Box2D
+    SFGUI
     sfml-graphics-s
     sfml-window-s
     sfml-audio-s
@@ -169,13 +179,20 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     vorbis
     ogg
     ws2_32
-    SFGUI
   )
-else() 
+else()
   target_include_directories(Server PRIVATE
     ${SFML_INCLUDE_DIR}
+    deps/SFGUI/include
+    ${BOX2D_INCLUDE_DIR}
+    deps/JCash/include
+  )
+  target_link_directories(Server PRIVATE
+    deps/SFGUI/lib
   )
   target_link_libraries(Server PRIVATE
+    ${BOX2D_LIBRARY}
+    SFGUI
     ${SFML_LIBRARIES}
     Threads::Threads
   )

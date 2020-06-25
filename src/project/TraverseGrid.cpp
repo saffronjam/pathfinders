@@ -377,6 +377,7 @@ std::map<long, Node> &TraverseGrid::GetActiveNodes() noexcept
     case Type::Voronoi:
         return m_voronoiGridNodes;
     }
+    return m_squareGridNodes;
 }
 
 const std::map<long, Node> &TraverseGrid::GetActiveNodesConst() const noexcept
@@ -388,4 +389,5 @@ const std::map<long, Node> &TraverseGrid::GetActiveNodesConst() const noexcept
     case Type::Voronoi:
         return m_voronoiGridNodes;
     }
+    return m_squareGridNodes;
 }

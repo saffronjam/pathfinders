@@ -129,7 +129,7 @@ void IConnHandler::NewUdpConnection(sf::Uint64 uid, const sf::IpAddress address,
     {
         auto connOpt = GetConnectionByUID(uid);
         if (!connOpt.has_value())
-            THROW(Exception, "UDP address update contained UID that did not correspond to any connection. UID: %u", uid);
+            THROW(Exception, "UDP address update contained UID that did not correspond to any connection. UID: %llu", uid);
 
         // Update the remote address
         Connection *conn = const_cast<Connection *>(connOpt.value());
@@ -152,6 +152,7 @@ std::optional<Connection *> IConnHandler::GetConnectionByIndex(size_t index)
         std::advance(resultIter, index);
         return &resultIter->second.first;
     }
+    return std::nullopt;
 }
 
 std::optional<Connection *> IConnHandler::GetConnectionByUID(NetUID uid)

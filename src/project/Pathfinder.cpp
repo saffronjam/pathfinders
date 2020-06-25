@@ -92,7 +92,7 @@ void Pathfinder::Start(long startUID, long goalUID, const std::vector<long> &sub
     {
         CollectFinder();
         m_state = State::Finding;
-        m_finder = std::thread(Pathfinder::FindPathThreadFn, this, startUID, goalUID, subGoalsUIDs);
+        m_finder = std::thread(&Pathfinder::FindPathThreadFn, this, startUID, goalUID, subGoalsUIDs);
     }
 }
 
