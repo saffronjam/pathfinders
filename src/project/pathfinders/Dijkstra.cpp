@@ -37,6 +37,7 @@ void Dijkstra::FindPath(long startUID, long goalUID)
                         neighbor.SetCost("Tentative", suggestedGCost);
                     }
                 }
+                activeNode.AddVisitedNeighbor(neighborUID);
             }
             m_checkingQueue.pop_front();
         }

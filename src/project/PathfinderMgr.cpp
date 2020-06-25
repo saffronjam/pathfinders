@@ -22,7 +22,7 @@ PathfinderMgr::PathfinderMgr()
     }
 }
 
-void PathfinderMgr::Update()
+void PathfinderMgr::Update(sfg::Label::Ptr timerLabel)
 {
     if (Mouse::IsDown(sf::Mouse::Button::Left) && Mouse::GetPos().x < static_cast<float>(Window::GetWidth() - 200))
     {
@@ -58,6 +58,12 @@ void PathfinderMgr::Update()
             break;
         }
     }
+
+    if (m_activePathFinder->GetState() == Pathfinder::State::Finding)
+        m_timer += Clock::Delta();
+    std::ostringstream oss;
+    oss << m_timer.asSeconds() << "s";
+    timerLabel->SetText(oss.str());
 }
 
 void PathfinderMgr::DrawGrid()
@@ -87,6 +93,7 @@ void PathfinderMgr::DrawPathfinders()
 void PathfinderMgr::Start()
 {
     m_activePathFinder->Start(m_traverseGrid.GetStartUID(), m_traverseGrid.GetGoalUID(), m_traverseGrid.GetSubGoalUIDs());
+    m_timer = sf::Time::Zero;
 }
 
 void PathfinderMgr::Pause()
@@ -102,6 +109,7 @@ void PathfinderMgr::Resume()
 void PathfinderMgr::Restart()
 {
     m_activePathFinder->Restart();
+    m_timer = sf::Time::Zero;
 }
 
 void PathfinderMgr::Reset()
@@ -111,6 +119,7 @@ void PathfinderMgr::Reset()
     m_traverseGrid.ClearObstacles();
     m_traverseGrid.ClearSubGoals();
     m_traverseGrid.ResetStartGoal();
+    m_timer = sf::Time::Zero;
 }
 
 void PathfinderMgr::SetSleepDelay(sf::Time delay) noexcept
@@ -123,10 +132,7 @@ void PathfinderMgr::SetVisType(TraverseGrid::Type type)
 {
     if (m_traverseGrid.GetType() != type)
     {
-        for (auto &pathfinder : m_pathfinders)
-        {
-            pathfinder->Reset();
-        }
+        Reset();
         m_traverseGrid.ChangeGridType(type);
         for (auto &pathfinder : m_pathfinders)
         {

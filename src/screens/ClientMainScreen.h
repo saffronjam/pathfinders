@@ -35,4 +35,6 @@ private:
     AppClient &m_parent;
 
     PathfinderMgr m_pathfinderMgr;
+
+    sfg::Label::Ptr m_labelTimerLive;
 };

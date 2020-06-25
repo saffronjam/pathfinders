@@ -39,6 +39,7 @@ void AStar::FindPath(long startUID, long goalUID)
                         neighbor.SetCost("Total", suggestedTentativeCost + neighbor.GetCost("Heuristic"));
                     }
                 }
+                activeNode.AddVisitedNeighbor(neighborUID);
             }
             m_checkingQueue.pop_front();
         }

@@ -3,6 +3,8 @@
 #include <vector>
 #include <bitset>
 
+#include <SFGUI/Label.hpp>
+
 #include "Mouse.h"
 #include "Camera.h"
 
@@ -29,7 +31,7 @@ public:
 public:
     PathfinderMgr();
 
-    void Update();
+    void Update(sfg::Label::Ptr timerLabel);
 
     void DrawGrid();
     void DrawPathfinders();
@@ -40,12 +42,14 @@ public:
     void Restart();
     void Reset();
 
+    const auto &GetPathfinders() const noexcept { return m_pathfinders; }
+    EditState GetEditState() const noexcept { return m_editState; }
+    const sf::Time &GetTimer() const noexcept { return m_timer; }
+    Pathfinder::State GetState() const noexcept { return m_activePathFinder->GetState(); }
+
     void SetDrawWorker(bool onoff) noexcept { m_drawWorker = onoff; }
     void SetDrawViaConnections(bool onoff) noexcept { m_drawViaConnections = onoff; }
     void SetDrawNeighbors(bool onoff) noexcept { m_drawNeighbors = onoff; }
-
-    const auto &GetPathfinders() const noexcept { return m_pathfinders; }
-    EditState GetEditState() const noexcept { return m_editState; }
 
     void SetSleepDelay(sf::Time delay) noexcept;
     void SetEditState(EditState editState) noexcept { m_editState = editState; }
@@ -62,4 +66,6 @@ private:
     bool m_drawWorker;
     bool m_drawViaConnections;
     bool m_drawNeighbors;
+
+    sf::Time m_timer;
 };

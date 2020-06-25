@@ -26,6 +26,8 @@ void ClientMainScreen::OnEntry()
     auto labelAlgorithms = sfg::Label::Create("Algorithms");
     auto labelTools = sfg::Label::Create("Tools");
     auto labelSettings = sfg::Label::Create("Settings");
+    auto labelTimer = sfg::Label::Create("Timer");
+    m_labelTimerLive = sfg::Label::Create("");
 
     // -------------- SLEEP DELAY ------------------
     auto sleepDelayLabel = sfg::Label::Create();
@@ -212,6 +214,10 @@ void ClientMainScreen::OnEntry()
     boxSettings->Pack(scaleBox);
     boxSettings->Pack(drawSettingsCheckButtonsBox);
 
+    auto boxTimer = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
+    boxTimer->Pack(labelTimer);
+    boxTimer->Pack(m_labelTimerLive);
+
     // -------------- ADD TO MAIN BOX ------------------
     auto mainBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 15.0f);
     mainBox->Pack(allButtonBox, false);
@@ -219,7 +225,7 @@ void ClientMainScreen::OnEntry()
     mainBox->Pack(boxAlgorithm, false);
     mainBox->Pack(boxEditState, false);
     mainBox->Pack(boxSettings, false);
-    mainBox->Pack(boxSettings, false);
+    mainBox->Pack(boxTimer, false);
 
     // -------------- ADD TO MAIN WINDOW ------------------
     auto window = sfg::Window::Create(sfg::Window::Style::BACKGROUND);
@@ -236,7 +242,7 @@ void ClientMainScreen::OnExit()
 
 void ClientMainScreen::Update()
 {
-    m_pathfinderMgr.Update();
+    m_pathfinderMgr.Update(m_labelTimerLive);
 }
 
 void ClientMainScreen::Draw()

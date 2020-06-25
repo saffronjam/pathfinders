@@ -9,6 +9,8 @@ void GreedyBFS::FindPath(long startUID, long goalUID)
     {
         PauseCheck();
         m_activeNodeUID = m_checkingQueue.front();
+        m_checkingQueue.pop_front();
+
         Node &activeNode = GetNodes().at(m_activeNodeUID);
         if (m_activeNodeUID == goalUID)
         {
@@ -28,21 +30,22 @@ void GreedyBFS::FindPath(long startUID, long goalUID)
                 if (!m_traverseGrid->IsObstacle(neighbor.GetUID()) && neighbor.GetUID() != activeNode.GetViaUID())
                 {
                     neighbor.SetCost("Heuristic", vl::Length(neighbor.GetPosition() - GetNodes().at(goalUID).GetPosition()));
-
-                    if (neighbor.GetCost("Heuristic") < activeNode.GetCost("Heuristic") && !neighbor.WasVisited())
+                    if (!neighbor.WasVisited())
                     {
                         neighbor.SetVia(m_activeNodeUID);
                         m_checkingQueue.push_front(neighborUID);
-                        m_checkingQueue.push_front(m_activeNodeUID);
                     }
                 }
+                activeNode.AddVisitedNeighbor(neighborUID);
             }
-            m_checkingQueue.pop_front();
         }
         else
         {
             m_checkingQueue.pop_front();
         }
+        std::sort(m_checkingQueue.begin(),
+                  m_checkingQueue.end(),
+                  [this](const auto &lhs, const auto &rhs) { return GetNode(lhs).GetCost("Heuristic") < GetNode(rhs).GetCost("Heuristic"); });
     };
     m_checkingQueue.clear();
 }

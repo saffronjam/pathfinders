@@ -10,7 +10,7 @@
 
 class Pathfinder
 {
-protected:
+public:
     enum class State
     {
         Finding,
@@ -28,6 +28,8 @@ public:
     void DrawViaConnections();
     void DrawNeighbors();
     void DrawResult();
+
+    Pathfinder::State GetState() const noexcept { return m_state; }
 
     void AssignNodes(const std::map<long, Node> &nodes) noexcept;
     void SetTraverseGrid(const TraverseGrid *traverseGrid) noexcept { m_traverseGrid = traverseGrid; }

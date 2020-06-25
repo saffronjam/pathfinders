@@ -25,16 +25,23 @@ public:
     long GetViaUID() const noexcept { return m_viaUID; }
     float GetCost(const std::string &type) noexcept;
     float GetNeighborCost(long uid) const { return m_neighborCosts.at(uid); }
+
     bool WasVisited() const noexcept { return m_viaUID != -1; }
+    bool WasVisitedBy(Node &node) const noexcept { return node.m_visitedNeighbors.find(m_uid) != node.m_visitedNeighbors.end(); }
 
     void SetVia(long uid) { m_viaUID = uid; }
     void SetCost(const std::string &type, float cost);
     void SetNeighborCost(float UCost, long uid) { m_neighborCosts.at(uid) = UCost; }
 
+    void AddVisitedNeighbor(long uid) { m_visitedNeighbors.emplace(uid); }
+    void RemoveVisitedNeighbor(long uid) { m_visitedNeighbors.erase(uid); }
+    void ClearVisitedNeighbors() noexcept { m_visitedNeighbors.clear(); }
+
 private:
     int m_uid;
     sf::Vector2f m_position;
     std::set<long> m_neighbors;
+    std::set<long> m_visitedNeighbors;
 
     long m_viaUID;
 

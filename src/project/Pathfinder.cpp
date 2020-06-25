@@ -117,6 +117,7 @@ void Pathfinder::Restart()
         for (auto &[uid, node] : m_nodes)
         {
             node.ResetPath();
+            node.ClearVisitedNeighbors();
         }
     }
 }
@@ -128,7 +129,10 @@ void Pathfinder::Reset()
         CollectFinder();
         m_state = State::WaitingForStart;
         for (auto &[uid, node] : m_nodes)
+        {
             node.ResetPath();
+            node.ClearVisitedNeighbors();
+        }
     }
 }
 
