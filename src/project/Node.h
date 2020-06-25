@@ -23,17 +23,13 @@ public:
     const sf::Vector2f &GetPosition() const noexcept { return m_position; }
     const std::set<long> &GetNeighbors() const noexcept { return m_neighbors; }
     long GetViaUID() const noexcept { return m_viaUID; }
-    float GetFCost() const noexcept { return m_FCost; }
-    float GetHCost() const noexcept { return m_HCost; }
-    float GetGCost() const noexcept { return m_GCost; }
-    float GetUCost(long uid) const { return m_UCosts.at(uid); }
+    float GetCost(const std::string &type) noexcept;
+    float GetNeighborCost(long uid) const { return m_neighborCosts.at(uid); }
     bool WasVisited() const noexcept { return m_viaUID != -1; }
 
     void SetVia(long uid) { m_viaUID = uid; }
-    void SetFCost(float FCost) { m_FCost = FCost; }
-    void SetHCost(float HCost) { m_HCost = HCost; }
-    void SetGCost(float GCost) { m_GCost = GCost; }
-    void SetUCost(float UCost, long uid) { m_UCosts[uid] = UCost; }
+    void SetCost(const std::string &type, float cost);
+    void SetUCost(float UCost, long uid) { m_neighborCosts.at(uid) = UCost; }
 
 private:
     int m_uid;
@@ -42,8 +38,6 @@ private:
 
     long m_viaUID;
 
-    float m_FCost;
-    float m_HCost;
-    float m_GCost;
-    std::map<long, float> m_UCosts;
+    std::map<std::string, float> m_costs;
+    std::map<long, float> m_neighborCosts;
 };

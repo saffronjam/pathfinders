@@ -13,9 +13,9 @@ void AStar::FindPath(long startUID, long goalUID)
         {
             // Algorithm is done
             m_checkingQueue.clear();
-            m_maxCost = activeNode.GetGCost();
+            m_maxCost = activeNode.GetCost("Tentative");
         }
-        else if (activeNode.GetGCost() < m_maxCost || m_maxCost == -1.0f)
+        else if (activeNode.GetCost("Tentative") < m_maxCost || m_maxCost == -1.0f)
         {
             for (auto &neighborUID : activeNode.GetNeighbors())
             {
@@ -26,17 +26,17 @@ void AStar::FindPath(long startUID, long goalUID)
                 PauseCheck();
                 if (!m_traverseGrid->IsObstacle(neighbor.GetUID()) && neighbor.GetUID() != activeNode.GetViaUID())
                 {
-                    float suggestedGCost = activeNode.GetGCost() + activeNode.GetUCost(neighborUID);
-                    if (suggestedGCost < neighbor.GetGCost() || neighbor.GetGCost() == -1.0f)
+                    float suggestedTentativeCost = activeNode.GetCost("Tentative") + activeNode.GetNeighborCost(neighborUID);
+                    if (suggestedTentativeCost < neighbor.GetCost("Tentative") || neighbor.GetCost("Tentative") == -1.0f)
                     {
                         if (std::find(m_checkingQueue.begin(), m_checkingQueue.end(), neighborUID) == m_checkingQueue.end())
                         {
                             m_checkingQueue.push_back(neighborUID);
                         }
                         neighbor.SetVia(m_activeNodeUID);
-                        neighbor.SetGCost(suggestedGCost);
-                        neighbor.SetHCost(vl::Length(neighbor.GetPosition() - GetNodes().at(goalUID).GetPosition()));
-                        neighbor.SetFCost(suggestedGCost + neighbor.GetHCost());
+                        neighbor.SetCost("Tentative", suggestedTentativeCost);
+                        neighbor.SetCost("Heuristic", vl::Length(neighbor.GetPosition() - GetNodes().at(goalUID).GetPosition()));
+                        neighbor.SetCost("Total", suggestedTentativeCost + neighbor.GetCost("Heuristic"));
                     }
                 }
             }
@@ -48,7 +48,7 @@ void AStar::FindPath(long startUID, long goalUID)
         }
         std::sort(m_checkingQueue.begin(),
                   m_checkingQueue.end(),
-                  [this](const auto &lhs, const auto &rhs) { return GetNode(lhs).GetFCost() < GetNode(rhs).GetFCost(); });
+                  [this](const auto &lhs, const auto &rhs) { return GetNode(lhs).GetCost("Total") < GetNode(rhs).GetCost("Total"); });
     };
     m_checkingQueue.clear();
 }

@@ -3,9 +3,6 @@
 Node::Node(int uid, const sf::Vector2f &position)
     : m_uid(uid),
       m_position(position),
-      m_FCost(-1.0f),
-      m_HCost(-1.0f),
-      m_GCost(-1.0f),
       m_viaUID(-1)
 {
 }
@@ -13,17 +10,30 @@ Node::Node(int uid, const sf::Vector2f &position)
 void Node::AddNeighbor(long uid, float cost)
 {
     m_neighbors.emplace(uid);
-    m_UCosts.emplace(std::make_pair(uid, cost));
+    m_neighborCosts.emplace(std::make_pair(uid, cost));
 }
 
 void Node::ResetCosts() noexcept
 {
-    SetFCost(-1.0f);
-    SetGCost(-1.0f);
+    m_costs.clear();
 }
 
 void Node::ResetPath() noexcept
 {
     ResetCosts();
     SetVia(-1);
+}
+
+float Node::GetCost(const std::string &type) noexcept
+{
+    if (m_costs.find(type) == m_costs.end())
+        m_costs.emplace(std::make_pair(type, -1));
+    return m_costs.at(type);
+}
+
+void Node::SetCost(const std::string &type, float cost)
+{
+    if (m_costs.find(type) == m_costs.end())
+        m_costs.emplace(std::make_pair(type, -1));
+    m_costs.at(type) = cost;
 }
