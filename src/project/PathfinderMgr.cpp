@@ -11,6 +11,8 @@ PathfinderMgr::PathfinderMgr()
     m_pathfinders.push_back(std::make_unique<AStar>());
     m_pathfinders.push_back(std::make_unique<Dijkstra>());
     m_pathfinders.push_back(std::make_unique<GreedyBFS>());
+    m_pathfinders.push_back(std::make_unique<Beam32>());
+    m_pathfinders.push_back(std::make_unique<Beam512>());
     SetActiveAlgorithm("A*");
 
     for (auto &pathfinder : m_pathfinders)

@@ -43,9 +43,6 @@ void GreedyBFS::FindPath(long startUID, long goalUID)
         {
             m_checkingQueue.pop_front();
         }
-        // std::sort(m_checkingQueue.begin(),
-        //           m_checkingQueue.end(),
-        //           [this](const auto &lhs, const auto &rhs) { return GetNode(lhs).GetCost("Heuristic") < GetNode(rhs).GetCost("Heuristic"); });
     };
     m_checkingQueue.clear();
 }

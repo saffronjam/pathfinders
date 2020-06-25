@@ -9,6 +9,8 @@
 #include "AStar.h"
 #include "Dijkstra.h"
 #include "GreedyBFS.h"
+#include "Beam32.h"
+#include "Beam512.h"
 
 class PathfinderMgr
 {
