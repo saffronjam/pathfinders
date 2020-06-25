@@ -27,6 +27,10 @@ void ClientMainScreen::OnEntry()
     auto labelTools = sfg::Label::Create("Tools");
     auto labelSettings = sfg::Label::Create("Settings");
     auto labelTimer = sfg::Label::Create("Timer");
+
+    // ------------- TIMER AND TIMER HISTORY ----------------
+    auto clearTimerHistoryButton = sfg::Button::Create("Clear");
+    clearTimerHistoryButton->GetSignal(sfg::Widget::OnLeftClick).Connect([this] { m_pathfinderMgr.ClearTimerResults(); });
     m_labelTimerLive = sfg::Label::Create("");
 
     // -------------- SLEEP DELAY ------------------
@@ -216,6 +220,7 @@ void ClientMainScreen::OnEntry()
 
     auto boxTimer = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
     boxTimer->Pack(labelTimer);
+    boxTimer->Pack(clearTimerHistoryButton);
     boxTimer->Pack(m_labelTimerLive);
 
     // -------------- ADD TO MAIN BOX ------------------

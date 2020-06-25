@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <bitset>
+#include <iomanip>
 
 #include <SFGUI/Label.hpp>
 
@@ -57,6 +58,13 @@ public:
 
     void SetActiveAlgorithm(const std::string &name);
 
+    void ClearTimerResults() noexcept { m_oldResults.clear(); }
+
+private:
+    void ResetTimer() noexcept { m_timer = sf::Time::Zero; }
+    std::string FormatTimerValue();
+    void PushTimerToResultStack();
+
 private:
     EditState m_editState;
     TraverseGrid m_traverseGrid;
@@ -68,4 +76,5 @@ private:
     bool m_drawNeighbors;
 
     sf::Time m_timer;
+    std::deque<std::string> m_oldResults;
 };
