@@ -26,6 +26,7 @@ public:
     long GetStartUID() const noexcept { return m_startUID; }
     long GetGoalUID() const noexcept { return m_goalUID; }
     std::vector<long> &GetSubGoalUIDs() noexcept { return m_subGoalUIDs; }
+    TraverseGrid::Type GetType() const noexcept { return m_currentType; }
 
     bool IsObstacle(long uid) const { return m_obstacleUIDs.find(uid) != m_obstacleUIDs.end(); }
     bool IsStart(long uid) const noexcept { return m_startUID == uid; }

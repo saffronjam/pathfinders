@@ -5,9 +5,12 @@ PathfinderMgr::PathfinderMgr()
       m_traverseGrid(TraverseGrid::Type::Square, sf::FloatRect(-Camera::GetOffset(), sf::Vector2f(static_cast<float>(Window::GetWidth()) - 200.0f, static_cast<float>(Window::GetHeight())))),
       m_drawWorker(true),
       m_drawViaConnections(true),
-      m_drawNeighbors(false)
+      m_drawNeighbors(false),
+      m_activePathFinder(nullptr)
 {
-    m_pathfinders.emplace_back(std::make_unique<AStar>());
+    m_pathfinders.push_back(std::make_unique<AStar>());
+    m_pathfinders.push_back(std::make_unique<Dijkstra>());
+    SetActiveAlgorithm("A*");
 
     for (auto &pathfinder : m_pathfinders)
     {
@@ -61,48 +64,41 @@ void PathfinderMgr::DrawGrid()
 
 void PathfinderMgr::DrawPathfinders()
 {
-    for (auto &pathfinder : m_pathfinders)
+    if (m_drawNeighbors)
+        m_activePathFinder->DrawNeighbors();
+    if (m_drawViaConnections)
+        m_activePathFinder->DrawViaConnections();
+    if (m_drawWorker)
     {
-        if (m_drawNeighbors)
-            pathfinder->DrawNeighbors();
-        if (m_drawViaConnections)
-            pathfinder->DrawViaConnections();
-        if (m_drawWorker)
+        if (!m_activePathFinder->IsDone())
         {
-            if (!pathfinder->IsDone())
-            {
-                pathfinder->DrawAnticipation();
-            }
-            else
-            {
-                pathfinder->DrawResult();
-            }
+            m_activePathFinder->DrawAnticipation();
+        }
+        else
+        {
+            m_activePathFinder->DrawResult();
         }
     }
 }
 
 void PathfinderMgr::Start()
 {
-    for (auto &pathfinder : m_pathfinders)
-        pathfinder->Start(m_traverseGrid.GetStartUID(), m_traverseGrid.GetGoalUID(), m_traverseGrid.GetSubGoalUIDs());
+    m_activePathFinder->Start(m_traverseGrid.GetStartUID(), m_traverseGrid.GetGoalUID(), m_traverseGrid.GetSubGoalUIDs());
 }
 
 void PathfinderMgr::Pause()
 {
-    for (auto &pathfinder : m_pathfinders)
-        pathfinder->Pause();
+    m_activePathFinder->Pause();
 }
 
 void PathfinderMgr::Resume()
 {
-    for (auto &pathfinder : m_pathfinders)
-        pathfinder->Resume();
+    m_activePathFinder->Resume();
 }
 
 void PathfinderMgr::Restart()
 {
-    for (auto &pathfinder : m_pathfinders)
-        pathfinder->Restart();
+    m_activePathFinder->Restart();
 }
 
 void PathfinderMgr::Reset()
@@ -122,21 +118,29 @@ void PathfinderMgr::SetSleepDelay(sf::Time delay) noexcept
 
 void PathfinderMgr::SetVisType(TraverseGrid::Type type)
 {
-    for (auto &pathfinder : m_pathfinders)
+    if (m_traverseGrid.GetType() != type)
     {
-        pathfinder->Reset();
-    }
-    m_traverseGrid.ChangeGridType(type);
-    for (auto &pathfinder : m_pathfinders)
-    {
-        pathfinder->AssignNodes(m_traverseGrid.GetNodes());
+        for (auto &pathfinder : m_pathfinders)
+        {
+            pathfinder->Reset();
+        }
+        m_traverseGrid.ChangeGridType(type);
+        for (auto &pathfinder : m_pathfinders)
+        {
+            pathfinder->AssignNodes(m_traverseGrid.GetNodes());
+        }
     }
 }
 
-void PathfinderMgr::Activate(const std::string &name)
+void PathfinderMgr::SetActiveAlgorithm(const std::string &name)
 {
-}
-
-void PathfinderMgr::Deactivate(const std::string &name)
-{
+    if (m_activePathFinder)
+        Restart();
+    for (auto &pathfinder : m_pathfinders)
+    {
+        if (pathfinder->GetName() == name)
+        {
+            m_activePathFinder = pathfinder.get();
+        }
+    }
 }

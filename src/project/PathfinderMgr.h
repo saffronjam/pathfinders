@@ -3,9 +3,11 @@
 #include <vector>
 #include <bitset>
 
-#include "AStar.h"
 #include "Mouse.h"
 #include "Camera.h"
+
+#include "AStar.h"
+#include "Dijkstra.h"
 
 class PathfinderMgr
 {
@@ -46,13 +48,13 @@ public:
     void SetEditState(EditState editState) noexcept { m_editState = editState; }
     void SetVisType(TraverseGrid::Type type);
 
-    void Activate(const std::string &name);
-    void Deactivate(const std::string &name);
+    void SetActiveAlgorithm(const std::string &name);
 
 private:
     EditState m_editState;
     TraverseGrid m_traverseGrid;
     std::vector<std::unique_ptr<Pathfinder>> m_pathfinders;
+    Pathfinder *m_activePathFinder;
 
     bool m_drawWorker;
     bool m_drawViaConnections;

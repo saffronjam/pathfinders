@@ -91,19 +91,15 @@ void ClientMainScreen::OnEntry()
     scaleBox->Pack(sleepDelaySettingsBox);
 
     // -------------- ACTIVE ALGORITHMS BOXES ------------------
-    std::vector<sfg::CheckButton::Ptr> activeAlgCheckButtons;
+    auto activeAlgComboBox = sfg::ComboBox::Create();
     for (auto &pathfinder : m_pathfinderMgr.GetPathfinders())
-        activeAlgCheckButtons.push_back(sfg::CheckButton::Create(pathfinder->GetName()));
+        activeAlgComboBox->AppendItem(pathfinder->GetName());
+    activeAlgComboBox->SelectItem(0);
 
-    auto activeAlgCheckButtonsBox = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 3.0f);
-    for (auto &checkButton : activeAlgCheckButtons)
-    {
-        checkButton->GetSignal(sfg::ToggleButton::OnToggle).Connect([checkButton, this] {
-            checkButton->IsActive() ? m_pathfinderMgr.Activate(checkButton->GetLabel()) : m_pathfinderMgr.Deactivate(checkButton->GetLabel());
-        });
-        checkButton->SetActive(true);
-        activeAlgCheckButtonsBox->Pack(checkButton);
-    }
+    activeAlgComboBox->GetSignal(sfg::ComboBox::OnSelect).Connect([activeAlgComboBox, this] {
+        const auto selectedItem = activeAlgComboBox->GetSelectedItem();
+        m_pathfinderMgr.SetActiveAlgorithm(activeAlgComboBox->GetItem(selectedItem));
+    });
 
     // -------------- DRAW SETTINGS CHECK BOXES -----------------
     auto drawWorkerCheckButton = sfg::CheckButton::Create("Worker");
@@ -205,7 +201,7 @@ void ClientMainScreen::OnEntry()
 
     auto boxAlgorithm = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
     boxAlgorithm->Pack(labelAlgorithms);
-    boxAlgorithm->Pack(activeAlgCheckButtonsBox);
+    boxAlgorithm->Pack(activeAlgComboBox);
 
     auto boxEditState = sfg::Box::Create(sfg::Box::Orientation::VERTICAL, 4.0f);
     boxEditState->Pack(labelTools);
