@@ -1,6 +1,6 @@
 #define MAX_LIGHTS 128
 
-varying in vec4 vert_pos;
+in vec4 vert_pos;
 
 uniform sampler2D texture;
 uniform vec2 lightPositions[MAX_LIGHTS];

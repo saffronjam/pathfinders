@@ -88,9 +88,9 @@
         "**/*.exe": true,
         "**/*.out": true,
         "**/*.app": true,
-        "**/build/": true
-        // "**/deps/": true,
-        // "**/cmake/": true,
+        "**/build/": true,
+        "**/deps/": true,
+        "**/cmake/": true,
     },
     // "C_Cpp.default.configurationProvider": "vector-of-bool.cmake-tools"
 }

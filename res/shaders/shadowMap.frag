@@ -1,7 +1,7 @@
 #define PI 3.14159265359
 
 //inputs from vertex shader
-varying vec4 vert_pos;
+in vec4 vert_pos;
 
 //uniform values
 uniform sampler2D texture;

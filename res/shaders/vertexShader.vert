@@ -1,5 +1,5 @@
-varying out vec4 vert_pos;
-varying out vec4 color;
+out vec4 vert_pos;
+out vec4 color;
 
 void main()
 {
