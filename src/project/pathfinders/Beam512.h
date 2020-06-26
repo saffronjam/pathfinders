@@ -11,7 +11,6 @@ public:
 
 private:
     std::deque<long> m_checkingQueue;
-    float m_maxCost;
     std::string m_name = "Beam 512";
     static constexpr int beamWidth = 512;
 };

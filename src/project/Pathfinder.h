@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <thread>
+#include <algorithm>
 
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Sleep.hpp>
@@ -61,19 +62,20 @@ private:
 
 protected:
     State m_state;
-    std::thread m_finder;
     const TraverseGrid *m_traverseGrid;
     long m_activeNodeUID;
+
+private:
+    std::thread m_finder;
 
     sf::Time m_sleepDelay;
     bool m_minorDelay;
     sf::Int64 m_minorDelayTimer;
 
-    bool m_pathWasFound;
-
-private:
     std::map<long, Node> m_nodes;
     std::vector<const Node *> m_finalPath;
     sf::Time m_finalPathTimer;
     int m_nFinalPathNodes;
+
+    bool m_pathWasFound;
 };

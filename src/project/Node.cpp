@@ -27,13 +27,13 @@ void Node::ResetPath() noexcept
 float Node::GetCost(const std::string &type) noexcept
 {
     if (m_costs.find(type) == m_costs.end())
-        m_costs.emplace(std::make_pair(type, -1));
+        m_costs.emplace(std::make_pair(type, std::numeric_limits<float>::infinity()));
     return m_costs.at(type);
 }
 
 void Node::SetCost(const std::string &type, float cost)
 {
     if (m_costs.find(type) == m_costs.end())
-        m_costs.emplace(std::make_pair(type, -1));
+        m_costs.emplace(std::make_pair(type, std::numeric_limits<float>::infinity()));
     m_costs.at(type) = cost;
 }

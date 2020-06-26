@@ -11,6 +11,5 @@ public:
 
 private:
     std::deque<long> m_checkingQueue;
-    float m_maxCost;
     std::string m_name = "A*";
 };
