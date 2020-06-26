@@ -3,8 +3,8 @@ Visualizing the path-finding algorithm A*, both with square-tiles and Voronoi-po
 
 Includes controls to chose which algorithms to use, how fast to compute and which grid to use (Square or Voronoi polygons)
 
-<img src="https://github.com/viesa/V-Algorithms/blob/master/preview1_squareGrid.png">
-<img src="https://github.com/viesa/V-Algorithms/blob/master/preview2_voronoiGrid.png">
+<img src="https://github.com/viesa/V-Pathfinder/blob/master/preview1_squareGrid.png">
+<img src="https://github.com/viesa/V-Pathfinder/blob/master/preview2_voronoiGrid.png">
 
 ## Setting up
 Prerequisite: Visual Studio Code with CMake tools plugin
