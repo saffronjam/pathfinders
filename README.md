@@ -1,7 +1,5 @@
 # V-Pathfinder
-Visualizing path-finding algorithms.
-
-Includes controls to chose which algorithms to use, how fast to compute and which grid to use (Square or Voronoi polygons)
+Visualizing path-finding algorithms
 
 <img src="https://github.com/viesa/V-Pathfinder/blob/master/preview1_squareGrid.png">
 <img src="https://github.com/viesa/V-Pathfinder/blob/master/preview2_voronoiGrid.png">
