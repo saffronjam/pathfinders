@@ -1,5 +1,5 @@
 # V-Pathfinder
-Visualizing the path-finding algorithm A*, both with square-tiles and Voronoi-polygons.
+Visualizing path-finding algorithms.
 
 Includes controls to chose which algorithms to use, how fast to compute and which grid to use (Square or Voronoi polygons)
 
