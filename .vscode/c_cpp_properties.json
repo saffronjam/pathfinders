@@ -24,7 +24,7 @@
                 "${workspaceFolder}/deps/JCash/include"
             ],
             "intelliSenseMode": "gcc-x64",
-            "compilerPath": "C:\\mingw64\\bin\\g++.exe",
+            "compilerPath": "C:\\msys64\\mingw64\\bin\\g++.exe",
             "cppStandard": "c++20",
             "configurationProvider": "ms-vscode.cmake-tools"
         }

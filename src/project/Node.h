@@ -3,6 +3,7 @@
 #include <set>
 #include <map>
 #include <optional>
+#include <string>
 
 #include <SFML/System/Vector2.hpp>
 
