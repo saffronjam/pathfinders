@@ -1,11 +1,13 @@
 # V-Pathfinder
 Visualizing path-finding algorithms
 
-<img src="https://github.com/viesa/V-Pathfinder/blob/master/preview1_squareGrid.png">
-<img src="https://github.com/viesa/V-Pathfinder/blob/master/preview2_voronoiGrid.png">
+<img src="https://github.com/viesa/V-Pathfinders/blob/master/preview0.png">
+<img src="https://github.com/viesa/V-Pathfinders/blob/master/preview1.png">
+<img src="https://github.com/viesa/V-Pathfinders/blob/master/previewGif1.gif">
 
 ## Setting up
-Prerequisite: Visual Studio Code with CMake tools plugin
+Prerequisite: CLion with [Prebuilt 7.3.0 MinGW Compiler](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/7.3.0/threads-posix/seh/x86_64-7.3.0-release-posix-seh-rt_v5-rev0.7z/download)
+
 
 ### Linux
 <b> 1. </b> Install SFML using <i>sudo apt-get install libsfml-dev</i>
@@ -14,16 +16,24 @@ Prerequisite: Visual Studio Code with CMake tools plugin
 
 <b> 3. </b> Install CMake using <i>sudo apt-get install cmake</i>
 
-<b> 4. </b> Run <i>Client</i> from CMake tools
+<b> 4. </b> Run <i>Client</i> in CLion
 
-<img src="https://github.com/viesa/V-Algorithms/blob/master/startCMakeProject.png">
+<img src="https://github.com/viesa/V-Fractals/blob/master/startCLion.png">
+
 
 ### Windows
 <b> 1. </b> Download and install CMake
 
-<b> 2. </b> Run <i>Client</i> from CMake tools
+<b> 2. </b> Run <i>Client</i> in CLion
 
-<img src="https://github.com/viesa/V-Algorithms/blob/master/startCMakeProject.png">
+<img src="https://github.com/viesa/V-Fractals/blob/master/startCLion.png">
 
 ### Mac
 Should be similar to Linux
+
+
+### Alternatively Visual Studio Code
+
+Follow previous steps, but start the application by running <i>Client</i> using CMake Tools plugin
+
+<img src="https://github.com/viesa/V-Algorithms/blob/master/startCMakeProject.png">
