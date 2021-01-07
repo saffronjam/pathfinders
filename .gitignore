@@ -1,3 +1,23 @@
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio clutter
+_ReSharper*
+*.sdf
+*.suo
+*.dir
+*.vcxproj*
+*.sln
+.vs
+Win32
+MinSizeRel
+RelWithDebInfo
+*.opensdf
+
 # Prerequisites
 *.d
 
@@ -18,14 +38,14 @@
 # Compiled Static libraries
 *.lai
 *.la
-*.lib
 
 # Executables
 *.exe
 *.out
 *.app
 
-# Folders
+# Build directory
+/Saffron/bin/
+/bin/
 build/
-cmake-build-debug/
-cmake-build-release/
+out/

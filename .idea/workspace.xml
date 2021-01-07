@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="Algorithms" targetName="Client" />
+      <config projectName="Algorithms" targetName="Saffron" />
+    </generated>
+  </component>
+  <component name="CMakeSettings" AUTO_RELOAD="true">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" GENERATION_DIR="bin/debug" ENABLED="true" />
+      <configuration PROFILE_NAME="Release" CONFIG_NAME="Release" GENERATION_DIR="bin/release" ENABLED="true" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6c4eed86-ede4-46df-bd45-b7c36592d109" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/deps/Saffron/lib/jcv/include/jcv/jc_voronoi.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/deps/Saffron/src/Saffron/Core/Voronoi.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/deps/Saffron/src/Saffron/Core/Voronoi.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Grids/SquareGrid.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Grids/SquareGrid.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Grids/VoronoiGrid.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Grids/VoronoiGrid.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/V-Pathfinders.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/changes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake/FindBox2D.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake/FindSFGUI.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/bin/libBox2D.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Box2D.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/Shapes/b2ChainShape.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/Shapes/b2CircleShape.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/Shapes/b2EdgeShape.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/Shapes/b2PolygonShape.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/Shapes/b2Shape.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/b2BroadPhase.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/b2Collision.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/b2Distance.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/b2DynamicTree.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Collision/b2TimeOfImpact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Common/b2BlockAllocator.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Common/b2Draw.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Common/b2GrowableStack.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Common/b2Math.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Common/b2Settings.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Common/b2StackAllocator.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Common/b2Timer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2ChainAndCircleContact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2ChainAndPolygonContact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2CircleContact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2Contact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2ContactSolver.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2EdgeAndCircleContact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2EdgeAndPolygonContact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2PolygonAndCircleContact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Contacts/b2PolygonContact.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2DistanceJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2FrictionJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2GearJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2Joint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2MotorJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2MouseJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2PrismaticJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2PulleyJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2RevoluteJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2RopeJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2WeldJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/Joints/b2WheelJoint.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/b2Body.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/b2ContactManager.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/b2Fixture.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/b2Island.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/b2TimeStep.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/b2World.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Dynamics/b2WorldCallbacks.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/include/Box2D/Rope/b2Rope.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/lib/Box2D/Box2D-targets-release.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/lib/Box2D/Box2D-targets.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/lib/cmake/Box2D/Box2DConfig.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/lib/cmake/Box2D/UseBox2D.cmake" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/lib/libBox2D.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/Box2D/lib/libBox2D.dll.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/JCash/include/jcv/jc_voronoi.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Adjustment.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Alignment.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Bin.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Box.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Button.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Canvas.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/CheckButton.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/ComboBox.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Config.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Container.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Context.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Desktop.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Desktop.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Engine.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Engine.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Engines/BREW.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Entry.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/FileResourceLoader.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Fixed.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Frame.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Image.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Label.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Misc.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Notebook.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Object.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Primitive.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/PrimitiveTexture.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/PrimitiveVertex.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/ProgressBar.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/RadioButton.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/RadioButtonGroup.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Range.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/RenderQueue.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Renderer.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/RendererTextureNode.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/RendererViewport.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Renderers.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Renderers/NonLegacyRenderer.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Renderers/VertexArrayRenderer.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Renderers/VertexBufferRenderer.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/ResourceLoader.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/ResourceManager.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/ResourceManager.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/SFGUI.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Scale.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Scrollbar.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/ScrolledWindow.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Selector.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Separator.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Signal.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/SpinButton.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Spinner.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Table.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/TableCell.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/TableOptions.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/ToggleButton.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Viewport.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Widget.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Widgets.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/include/SFGUI/Window.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/lib/libSFGUI.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFGUI/lib/libSFGUI.so" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/bin/openal32.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/AlResource.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/Export.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/InputSoundFile.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/Listener.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/Music.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/OutputSoundFile.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/Sound.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundBuffer.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundBufferRecorder.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundFileFactory.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundFileFactory.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundFileReader.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundFileWriter.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundRecorder.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundSource.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Audio/SoundStream.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Config.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/GpuPreference.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/BlendMode.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/CircleShape.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Color.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/ConvexShape.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Drawable.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Export.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Font.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Glsl.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Glsl.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Glyph.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Image.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/PrimitiveType.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Rect.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Rect.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/RectangleShape.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/RenderStates.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/RenderTarget.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/RenderTexture.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/RenderWindow.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Shader.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Shape.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Sprite.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Text.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Texture.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Transform.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Transformable.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/Vertex.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/VertexArray.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/VertexBuffer.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Graphics/View.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Main.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/Export.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/Ftp.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/Http.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/IpAddress.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/Packet.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/Socket.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/SocketHandle.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/SocketSelector.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/TcpListener.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/TcpSocket.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Network/UdpSocket.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/OpenGL.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Clock.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Err.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Export.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/FileInputStream.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/InputStream.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Lock.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/MemoryInputStream.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Mutex.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/NativeActivity.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/NonCopyable.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Sleep.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/String.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/String.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Thread.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Thread.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/ThreadLocal.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/ThreadLocalPtr.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/ThreadLocalPtr.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Time.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Utf.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Utf.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Vector2.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Vector2.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Vector3.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/System/Vector3.inl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Clipboard.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Context.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/ContextSettings.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Cursor.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Event.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Export.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/GlResource.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Joystick.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Keyboard.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Mouse.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Sensor.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Touch.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/VideoMode.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/Window.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/WindowHandle.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/include/SFML/Window/WindowStyle.hpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libFLAC.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libfreetype.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libogg.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libopenal32.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-audio-s-d.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-audio-s.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-graphics-s-d.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-graphics-s.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-network-s-d.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-network-s.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-system-s-d.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-system-s.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-window-s-d.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libsfml-window-s.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libvorbis.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libvorbisenc.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/SFML/lib/libvorbisfile.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MainClient.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/MainServer.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/AppClient.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/AppClient.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/AppServer.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apps/AppServer.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Camera.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Camera.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Clock.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Clock.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/EventMgr.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/EventMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/FPSLimiter.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/FPSLimiter.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/GuiMgr.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/GuiMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Lib.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Lib.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Log.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Log.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Random.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/ScreenList.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/ScreenList.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/TextAlign.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/VectorLib.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Window.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/core/Window.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/etc/AnimatedSprite.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/etc/AnimatedSprite.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/etc/Animation.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/etc/Animation.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/etc/Voronoi.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/etc/Voronoi.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/input/Keyboard.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/input/Keyboard.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/input/Mouse.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/input/Mouse.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IApp.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IApp.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IConnHandler.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IConnHandler.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IConnInfo.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IConnInfo.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IException.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IException.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/INetMgr.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/INetMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/INetModule.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/INetModule.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IPacketHandler.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IResourceMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/interfaces/IScreen.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/Light.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/Light.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/LightningMgr.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/LightningMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/PointLight.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/PointLight.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/SpotLight.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lightning/SpotLight.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Client.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Client.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/ClientInfo.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Connection.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Connection.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/NetUID.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Packager.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Packager.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/PacketMgr.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/PacketMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/PacketType.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/ParsedPacket.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Protocol.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Server.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/Server.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/net/ServerInfo.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/netmodules/PingModule.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/netmodules/PingModule.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/netmodules/SetupModule.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/netmodules/SetupModule.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/BoxCollider.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/BoxCollider.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/CircleCollider.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/CircleCollider.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/Collider.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/Collider.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/PhysicsMgr.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/PhysicsMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/PolygonCollider.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/physics/PolygonCollider.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/Node.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/Node.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/Pathfinder.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/Pathfinder.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/PathfinderMgr.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/PathfinderMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/TraverseGrid.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/TraverseGrid.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/AStar.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/AStar.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/Beam32.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/Beam32.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/Beam512.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/Beam512.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/Dijkstra.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/Dijkstra.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/GreedyBFS.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/project/pathfinders/GreedyBFS.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/res/FontMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/res/MusicMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/res/SoundBufferMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/res/TextureMgr.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ClientMainScreen.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ClientMainScreen.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ServerMainScreen.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/screens/ServerMainScreen.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/throwmacros/AppThrowMacros.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/throwmacros/GenericThrowMacros.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/throwmacros/WindowThrowMacros.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/startCMakeProject.png" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="C++ Class Project" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="OCResolveContextSettings">
+    <option name="configuration" value="0-Debug-Saffron" />
+  </component>
+  <component name="ProjectId" id="1mRA7tsbgmlpYEMO1BwzWKz7FpB" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Fractals" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="fileTemplates" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src" />
+    </key>
+  </component>
+  <component name="RunManager" selected="CMake Application.Client">
+    <configuration name="Client" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Algorithms" TARGET_NAME="Client" CONFIG_NAME="Release" RUN_TARGET_PROJECT_NAME="Algorithms" RUN_TARGET_NAME="Client">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Saffron" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Algorithms" TARGET_NAME="Saffron" CONFIG_NAME="Release">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.Client" />
+      <item itemvalue="CMake Application.Saffron" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6c4eed86-ede4-46df-bd45-b7c36592d109" name="Default Changelist" comment="" />
+      <created>1609445868674</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1609445868674</updated>
+      <workItem from="1609445870750" duration="578000" />
+      <workItem from="1609509010587" duration="22775000" />
+      <workItem from="1609581522281" duration="16931000" />
+      <workItem from="1609609278896" duration="4292000" />
+      <workItem from="1609613814476" duration="562000" />
+      <workItem from="1609621830421" duration="1916000" />
+      <workItem from="1609624767333" duration="45000" />
+      <workItem from="1609624831778" duration="1644000" />
+      <workItem from="1609675552466" duration="598000" />
+      <workItem from="1609689967566" duration="36000" />
+      <workItem from="1609769253439" duration="885000" />
+      <workItem from="1609799324462" duration="6160000" />
+      <workItem from="1609959438387" duration="6776000" />
+      <workItem from="1609970237347" duration="2000" />
+      <workItem from="1609973301704" duration="769000" />
+      <workItem from="1610047316788" duration="2732000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="CMakeRunConfiguration">
+        <watch expression="scaledPixel" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>
