@@ -100,22 +100,22 @@ class RandomGenerator : Random
 {
 public:
 	explicit RandomGenerator(T lower = static_cast<T>(0), T upper = static_cast<T>(100)) :
-		m_Lower(lower),
-		m_Upper(upper)
+		_lower(lower),
+		_upper(upper)
 	{
-	};
+	}
 
 	T Generate()
 	{
 		static Device s_RandomDevice;
 		static Engine s_Engine(s_RandomDevice());
 
-		return static_cast<T>(GetUniformDistribution()(s_Engine));
+		return _lower + static_cast<T>(GetUniformDistribution()(s_Engine)) * (_upper - _lower);
 	}
 
-	void SetLower(T lower) { m_Lower = lower; };
+	void SetLower(T lower) { _lower = lower; }
 
-	void SetUpper(T upper) { m_Upper = upper; };
+	void SetUpper(T upper) { _upper = upper; }
 
 private:
 	auto &GetUniformDistribution()
@@ -133,7 +133,7 @@ private:
 		}
 	}
 
-	T m_Lower, m_Upper;
+	T _lower, _upper;
 };
 
 }

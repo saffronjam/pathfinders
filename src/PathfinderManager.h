@@ -6,25 +6,26 @@
 
 namespace Se
 {
-class PathfinderManager
+class PathfinderManager : public Signaller
 {
 public:
 	enum class EditState
 	{
 		None,
-		AddObstacles,
-		RemObstacles,
-		SetStart,
-		SetGoal,
-		AddSubGoal,
-		RemSubGoal
+		Obstacles,
+		SubGoal,
+		Weights,
+		Start,
+		Goal,
+		Count
 	};
 
 public:
 	explicit PathfinderManager();
 
 	void OnUpdate(Scene &scene);
-	void OnRenderGrid(Scene &scene);
+
+	void OnRender(Scene &scene);
 	void OnRenderPathfinders(Scene &scene);
 	void OnGuiRender();
 	void OnRenderTargetResize(const sf::Vector2f &size);
@@ -38,13 +39,10 @@ public:
 	const auto &GetPathfinders() const { return _pathfinders; }
 	EditState GetEditState() const { return _editState; }
 	const sf::Time &GetTimer() const { return _timer; }
-	Pathfinder::State GetState() const { return GetActivePathfinder()->GetState(); }
 
 	void SetSleepDelay(sf::Time delay);
 	void SetEditState(EditState editState) { _editState = editState; }
-
-	void SetActivePathfinder(const String &name);
-	const Unique<Pathfinder> &GetActivePathfinder() const { return *_activePathFinder; }
+	void SetWeight(int uidFirst, int uidSecond, float weight);
 
 	void SetActiveTraverseGrid(const String &name);
 	const Shared<TraverseGrid> &GetActiveTraverseGrid() const { return *_activeTraverseGrid; }
@@ -52,28 +50,53 @@ public:
 	void ClearTimerResults() { _oldResults.clear(); }
 
 private:
-	void ResetTimer() { _timer = sf::Time::Zero; }
-	String FormatTimerValue();
-	void PushTimerToResultStack();
-
 	template<class T>
 	auto SetActiveHelper(ArrayList<T> &list, const String &name);
 
+	ArrayList<ArrayList<Unique<Pathfinder>>::iterator> GetActivePathfinders();
+
+	void CollectWorker();
+
 private:
 	EditState _editState;
+
+	Thread _worker;
+	Atomic<bool> _finishedWorking = false;
+	Atomic<bool> _didOnFinishWorkingUpdate = false;
 
 	ArrayList<Shared<TraverseGrid>> _traverseGrids;
 	ArrayList<Shared<TraverseGrid>>::iterator _activeTraverseGrid;
 
 	ArrayList<Unique<Pathfinder>> _pathfinders;
-	ArrayList<Unique<Pathfinder>>::iterator _activePathFinder;;
 
-	bool _drawWorker;
-	bool _drawViaConnections;
-	bool _drawNeighbors;
+	bool _drawWorker = true;
+	bool _drawViaConnections = true;
+	bool _drawNeighbors = false;
 
 	sf::Time _timer;
-	std::deque<String> _oldResults;
+	Deque<String> _oldResults;
+
+	Pair<int, int> _weightEditPair = { 0,0 };
+
+	// Cache
+	sf::Vector2f _renderTargetSize = { 0.0f, 0.0f };
+
+	// Gui cache
+	ArrayList<const char *> _traverseGridNames;
+	int _activeTraverseGridIndex = 0;
+	float _sleepDelayMicroseconds = 10000;
+	ArrayList<const char *> _editStateNames;
+	int _editStateIndex = static_cast<int>(EditState::None);
+
+	bool _drawWeights = false;
+	bool _drawFadedWeights = false;
+	float _weight = 1.0f;
+	bool _weightBrushEnabled = false;
+	int _weightBrushSize = 10;
+
+	bool _obstacleBrushEnabled = false;
+	int _obstacleBrushSize = 10;
+
 };
 
 template <class T>

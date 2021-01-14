@@ -28,7 +28,7 @@ void Dijkstra::FindPath(int startUID, int goalUID)
 			Node &neighbor = GetNode(neighborUID);
 			if ( !_traverseGrid->IsObstacle(neighborUID) && neighborUID != activeNode.GetViaUID() )
 			{
-				float suggestedTentativeCost =
+				const float suggestedTentativeCost =
 					activeNode.GetCost("Tentative") + activeNode.GetNeighborCost(neighborUID);
 				if ( suggestedTentativeCost < neighbor.GetCost("Tentative") )
 				{

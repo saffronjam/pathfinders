@@ -6,29 +6,28 @@
 #include "Pathfinders/AStar.h"
 #include "Pathfinders/Dijkstra.h"
 #include "Pathfinders/BestFirstSearch.h"
-#include "Pathfinders/Beam32.h"
-#include "Pathfinders/Beam512.h"
+#include "Pathfinders/Beam.h"
+#include "Pathfinders/BFS.h"
 
 namespace Se
 {
-PathfinderManager::PathfinderManager() :
-	_editState(EditState::None),
-	_activeTraverseGrid(_traverseGrids.end()),
-	_activePathFinder(_pathfinders.end()),
-	_drawWorker(true),
-	_drawViaConnections(true),
-	_drawNeighbors(false)
-{
-	_traverseGrids.push_back(std::make_shared<SquareGrid>());
-	_traverseGrids.push_back(std::make_shared<VoronoiGrid>());
-	SetActiveTraverseGrid("Square");
 
+PathfinderManager::PathfinderManager() :
+	_editState(EditState::None)
+{
 	_pathfinders.push_back(std::make_unique<AStar>());
 	_pathfinders.push_back(std::make_unique<Dijkstra>());
 	_pathfinders.push_back(std::make_unique<BestFirstSearch>());
-	_pathfinders.push_back(std::make_unique<Beam32>());
-	_pathfinders.push_back(std::make_unique<Beam512>());
-	SetActivePathfinder("A*");
+	_pathfinders.push_back(std::make_unique<Beam<32>>());
+	_pathfinders.push_back(std::make_unique<Beam<512>>());
+	_pathfinders.push_back(std::make_unique<BFS>());
+
+	_traverseGrids.push_back(std::make_shared<SquareGrid>());
+	_traverseGrids.push_back(std::make_shared<VoronoiGrid>());
+	_activeTraverseGrid = _traverseGrids.end();
+
+	SetActiveTraverseGrid("Square");
+
 
 	const auto activeGrid = GetActiveTraverseGrid();
 	for ( auto &pathfinder : _pathfinders )
@@ -36,126 +35,444 @@ PathfinderManager::PathfinderManager() :
 		pathfinder->SetTraverseGrid(activeGrid);
 		pathfinder->AssignNodes(activeGrid->GetNodes());
 	}
+
+	for ( const auto &traverseGrid : _traverseGrids )
+	{
+		_traverseGridNames.push_back(traverseGrid->GetName().c_str());
+	}
+
+	_editStateNames.resize(static_cast<int>(EditState::Count));
+
+	_editStateNames[static_cast<int>(EditState::None)] = "None";
+	_editStateNames[static_cast<int>(EditState::Obstacles)] = "Obstacles";
+	_editStateNames[static_cast<int>(EditState::SubGoal)] = "Subgoal";
+	_editStateNames[static_cast<int>(EditState::Weights)] = "Weight";
+	_editStateNames[static_cast<int>(EditState::Start)] = "Start";
+	_editStateNames[static_cast<int>(EditState::Goal)] = "Goal";
 }
 
 void PathfinderManager::OnUpdate(Scene &scene)
 {
-	if ( Mouse::IsDown(sf::Mouse::Button::Left) && scene.GetViewportPane().IsHovered() )
+	const bool shiftDown = Keyboard::IsDown(sf::Keyboard::Key::LShift) || Keyboard::IsDown(sf::Keyboard::Key::RShift);
+	const auto &activeGrid = GetActiveTraverseGrid();
+
+	if ( _finishedWorking && !_didOnFinishWorkingUpdate )
 	{
-		const auto &activeGrid = GetActiveTraverseGrid();
-		const int nodeUID = activeGrid->GetNodeUID(scene.GetCamera().ScreenToWorld(Mouse::GetPosition()));
-		switch ( _editState )
+		CollectWorker();
+
+		for ( auto &pathfinder : _pathfinders )
 		{
-		case EditState::AddObstacles:
-		{
-			activeGrid->AddObstacle(nodeUID);
-			break;
+			pathfinder->AssignNodes(activeGrid->GetNodes());
+			pathfinder->SetTraverseGrid(activeGrid);
 		}
-		case EditState::RemObstacles:
-		{
-			activeGrid->RemoveObstacle(nodeUID);
-			break;
-		}
-		case EditState::SetStart:
-		{
-			activeGrid->SetStart(nodeUID);
-			break;
-		}
-		case EditState::SetGoal:
-		{
-			activeGrid->SetGoal(nodeUID);
-			break;
-		}
-		case EditState::AddSubGoal:
-		{
-			activeGrid->AddSubGoal(nodeUID);
-			break;
-		}
-		case EditState::RemSubGoal:
-		{
-			activeGrid->RemoveSubGoal(nodeUID);
-			break;
-		}
-		default:
-			break;
-		}
+
+		_didOnFinishWorkingUpdate = true;
 	}
 
-	//if ( _activePathFinder->GetState() == Pathfinder::State::Finding )
-	//	_timer += Clock::Delta();
-	//String timerAll(FormatTimerValue());
-	//for ( auto &result : _oldResults )
-	//	timerAll += ' ' + result;
-	//timerLabel->SetText(timerAll);
-	//timerLabel->SetLineWrap(true);
+
+	if ( _drawWeights )
+	{
+		activeGrid->SetWeightColorAlpha(255);
+		activeGrid->AddDrawFlags(TraverseGrid::DrawFlag_Weights);
+	}
+	else if ( _drawFadedWeights )
+	{
+		activeGrid->SetWeightColorAlpha(60);
+		activeGrid->AddDrawFlags(TraverseGrid::DrawFlag_Weights);
+	}
+	else
+	{
+		activeGrid->RemoveDrawFlags(TraverseGrid::DrawFlag_Weights);
+	}
+
+	if ( _finishedWorking )
+	{
+		// Reset before check hovered
+		if ( activeGrid->IsClear(_weightEditPair.first) )
+		{
+			activeGrid->ClearNodeColor(_weightEditPair.first);
+		}
+		if ( activeGrid->IsClear(_weightEditPair.second) )
+		{
+			activeGrid->ClearNodeColor(_weightEditPair.second);
+		}
+		if ( scene.GetViewportPane().IsHovered() )
+		{
+			const auto mouseInViewportPanePosition = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
+			const int nodeUID = activeGrid->GetNodeUID(mouseInViewportPanePosition);
+
+			if ( _editState == EditState::Weights )
+			{
+				if ( !_weightBrushEnabled )
+				{
+					_weightEditPair.first = nodeUID;
+					_weightEditPair.second = activeGrid->GetClosestNeighborUID(nodeUID, mouseInViewportPanePosition);
+
+					const auto color = TraverseGrid::GetWeightColor(_weight);
+					if ( activeGrid->IsClear(_weightEditPair.first) )
+					{
+						activeGrid->SetNodeColor(_weightEditPair.first, color);
+					}
+					if ( activeGrid->IsClear(_weightEditPair.second) )
+					{
+						activeGrid->SetNodeColor(_weightEditPair.second, color);
+					}
+				}
+			}
+
+			if ( Mouse::IsDown(sf::Mouse::Button::Left) )
+			{
+				switch ( _editState )
+				{
+				case EditState::Obstacles:
+				{
+					if ( _obstacleBrushEnabled )
+					{
+						for ( const auto &[uid, node] : activeGrid->GetNodes() )
+						{
+							if ( VecUtils::LengthSq(node.GetPosition() - mouseInViewportPanePosition) < std::pow(static_cast<float>(_obstacleBrushSize), 2.0f) )
+							{
+								shiftDown ? activeGrid->RemoveObstacle(uid) : activeGrid->AddObstacle(uid);
+							}
+						}
+					}
+					else
+					{
+						shiftDown ? activeGrid->RemoveObstacle(nodeUID) : activeGrid->AddObstacle(nodeUID);
+					}
+					break;
+				}
+				case EditState::Start:
+				{
+					activeGrid->SetStart(nodeUID);
+					break;
+				}
+				case EditState::Goal:
+				{
+					activeGrid->SetGoal(nodeUID);
+					break;
+				}
+				case EditState::SubGoal:
+				{
+					shiftDown ? activeGrid->RemoveSubGoal(nodeUID) : activeGrid->AddSubGoal(nodeUID);
+					break;
+				}
+				case EditState::Weights:
+				{
+					const float weight = shiftDown ? 1.0f : _weight;
+					if ( _weightBrushEnabled )
+					{
+						for ( const auto &[uid, node] : activeGrid->GetNodes() )
+						{
+							if ( VecUtils::LengthSq(node.GetPosition() - mouseInViewportPanePosition) < std::pow(static_cast<float>(_weightBrushSize), 2.0f) )
+							{
+								for ( const auto &neighborUID : node.GetNeighbors() )
+								{
+									SetWeight(uid, neighborUID, weight);
+								}
+							}
+						}
+					}
+					else
+					{
+						SetWeight(_weightEditPair.first, _weightEditPair.second, weight);
+					}
+					break;
+				}
+				default:
+					break;
+				}
+
+			}
+		}
+
+		GetActiveTraverseGrid()->OnUpdate();
+
+		for ( auto &pathfinder : _pathfinders )
+		{
+			pathfinder->OnUpdate();
+		}
+	}
 }
 
-void PathfinderManager::OnRenderGrid(Scene &scene)
+void PathfinderManager::OnRender(Scene &scene)
 {
 	GetActiveTraverseGrid()->OnRender(scene);
+	OnRenderPathfinders(scene);
+
+	if ( _editState == EditState::Obstacles && _obstacleBrushEnabled )
+	{
+		const sf::Color color(255, 0, 0, 50);
+		const auto position = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
+		scene.Submit(position, color, static_cast<float>(_obstacleBrushSize));
+	}
+
+	if ( _editState == EditState::Weights && _weightBrushEnabled )
+	{
+		const sf::Color color(0, 255, 0, 50);
+		const auto position = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
+		scene.Submit(position, color, static_cast<float>(_weightBrushSize));
+	}
 }
 
 void PathfinderManager::OnRenderPathfinders(Scene &scene)
 {
-	const auto &activeFinder = GetActivePathfinder();
+	auto activePathfinder = GetActivePathfinders();
+
 	if ( _drawNeighbors )
 	{
-		activeFinder->OnRenderNeighbors(scene);
+		for ( auto &pathfinder : activePathfinder )
+		{
+			(*pathfinder)->OnRenderNeighbors(scene);
+		}
 	}
 	if ( _drawViaConnections )
 	{
-		activeFinder->OnRenderViaConnections(scene);
+		for ( auto &pathfinder : activePathfinder )
+		{
+			(*pathfinder)->OnRenderViaConnections(scene);
+		}
 	}
 	if ( _drawWorker )
 	{
-		if ( !activeFinder->IsDone() )
+		for ( auto &pathfinder : activePathfinder )
 		{
-			activeFinder->OnRenderAnticipation(scene);
-		}
-		else
-		{
-			activeFinder->OnRenderResult(scene);
+			(*pathfinder)->OnRenderBody(scene);
 		}
 	}
 }
 
 void PathfinderManager::OnGuiRender()
 {
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !_finishedWorking);
+
+	auto activeGrid = GetActiveTraverseGrid();
+
+	Gui::BeginPropertyGrid("Grid");
+	ImGui::Text("Traverse Grid");
+	ImGui::NextColumn();
+	ImGui::PushItemWidth(-1);
+	if ( ImGui::Combo("##Traverse Grid", &_activeTraverseGridIndex, _traverseGridNames.data(), _traverseGridNames.size()) )
+	{
+		SetActiveTraverseGrid(_traverseGridNames.at(_activeTraverseGridIndex));
+	}
+	ImGui::NextColumn();
+
+	ImGui::Columns(3, "StartRestartReset");
+
+	if ( ImGui::Button("Start", { ImGui::GetContentRegionAvailWidth(), 0 }) )
+	{
+		Start();
+	}
+	ImGui::NextColumn();
+	if ( ImGui::Button("Restart", { ImGui::GetContentRegionAvailWidth(), 0 }) )
+	{
+		Restart();
+	}
+	ImGui::NextColumn();
+	if ( ImGui::Button("Reset", { ImGui::GetContentRegionAvailWidth(), 0 }) )
+	{
+		Reset();
+	}
+
+	ImGui::Columns(2, "PauseResume");
+
+	if ( ImGui::Button("Pause", { ImGui::GetContentRegionAvailWidth(), 0 }) )
+	{
+		Pause();
+	}
+	ImGui::NextColumn();
+	if ( ImGui::Button("Resume", { ImGui::GetContentRegionAvailWidth(), 0 }) )
+	{
+		Resume();
+	}
+	ImGui::NextColumn();
+
+	Gui::EndPropertyGrid();
+
+	ImGui::Separator();
+
+	Gui::BeginPropertyGrid("Time");
+	if ( Gui::Property("Sleep delay (microseconds)", _sleepDelayMicroseconds, 0.0f, 1000000.0f, 1.0f,
+					   Gui::PropertyFlag_Slider | Gui::PropertyFlag_Logarithmic) )
+	{
+		SetSleepDelay(sf::microseconds(_sleepDelayMicroseconds));
+	}
+
+
+	const auto drawFlags = activeGrid->GetDrawFlags();
+	bool drawGrid = drawFlags & TraverseGrid::DrawFlag_Grid;
+	bool drawObjects = drawFlags & TraverseGrid::DrawFlag_Objects;
+
+	if ( Gui::Property("Grid", drawGrid) )
+	{
+		activeGrid->SetDrawFlags(drawGrid ? drawFlags | TraverseGrid::DrawFlag_Grid : drawFlags - TraverseGrid::DrawFlag_Grid);
+	}
+	if ( Gui::Property("Objects", drawObjects) )
+	{
+		activeGrid->SetDrawFlags(drawObjects ? drawFlags | TraverseGrid::DrawFlag_Objects : drawFlags - TraverseGrid::DrawFlag_Objects);
+	}
+	Gui::Property("Weights", _drawFadedWeights);
+
+	Gui::EndPropertyGrid();
+
+	ImGui::Separator();
+
+	Gui::BeginPropertyGrid("Edit");
+
+	String editText = "Edit";
+
+	switch ( _editState )
+	{
+	case EditState::Obstacles:
+	case EditState::SubGoal:
+		editText += " (Hold shift to remove)";
+		break;
+	case EditState::Weights:
+		editText += " (Hold shift to apply reset)";
+		break;
+	default:
+		break;
+	}
+
+	ImGui::Text(editText.c_str());
+	ImGui::NextColumn();
+	ImGui::PushItemWidth(-1);
+	if ( ImGui::Combo("##EditState", &_editStateIndex, _editStateNames.data(), _editStateNames.size()) )
+	{
+		_drawWeights = static_cast<EditState>(_editStateIndex) == EditState::Weights;
+		SetEditState(static_cast<EditState>(_editStateIndex));
+	}
+
+	ImGui::NextColumn();
+
+	switch ( _editState )
+	{
+	case EditState::Obstacles:
+		Gui::Property("Enable Brush", _obstacleBrushEnabled);
+		if ( _obstacleBrushEnabled )
+		{
+			Gui::Property("Brush Size", _obstacleBrushSize, 1, 100, 1, Gui::PropertyFlag_Slider);
+		}
+		break;
+	case EditState::Weights:
+		Gui::Property("Weight", _weight, 0, TraverseGrid::MaxWeight, 1, Gui::PropertyFlag_Slider);
+		Gui::Property("Enable Brush", _weightBrushEnabled);
+		if ( _weightBrushEnabled )
+		{
+			Gui::Property("Brush Size", _weightBrushSize, 1, 100, 1, Gui::PropertyFlag_Slider);
+		}
+		break;
+	default:
+		break;
+	}
+
+	Gui::EndPropertyGrid();
+
+	ImGui::Separator();
+
+
+	ImGui::Columns(4, "Pathfinders");
+
+	for ( auto &pathfinder : _pathfinders )
+	{
+		const String &name = pathfinder->GetName();
+		ImGui::Text(name.c_str());
+
+		ImGui::NextColumn();
+
+		String id = "##" + name;
+		bool active = pathfinder->IsActive();
+		if ( ImGui::Checkbox(id.c_str(), &active) )
+		{
+			active ? pathfinder->Activate() : pathfinder->Deactivate();
+		}
+
+		ImGui::SameLine();
+
+		id += "Color";
+		const sf::Color body = pathfinder->GetBodyColor();
+		float color[4] = {
+			static_cast<float>(body.r) / 255.0f,
+			static_cast<float>(body.g) / 255.0f,
+			static_cast<float>(body.b) / 255.0f,
+			static_cast<float>(body.a) / 255.0f
+		};
+
+		if ( ImGui::ColorEdit4(id.c_str(), color, ImGuiColorEditFlags_NoInputs) )
+		{
+			const sf::Color newColor(color[0] * 255,
+									 color[1] * 255,
+									 color[2] * 255,
+									 color[3] * 255);
+			pathfinder->SetBodyColor(newColor);
+		}
+
+		ImGui::NextColumn();
+
+		ImGui::Text(pathfinder->GetStateString().c_str());
+
+		ImGui::NextColumn();
+
+		ImGui::Text(pathfinder->GetResult().c_str());
+
+		ImGui::NextColumn();
+	}
+
+	ImGui::Columns();
 }
 
 void PathfinderManager::OnRenderTargetResize(const sf::Vector2f &size)
 {
-	for ( auto &grid : _traverseGrids )
+	if ( _renderTargetSize != size )
 	{
-		grid->OnRenderTargetResize(size);
+		Reset();
+
+		CollectWorker();
+
+		_finishedWorking = false;
+		_worker = Thread([this, size]
+						 {
+							 GetActiveTraverseGrid()->OnRenderTargetResize(size);
+							 _finishedWorking = true;
+							 _didOnFinishWorkingUpdate = false;
+						 });
+
+		_renderTargetSize = size;
 	}
 }
 
 void PathfinderManager::Start()
 {
-	const auto &activeFinder = GetActivePathfinder();
 	const auto &activeGrid = GetActiveTraverseGrid();
-	if ( activeFinder->GetState() == Pathfinder::State::WaitingForStart )
+	for ( auto &pathfinder : _pathfinders )
 	{
-		PushTimerToResultStack();
-		ResetTimer();
+		pathfinder->Start(activeGrid->GetStartUID(), activeGrid->GetGoalUID(), activeGrid->GetSubGoalUIDs());
 	}
-	activeFinder->Start(activeGrid->GetStartUID(), activeGrid->GetGoalUID(), activeGrid->GetSubGoalUIDs());
 }
 
 void PathfinderManager::Pause()
 {
-	GetActivePathfinder()->Pause();
+	for ( auto &pathfinder : _pathfinders )
+	{
+		pathfinder->Pause();
+	}
 }
 
 void PathfinderManager::Resume()
 {
-	GetActivePathfinder()->Resume();
+	for ( auto &pathfinder : _pathfinders )
+	{
+		pathfinder->Resume();
+	}
 }
 
 void PathfinderManager::Restart()
 {
-	GetActivePathfinder()->Restart();
+	for ( auto &pathfinder : _pathfinders )
+	{
+		pathfinder->Restart();
+	}
 }
 
 void PathfinderManager::Reset()
@@ -164,7 +481,9 @@ void PathfinderManager::Reset()
 	{
 		pathfinder->Reset();
 	}
+
 	const auto &activeGrid = GetActiveTraverseGrid();
+	activeGrid->Reset();
 	activeGrid->ClearObstacles();
 	activeGrid->ClearSubGoals();
 	activeGrid->ResetStartGoal();
@@ -178,31 +497,52 @@ void PathfinderManager::SetSleepDelay(sf::Time delay)
 	}
 }
 
-void PathfinderManager::SetActivePathfinder(const String &name)
+void PathfinderManager::SetWeight(int uidFirst, int uidSecond, float weight)
 {
-	_activePathFinder = SetActiveHelper(_pathfinders, name);
+	for ( auto &pathfinder : _pathfinders )
+	{
+		pathfinder->SetWeight(uidFirst, uidSecond, weight);
+	}
+	GetActiveTraverseGrid()->SetWeight(uidFirst, uidSecond, weight);
 }
 
 void PathfinderManager::SetActiveTraverseGrid(const String &name)
 {
-	_activeTraverseGrid = SetActiveHelper(_traverseGrids, name);
-}
-
-String PathfinderManager::FormatTimerValue()
-{
-	std::ostringstream oss;
-	oss << std::fixed << std::setprecision(5) << "\t\n"
-		<< _timer.asSeconds() << "s (" << GetActivePathfinder()->GetName() << ")";
-	return oss.str();
-}
-
-void PathfinderManager::PushTimerToResultStack()
-{
-	if ( _timer != sf::Time::Zero )
+	if ( _activeTraverseGrid != _traverseGrids.end() && (*_activeTraverseGrid)->GetName() == name )
 	{
-		if ( _oldResults.size() > 5 )
-			_oldResults.pop_back();
-		_oldResults.push_front(FormatTimerValue());
+		return;
 	}
+
+	_activeTraverseGrid = SetActiveHelper(_traverseGrids, name);
+	auto activeGrid = GetActiveTraverseGrid();
+
+	Restart();
+	CollectWorker();
+
+	_finishedWorking = false;
+	_worker = Thread([this, activeGrid]
+					 {
+						 activeGrid->OnRenderTargetResize(_renderTargetSize);
+						 _finishedWorking = true;
+						 _didOnFinishWorkingUpdate = false;
+					 });
+}
+
+ArrayList<ArrayList<Unique<Pathfinder>>::iterator> PathfinderManager::GetActivePathfinders()
+{
+	ArrayList<ArrayList<Unique<Pathfinder>>::iterator> activePathfinders;
+	for ( auto iter = _pathfinders.begin(); iter != _pathfinders.end(); ++iter )
+	{
+		if ( (*iter)->IsActive() )
+		{
+			activePathfinders.push_back(iter);
+		}
+	}
+	return activePathfinders;
+}
+
+void PathfinderManager::CollectWorker()
+{
+	if ( _worker.joinable() ) _worker.join();
 }
 }

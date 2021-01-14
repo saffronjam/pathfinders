@@ -23,8 +23,7 @@ void ProjectLayer::OnUpdate()
 	BaseLayer::OnUpdate();
 
 	_pathfinderManager->OnUpdate(_scene);
-	_pathfinderManager->OnRenderGrid(_scene);
-	_pathfinderManager->OnRenderPathfinders(_scene);
+	_pathfinderManager->OnRender(_scene);
 }
 
 void ProjectLayer::OnGuiRender()

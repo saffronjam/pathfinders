@@ -4,15 +4,17 @@
 
 namespace Se
 {
-class Beam32 : public Pathfinder
+class BFS : public Pathfinder
 {
 public:
-	Beam32() : Pathfinder("Beam32") {}
+	BFS() : Pathfinder("BFS")
+	{
+		SetBodyColor(sf::Color::Green);
+	}
 
 	void FindPath(int startUID, int goalUID) override;
 
 private:
 	Deque<int> _checkingQueue;
-	static constexpr int beamWidth = 32;
 };
 }

@@ -10,17 +10,18 @@ public:
 	VoronoiGrid();
 
 	void OnRender(Scene &scene) override;
+	void OnRenderTargetResize(const sf::Vector2f &size) override;
+
+	void ClearNodeColor(int uid) override;
+	void SetNodeColor(int uid, const sf::Color &color) override;
 
 private:
 	void GenerateNodes() override;
 	void GenerateGrid() override;
 	void CalculateNeighbors() override;
 
-	void ClearNodeColor(int uid) override;
-	void SetNodeColor(int uid, const sf::Color &color) override;
-
 private:
 	Voronoi _grid;
-	int noPoints = 1600;
+	int _noPoints = 10;
 };
 }

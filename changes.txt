@@ -1,2 +1,5 @@
 - Core/TypeDefs
 - Core/Voronoi.h + ext-lib
+- Core/Run
+- Core/Application
+- Core/Gui

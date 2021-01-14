@@ -1,8 +1,28 @@
-#include "Pathfinders/Beam32.h"
+#pragma once
+
+#include "Pathfinder.h"
 
 namespace Se
 {
-void Beam32::FindPath(int startUID, int goalUID)
+template<int BeamWidth>
+class Beam : public Pathfinder
+{
+public:
+	Beam() : Pathfinder("Beam " + std::to_string(BeamWidth))
+	{
+		const float shade = static_cast<float>(_beamWidth) / 512.0f * 255.0f;
+		SetBodyColor(sf::Color(255, 128, shade));
+	}
+
+	void FindPath(int startUID, int goalUID) override;
+
+private:
+	Deque<int> _checkingQueue;
+	static constexpr int _beamWidth = BeamWidth;
+};
+
+template <int BeamWidth>
+void Beam<BeamWidth>::FindPath(int startUID, int goalUID)
 {
 	_checkingQueue.push_front(startUID);
 	GetNode(startUID).SetCost("Tentative", 0.0f);
@@ -49,9 +69,9 @@ void Beam32::FindPath(int startUID, int goalUID)
 					  return GetNode(lhs).GetCost("Total") < GetNode(rhs).GetCost("Total");
 				  });
 
-		if ( _checkingQueue.size() > beamWidth )
+		if ( _checkingQueue.size() > _beamWidth )
 		{
-			int toErase = _checkingQueue.size() - beamWidth;
+			int toErase = _checkingQueue.size() - _beamWidth;
 			_checkingQueue.erase(_checkingQueue.end() - toErase, _checkingQueue.end());
 		}
 	}

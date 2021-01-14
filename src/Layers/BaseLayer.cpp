@@ -46,7 +46,7 @@ void BaseLayer::OnUpdate()
 {
 	if ( _wantResize )
 	{
-		if ( _framesWithNoResizeRequest > 4 )
+		if ( _noResizeRequestTimer.asSeconds() > 0.2f && _framesWithNoResizeRequest > 4 )
 		{
 			GetSignals().Emit(Signals::OnRenderTargetResize, _resizeTo);
 			_wantResize = false;
@@ -54,6 +54,7 @@ void BaseLayer::OnUpdate()
 		else
 		{
 			_framesWithNoResizeRequest++;
+			_noResizeRequestTimer += Global::Clock::GetFrameTime();
 		}
 	}
 
@@ -85,6 +86,7 @@ void BaseLayer::OnWantRenderTargetResize(const sf::Vector2f &newSize)
 	}
 	_wantResize = true;
 	_resizeTo = newSize;
+	_noResizeRequestTimer = sf::Time::Zero;
 	_framesWithNoResizeRequest = 0;
 }
 }

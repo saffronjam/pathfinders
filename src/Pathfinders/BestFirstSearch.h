@@ -7,7 +7,10 @@ namespace Se
 class BestFirstSearch : public Pathfinder
 {
 public:
-	BestFirstSearch() : Pathfinder("Best First Search") {}
+	BestFirstSearch() : Pathfinder("Best First Search")
+	{
+		SetBodyColor(sf::Color::Magenta);
+	}
 
 	void FindPath(int startUID, int goalUID) override;
 

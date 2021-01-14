@@ -32,12 +32,16 @@ void AStar::FindPath(int startUID, int goalUID)
 				if ( suggestedTentativeCost < neighbor.GetCost("Tentative") )
 				{
 					if ( std::find(_checkingQueue.begin(), _checkingQueue.end(), neighborUID) == _checkingQueue.end() )
+					{
 						_checkingQueue.push_back(neighborUID);
+					}
 
 					neighbor.SetVia(_activeNodeUID);
 					neighbor.SetCost("Tentative", suggestedTentativeCost);
-					neighbor.SetCost("Heuristic",
-									 VecUtils::Length(neighbor.GetPosition() - GetNode(goalUID).GetPosition()));
+					if ( !neighbor.HasCost("Heuristic") )
+					{
+						neighbor.SetCost("Heuristic", VecUtils::Length(neighbor.GetPosition() - GetNode(goalUID).GetPosition()));
+					}
 					neighbor.SetCost("Total", suggestedTentativeCost + neighbor.GetCost("Heuristic"));
 				}
 			}

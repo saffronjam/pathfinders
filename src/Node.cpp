@@ -13,11 +13,17 @@ void Node::AddNeighbor(int uid, float cost)
 {
 	_neighbors.emplace(uid);
 	_neighborCosts.emplace(CreatePair(uid, cost));
+	_resetNeighborCosts.emplace(CreatePair(uid, cost));
 }
 
 void Node::ResetCosts()
 {
 	_costs.clear();
+}
+
+void Node::ResetNeighborsCost()
+{
+	_neighborCosts = _resetNeighborCosts;
 }
 
 void Node::ResetPath()
@@ -28,11 +34,16 @@ void Node::ResetPath()
 
 float Node::GetCost(const String &type)
 {
-	if ( _costs.find(type) == _costs.end() )
+	if ( !HasCost(type) )
 	{
 		_costs.emplace(CreatePair(type, std::numeric_limits<float>::infinity()));
 	}
 	return _costs.at(type);
+}
+
+bool Node::HasCost(const String &type)
+{
+	return _costs.find(type) != _costs.end();
 }
 
 bool Node::WasVisitedBy(Node &node) const
@@ -42,7 +53,7 @@ bool Node::WasVisitedBy(Node &node) const
 
 void Node::SetCost(const String &type, float cost)
 {
-	if ( _costs.find(type) == _costs.end() )
+	if ( !HasCost(type) )
 	{
 		_costs.emplace(CreatePair(type, cost));
 	}
@@ -50,5 +61,10 @@ void Node::SetCost(const String &type, float cost)
 	{
 		_costs.at(type) = cost;
 	}
+}
+
+void Node::SetNeighborCost(float cost, int uid)
+{
+	_neighborCosts.at(uid) = cost;
 }
 }

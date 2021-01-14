@@ -43,6 +43,7 @@ protected:
 private:
 	bool _wantResize = false;
 	sf::Vector2f _resizeTo = VecUtils::Null<>();
+	sf::Time _noResizeRequestTimer = sf::Time::Zero;
 	int _framesWithNoResizeRequest = 0;
 };
 
