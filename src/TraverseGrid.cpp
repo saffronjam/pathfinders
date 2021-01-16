@@ -145,6 +145,9 @@ void TraverseGrid::SetWeight(int uidFirst, int uidSecond, float weight)
 
 	_weightLinesVA[_weightLinesCacheVA[{uidFirst, uidSecond}].first].color = color;
 	_weightLinesVA[_weightLinesCacheVA[{uidFirst, uidSecond}].second].color = color;
+
+	_editedWeightUIDs.emplace(uidFirst);
+	_editedWeightUIDs.emplace(uidSecond);
 }
 
 void TraverseGrid::SetWeightColorAlpha(Uint8 alpha)
@@ -233,7 +236,7 @@ void TraverseGrid::AddSubGoal(int uid)
 {
 	if ( IsClear(uid) )
 	{
-		_subGoalUIDs.push_back(uid);
+		_subGoalUIDs.emplace(uid);
 		SetNodeColor(uid, sf::Color::Blue);
 	}
 }

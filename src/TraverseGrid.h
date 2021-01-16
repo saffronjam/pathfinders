@@ -30,6 +30,8 @@ public:
 	void Reset();
 
 	Map<int, Node> &GetNodes() { return _nodes; }
+	const Map<int, Node> &GetNodes() const { return _nodes; }
+
 	Node &GetNode(int uid) { return _nodes.at(uid); }
 	const Node &GetNode(int uid) const { return _nodes.at(uid); }
 	int GetClosestNeighborUID(int uid, const sf::Vector2f &position) const;
@@ -37,7 +39,10 @@ public:
 	int GetNodeUID(const sf::Vector2f &position) const;
 	int GetStartUID() const { return _startUID; }
 	int GetGoalUID() const { return _goalUID; }
-	ArrayList<int> &GetSubGoalUIDs() { return _subGoalUIDs; }
+
+	const Set<int> &GetObstacleUIDs() { return _obstacleUIDs; }
+	const Set<int> &GetSubGoalUIDs() { return _subGoalUIDs; }
+	const Set<int> &GetEditedWeightUIDs() { return _editedWeightUIDs; }
 
 	DrawFlags GetDrawFlags() const { return _drawFlags; }
 	virtual void SetDrawFlags(DrawFlags drawFlags);
@@ -86,7 +91,6 @@ protected:
 
 	void SetDefaultStartGoal();
 
-	const Map<int, Node> &GetNodes() const { return _nodes; }
 
 private:
 	void OnRenderWeights(Scene &scene);
@@ -102,8 +106,10 @@ private:
 	String _name;
 
 	Set<int> _obstacleUIDs;
+	Set<int> _subGoalUIDs;
+	Set<int> _editedWeightUIDs;
 
-	sf::Color _obstacleColor{ 60, 60, 60, 120 };
+	sf::Color _obstacleColor{ 60, 60, 60, 190 };
 	sf::Color _startColor{ 0, 255, 255, 180 };
 	sf::Color _goalColor{ 255, 255, 0, 180 };
 
@@ -118,6 +124,5 @@ private:
 	// Cached
 	int _startUID;
 	int _goalUID;
-	ArrayList<int> _subGoalUIDs;
 };
 }

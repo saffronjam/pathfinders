@@ -292,6 +292,16 @@ void PathfinderManager::OnGuiRender()
 
 	ImGui::Separator();
 
+	if ( String(_traverseGridNames[_activeTraverseGridIndex]) == "Square" )
+	{
+		ImGui::Columns(1, "SquareGenerateMaze");
+		if ( ImGui::Button("Generate Maze", { ImGui::GetContentRegionAvailWidth(), 0 }) )
+		{
+			std::dynamic_pointer_cast<SquareGrid>(GetActiveTraverseGrid())->GenerateMaze();
+		}
+		ImGui::Separator();
+	}
+
 	Gui::BeginPropertyGrid("Time");
 	if ( Gui::Property("Sleep delay (microseconds)", _sleepDelayMicroseconds, 0.0f, 1000000.0f, 1.0f,
 					   Gui::PropertyFlag_Slider | Gui::PropertyFlag_Logarithmic) )

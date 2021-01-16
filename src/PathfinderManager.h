@@ -45,6 +45,7 @@ public:
 	void SetWeight(int uidFirst, int uidSecond, float weight);
 
 	void SetActiveTraverseGrid(const String &name);
+	Shared<TraverseGrid> &GetActiveTraverseGrid() { return *_activeTraverseGrid; }
 	const Shared<TraverseGrid> &GetActiveTraverseGrid() const { return *_activeTraverseGrid; }
 
 	void ClearTimerResults() { _oldResults.clear(); }

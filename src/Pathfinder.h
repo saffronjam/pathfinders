@@ -44,7 +44,7 @@ public:
 	void SetSleepDelay(sf::Time delay);
 	void SetWeight(int uidFirst, int uidSecond, float weight);
 
-	void Start(int startUID, int goalUID, const ArrayList<int> &subGoalsUIDs);
+	void Start(int startUID, int goalUID, const Set<int> &subGoalsUIDs);
 	void Pause();
 	void Resume();
 	void Restart();
@@ -70,7 +70,7 @@ protected:
 
 private:
 	void RenderFinishedBodyHelper(Scene &scene, sf::Color color, int limit);
-	void FindPathThreadFn(int startUID, int goalUID, const ArrayList<int> &subGoalsUIDs);
+	void FindPathThreadFn(int startUID, int goalUID, const Set<int> &subGoalsUIDs);
 	bool CheckFindPathResult(int fromUID, int toUID);
 	void AppendFinalPath(int startUID, int goalUID);
 	void CollectFinder();

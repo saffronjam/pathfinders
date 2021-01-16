@@ -12,8 +12,6 @@ namespace Se
 {
 class Node
 {
-	friend class TraverseGrid;
-
 public:
 	Node(int uid, const sf::Vector2f &position);
 

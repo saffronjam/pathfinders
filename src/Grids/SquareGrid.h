@@ -15,6 +15,14 @@ private:
 		sf::FloatRect Shape;
 	};
 
+	struct MazeNode
+	{
+		int uid;
+		int chosenPathUid;
+		Set<int> neighbors;
+		bool visited;
+	};
+
 public:
 	SquareGrid();
 
@@ -24,6 +32,8 @@ public:
 	void ClearNodeColor(int uid) override;
 	void SetNodeColor(int uid, const sf::Color &color) override;
 
+	void GenerateMaze();
+
 private:
 	void GenerateNodes() override;
 	void GenerateGrid() override;
@@ -31,6 +41,7 @@ private:
 
 	sf::Vector2f GetBoxSize() const;
 
+	void RecursiveMazeExploration(Map<int, MazeNode> &allNodes, Set<int> &maybeObstacle, MazeNode &mazeNode);
 
 private:
 	Map<int, Square> _filledSquares;
@@ -39,5 +50,11 @@ private:
 
 	sf::VertexArray _lineVA;
 	sf::VertexArray _filledSquaresVA;
+
+
+	// Maze generation
+	Map<int, MazeNode> _alwaysPath;
+	Set<int> _alwaysObstacle;
+	Set<int> _maybeObstacle;
 };
 }

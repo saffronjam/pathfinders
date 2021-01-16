@@ -148,7 +148,7 @@ void Pathfinder::SetTraverseGrid(const Shared<const TraverseGrid> &traverseGrid)
 	_traverseGrid = traverseGrid;
 }
 
-void Pathfinder::Start(int startUID, int goalUID, const ArrayList<int> &subGoalsUIDs)
+void Pathfinder::Start(int startUID, int goalUID, const Set<int> &subGoalsUIDs)
 {
 	if ( _state == State::Finished )
 	{
@@ -291,7 +291,7 @@ void Pathfinder::RenderFinishedBodyHelper(Scene &scene, sf::Color color, int lim
 	scene.Submit(_bodyFinishedVA);
 }
 
-void Pathfinder::FindPathThreadFn(int startUID, int goalUID, const ArrayList<int> &subGoalsUIDs)
+void Pathfinder::FindPathThreadFn(int startUID, int goalUID, const Set<int> &subGoalsUIDs)
 {
 	_finalPath.clear();
 

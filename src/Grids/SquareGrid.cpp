@@ -38,6 +38,11 @@ void SquareGrid::OnRenderTargetResize(const sf::Vector2f &size)
 		_noBoxes = { boxesX, boxesY };
 		_filledSquares.clear();
 		_filledSquaresVA.clear();
+
+		// Reset Maze
+		_alwaysPath.clear();
+		_alwaysObstacle.clear();
+		_maybeObstacle.clear();
 	}
 
 	TraverseGrid::OnRenderTargetResize(size);
@@ -81,6 +86,139 @@ void SquareGrid::SetNodeColor(int uid, const sf::Color &color)
 		_filledSquaresVA[_filledSquares.at(uid).VAIndex + 1].color = color;
 		_filledSquaresVA[_filledSquares.at(uid).VAIndex + 2].color = color;
 		_filledSquaresVA[_filledSquares.at(uid).VAIndex + 3].color = color;
+	}
+}
+
+std::random_device rd;
+std::mt19937 g(rd());
+void SquareGrid::RecursiveMazeExploration(Map<int, MazeNode> &allNodes, Set<int> &maybeObstacle, MazeNode &mazeNode)
+{
+	ArrayList<int> shuffledNeighbors(mazeNode.neighbors.begin(), mazeNode.neighbors.end());
+
+	std::shuffle(shuffledNeighbors.begin(), shuffledNeighbors.end(), g);
+
+	for ( const auto &neighbor : shuffledNeighbors )
+	{
+		MazeNode &neighborNode = allNodes.at(neighbor);
+		if ( !neighborNode.visited )
+		{
+			mazeNode.chosenPathUid = neighbor;
+			neighborNode.visited = true;
+
+			const int uidDiff = neighborNode.uid - mazeNode.uid;
+			maybeObstacle.erase(mazeNode.uid + uidDiff / 2);
+			RecursiveMazeExploration(allNodes, maybeObstacle, allNodes.at(neighbor));
+		}
+	}
+};
+
+void SquareGrid::GenerateMaze()
+{
+	ClearObstacles();
+	ClearSubGoals();
+
+	_alwaysPath.clear();
+	_alwaysObstacle.clear();
+	_maybeObstacle.clear();
+
+	for ( int i = 0, newIndex = 0; i < _nodes.size(); i++ )
+	{
+		const int x = i % _noBoxes.x;
+		const int y = i / _noBoxes.x;
+
+		if ( x % 2 == 0 && y % 2 == 0 )
+		{
+			_alwaysPath[newIndex++] = MazeNode{ _nodes.at(i).GetUID(), {} };
+		}
+		else if ( x % 2 == 1 && y % 2 == 1 )
+		{
+			_alwaysObstacle.emplace(_nodes.at(i).GetUID());
+		}
+		else
+		{
+			_maybeObstacle.emplace(_nodes.at(i).GetUID());
+		}
+	}
+
+	const sf::Vector2i newSize = (sf::Vector2i(_noBoxes) + sf::Vector2i(1, 1)) / 2;
+
+
+	for ( int i = 0; i < _alwaysPath.size(); i++ )
+	{
+		auto &neighbors = _alwaysPath.at(i).neighbors;
+
+		const bool isTopRow = i < newSize.x;
+		const bool isBottomRow = i >= newSize.x * (newSize.y - 1) && i < newSize.x *newSize.y;
+		const bool isLeftMostColumn = i % newSize.x == 0;
+		const bool isRightMostColumn = (i + 1) % newSize.x == 0;
+
+		if ( isTopRow )
+		{
+			neighbors.emplace(i + newSize.x);
+
+			if ( isLeftMostColumn )
+			{
+				neighbors.emplace(i + 1);
+			}
+			else if ( isRightMostColumn )
+			{
+				neighbors.emplace(i - 1);
+			}
+			else
+			{
+				neighbors.emplace(i + 1);
+				neighbors.emplace(i - 1);
+			}
+		}
+		else if ( isBottomRow )
+		{
+			neighbors.emplace(i - newSize.x);
+
+			if ( isLeftMostColumn )
+			{
+				neighbors.emplace(i + 1);
+			}
+			else if ( isRightMostColumn )
+			{
+				neighbors.emplace(i - 1);
+			}
+			else
+			{
+				neighbors.emplace(i + 1);
+				neighbors.emplace(i - 1);
+			}
+		}
+		else if ( isLeftMostColumn )
+		{
+			neighbors.emplace(i + newSize.x);
+			neighbors.emplace(i - newSize.x);
+			neighbors.emplace(i + 1);
+		}
+		else if ( isRightMostColumn )
+		{
+			neighbors.emplace(i + newSize.x);
+			neighbors.emplace(i - newSize.x);
+			neighbors.emplace(i - 1);
+		}
+		else
+		{
+			neighbors.emplace(i + newSize.x);
+			neighbors.emplace(i - newSize.x);
+			neighbors.emplace(i + 1);
+			neighbors.emplace(i - 1);
+		}
+	}
+
+	_alwaysPath[0].visited = true;
+	RecursiveMazeExploration(_alwaysPath, _maybeObstacle, _alwaysPath[0]);
+
+	for ( auto &uid : _maybeObstacle )
+	{
+		AddObstacle(uid);
+	}
+	for ( auto &uid : _alwaysObstacle )
+	{
+		AddObstacle(uid);
 	}
 }
 
