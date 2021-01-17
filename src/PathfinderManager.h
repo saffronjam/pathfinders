@@ -74,7 +74,6 @@ private:
 
 	bool _drawWorker = true;
 	bool _drawViaConnections = true;
-	bool _drawNeighbors = false;
 
 	sf::Time _timer;
 	Deque<String> _oldResults;
@@ -99,6 +98,8 @@ private:
 
 	bool _obstacleBrushEnabled = false;
 	int _obstacleBrushSize = 10;
+
+	int _mazeNewPaths = 0;
 
 };
 

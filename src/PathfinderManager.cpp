@@ -8,6 +8,7 @@
 #include "Pathfinders/BestFirstSearch.h"
 #include "Pathfinders/Beam.h"
 #include "Pathfinders/BFS.h"
+#include "Pathfinders/DFS.h"
 
 namespace Se
 {
@@ -21,6 +22,7 @@ PathfinderManager::PathfinderManager() :
 	_pathfinders.push_back(std::make_unique<Beam<32>>());
 	_pathfinders.push_back(std::make_unique<Beam<512>>());
 	_pathfinders.push_back(std::make_unique<BFS>());
+	_pathfinders.push_back(std::make_unique<DFS>());
 
 	_traverseGrids.push_back(std::make_shared<SquareGrid>());
 	_traverseGrids.push_back(std::make_shared<VoronoiGrid>());
@@ -231,16 +233,6 @@ void PathfinderManager::OnRenderPathfinders(Scene &scene)
 {
 	auto activePathfinder = GetActivePathfinders();
 
-	if ( _drawNeighbors )
-	{
-		for ( auto &pathfinder : activePathfinder )
-		{
-			if ( !(*pathfinder)->IsDone() )
-			{
-				(*pathfinder)->OnRenderNeighbors(scene);
-			}
-		}
-	}
 	if ( _drawViaConnections )
 	{
 		for ( auto &pathfinder : activePathfinder )
@@ -324,6 +316,14 @@ void PathfinderManager::OnGuiRender()
 							 _finishedWorking = true;
 						 });
 	}
+	Gui::BeginPropertyGrid("MazeGeneration");
+	const float min = 0, max = 1000;
+	if ( Gui::Property("New paths", _mazeNewPaths, min, max, 1, Gui::PropertyFlag_Slider) )
+	{
+		activeGrid->SetNoWallsToSmash(_mazeNewPaths);
+	}
+	Gui::EndPropertyGrid();
+
 	ImGui::Separator();
 
 	Gui::BeginPropertyGrid("Time");
@@ -553,6 +553,7 @@ void PathfinderManager::SetActiveTraverseGrid(const String &name)
 
 	_activeTraverseGrid = SetActiveHelper(_traverseGrids, name);
 	auto activeGrid = GetActiveTraverseGrid();
+	activeGrid->SetNoWallsToSmash(_mazeNewPaths);
 
 	Restart();
 	CollectWorker();

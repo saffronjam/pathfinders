@@ -149,6 +149,17 @@ void TraverseGrid::GenerateMaze()
 			active = neighbor;
 		}
 	}
+
+
+	for ( int i = 0; i < _noToSmash; i++ )
+	{
+		const int randomIndex = Random::Integer(0, static_cast<int>(_nodes.size()) - 1);
+		for ( int neighbor : GetNode(randomIndex).GetNeighbors() )
+		{
+			RemoveObstacle(randomIndex, neighbor);
+		}
+	}
+
 }
 
 int TraverseGrid::GetClosestNeighborUID(int uid, const sf::Vector2f &position) const

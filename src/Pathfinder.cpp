@@ -84,17 +84,6 @@ void Pathfinder::OnRenderBody(Scene &scene)
 	IsDone() ? OnRenderResult(scene) : OnRenderAnticipation(scene);
 }
 
-void Pathfinder::OnRenderNeighbors(Scene &scene)
-{
-	for ( auto &[uid, node] : _nodes )
-	{
-		for ( const auto &neighborUID : node.GetNeighbors() )
-		{
-			scene.Submit(node.GetPosition(), GetNode(neighborUID).GetPosition(), sf::Color(255, 0, 255, 20));
-		}
-	}
-}
-
 void Pathfinder::OnRenderResult(Scene &scene)
 {
 	if ( _pathWasFound )

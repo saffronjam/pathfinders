@@ -31,7 +31,6 @@ public:
 	void OnRenderAnticipation(Scene &scene);
 	void OnRenderViaConnections(Scene &scene);
 	void OnRenderBody(Scene &scene);
-	void OnRenderNeighbors(Scene &scene);
 	void OnRenderResult(Scene &scene);
 
 	State GetState() const { return _state; }

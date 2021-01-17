@@ -30,6 +30,7 @@ public:
 	void Reset();
 
 	void GenerateMaze();
+	void SetNoWallsToSmash(int no) { _noToSmash = no; }
 
 	Map<int, Node> &GetNodes() { return _nodes; }
 	const Map<int, Node> &GetNodes() const { return _nodes; }
@@ -135,6 +136,7 @@ private:
 
 	// Maze Generation
 	Set<int> _visitedNodes;
+	int _noToSmash = 0;
 	Random::Device _randomDevice;
 	Random::Engine _randomEngine{ _randomDevice() };
 };
