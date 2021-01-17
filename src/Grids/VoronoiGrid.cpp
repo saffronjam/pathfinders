@@ -18,6 +18,10 @@ void VoronoiGrid::OnRender(Scene &scene)
 	_drawFlags &DrawFlag_Grid ? _grid.ShowGrid() : _grid.HideGrid();
 	_drawFlags &DrawFlag_Objects ? _grid.ShowFilled() : _grid.HideFilled();
 	scene.Submit(_grid);
+	if ( _drawFlags & DrawFlag_Objects )
+	{
+		scene.Submit(_filledEdgesVA);
+	}
 }
 
 void VoronoiGrid::OnRenderTargetResize(const sf::Vector2f &size)
@@ -39,12 +43,65 @@ void VoronoiGrid::SetNodeColor(int uid, const sf::Color &color)
 	_grid.GetPolygon(GetNode(uid).GetPosition()).SetFillColor(color);
 }
 
+void VoronoiGrid::ClearNodeEdgeColor(int fromUid, int toUid)
+{
+	SE_CORE_ASSERT(fromUid != -1 && toUid != -1, "Invalid uid");
+	const auto findResult = _filledEdges.find({ fromUid, toUid });
+	if ( findResult != _filledEdges.end() )
+	{
+		const int VAIndex = findResult->second;
+		_filledEdgesVA[VAIndex].color = sf::Color::Transparent;
+		_filledEdgesVA[VAIndex + 1].color = sf::Color::Transparent;
+		_filledEdgesVA[VAIndex + 2].color = sf::Color::Transparent;
+		_filledEdgesVA[VAIndex + 3].color = sf::Color::Transparent;
+	}
+}
+
+void VoronoiGrid::SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &color)
+{
+	SE_CORE_ASSERT(fromUid != -1 && toUid != -1, "Invalid uid");
+	if ( _filledEdges.find({ fromUid, toUid }) == _filledEdges.end() )
+	{
+		const auto &firstPosition = GetNode(fromUid).GetPosition();
+		const auto &secondPosition = GetNode(toUid).GetPosition();
+
+		const auto firstPolygon = _grid.GetPolygon(firstPosition);
+		const auto secondPolygon = _grid.GetPolygon(secondPosition);
+
+		const auto firstPolygonMid = GenUtils::Mid(firstPolygon.GetPoints());
+		const auto secondPolygonMid = GenUtils::Mid(secondPolygon.GetPoints());
+
+		const auto closestEdge = firstPolygon.GetClosestEdge(firstPolygonMid + (secondPolygonMid - firstPolygonMid) / 2.0f);
+		const auto leftToRightNorm = VecUtils::Unit(closestEdge.first - closestEdge.second);
+
+		const auto perpendicularLeftToRightNorm = VecUtils::Perpendicular(leftToRightNorm);
+		const float thickness = _visRect.width / 1200.0f;
+
+		const auto VAIndex = _filledEdgesVA.getVertexCount();
+
+		_filledEdgesVA.append({ closestEdge.first + perpendicularLeftToRightNorm * thickness,color });
+		_filledEdgesVA.append({ closestEdge.first - perpendicularLeftToRightNorm * thickness, color });
+		_filledEdgesVA.append({ closestEdge.second - perpendicularLeftToRightNorm * thickness , color });
+		_filledEdgesVA.append({ closestEdge.second + perpendicularLeftToRightNorm * thickness , color });
+
+		_filledEdges.emplace(CreatePair(fromUid, toUid), VAIndex);
+	}
+	else
+	{
+		const int VAIndex = _filledEdges.at({ fromUid, toUid });
+		_filledEdgesVA[VAIndex].color = color;
+		_filledEdgesVA[VAIndex + 1].color = color;
+		_filledEdgesVA[VAIndex + 2].color = color;
+		_filledEdgesVA[VAIndex + 3].color = color;
+	}
+}
+
 void VoronoiGrid::GenerateGrid()
 {
 	_grid.SetBoundingBox(_visRect);
 	_grid.SetPoints(_noPoints);
 	_grid.ForceGenerate();
-	_grid.Relax(4);
+	_grid.Relax(_noRelaxIterations);
 }
 
 void VoronoiGrid::GenerateNodes()

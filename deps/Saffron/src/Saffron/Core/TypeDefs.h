@@ -18,6 +18,7 @@
 #include <set>
 #include <unordered_set>
 #include <deque>
+#include <stack>
 
 namespace Se
 {
@@ -57,6 +58,8 @@ template<typename T>
 using UnorderedSet = std::unordered_set< T>;
 template<typename T>
 using Deque = std::deque<T>;
+template<typename T>
+using Stack = std::stack<T>;
 
 template<class FunctionType>
 using Function = std::function<FunctionType>;

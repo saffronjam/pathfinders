@@ -51,6 +51,11 @@ PathfinderManager::PathfinderManager() :
 	_editStateNames[static_cast<int>(EditState::Goal)] = "Goal";
 }
 
+PathfinderManager::~PathfinderManager()
+{
+	CollectWorker();
+}
+
 void PathfinderManager::OnUpdate(Scene &scene)
 {
 	const bool shiftDown = Keyboard::IsDown(sf::Keyboard::Key::LShift) || Keyboard::IsDown(sf::Keyboard::Key::RShift);
@@ -88,35 +93,31 @@ void PathfinderManager::OnUpdate(Scene &scene)
 	if ( _finishedWorking )
 	{
 		// Reset before check hovered
-		if ( activeGrid->IsClear(_weightEditPair.first) )
+		if ( activeGrid->IsEdgeClear(_editPair.first, _editPair.second) )
 		{
-			activeGrid->ClearNodeColor(_weightEditPair.first);
+			activeGrid->ClearNodeEdgeColor(_editPair.first, _editPair.second);
 		}
-		if ( activeGrid->IsClear(_weightEditPair.second) )
-		{
-			activeGrid->ClearNodeColor(_weightEditPair.second);
-		}
+
 		if ( scene.GetViewportPane().IsHovered() )
 		{
 			const auto mouseInViewportPanePosition = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
 			const int nodeUID = activeGrid->GetNodeUID(mouseInViewportPanePosition);
 
-			if ( _editState == EditState::Weights )
-			{
-				if ( !_weightBrushEnabled )
-				{
-					_weightEditPair.first = nodeUID;
-					_weightEditPair.second = activeGrid->GetClosestNeighborUID(nodeUID, mouseInViewportPanePosition);
 
+			_editPair.first = nodeUID;
+			_editPair.second = activeGrid->GetClosestNeighborUID(nodeUID, mouseInViewportPanePosition);
+
+			if ( activeGrid->IsEdgeClear(_editPair.first, _editPair.second) )
+			{
+				if ( _editState == EditState::Weights && !_weightBrushEnabled )
+				{
 					const auto color = TraverseGrid::GetWeightColor(_weight);
-					if ( activeGrid->IsClear(_weightEditPair.first) )
-					{
-						activeGrid->SetNodeColor(_weightEditPair.first, color);
-					}
-					if ( activeGrid->IsClear(_weightEditPair.second) )
-					{
-						activeGrid->SetNodeColor(_weightEditPair.second, color);
-					}
+					activeGrid->SetNodeEdgeColor(_editPair.first, _editPair.second, color);
+				}
+				if ( _editState == EditState::Obstacles && !_obstacleBrushEnabled )
+				{
+					const auto color = activeGrid->GetGridColor();
+					activeGrid->SetNodeEdgeColor(_editPair.first, _editPair.second, color);
 				}
 			}
 
@@ -132,13 +133,16 @@ void PathfinderManager::OnUpdate(Scene &scene)
 						{
 							if ( VecUtils::LengthSq(node.GetPosition() - mouseInViewportPanePosition) < std::pow(static_cast<float>(_obstacleBrushSize), 2.0f) )
 							{
-								shiftDown ? activeGrid->RemoveObstacle(uid) : activeGrid->AddObstacle(uid);
+								for ( const auto &neighborUID : node.GetNeighbors() )
+								{
+									activeGrid->AddObstacle(uid, neighborUID);
+								}
 							}
 						}
 					}
 					else
 					{
-						shiftDown ? activeGrid->RemoveObstacle(nodeUID) : activeGrid->AddObstacle(nodeUID);
+						shiftDown ? activeGrid->RemoveObstacle(_editPair.first, _editPair.second) : activeGrid->AddObstacle(_editPair.first, _editPair.second);
 					}
 					break;
 				}
@@ -175,7 +179,7 @@ void PathfinderManager::OnUpdate(Scene &scene)
 					}
 					else
 					{
-						SetWeight(_weightEditPair.first, _weightEditPair.second, weight);
+						SetWeight(_editPair.first, _editPair.second, weight);
 					}
 					break;
 				}
@@ -197,22 +201,30 @@ void PathfinderManager::OnUpdate(Scene &scene)
 
 void PathfinderManager::OnRender(Scene &scene)
 {
+	_allowedToWork = !_finishedWorking;
+
 	GetActiveTraverseGrid()->OnRender(scene);
-	OnRenderPathfinders(scene);
 
-	if ( _editState == EditState::Obstacles && _obstacleBrushEnabled )
+	if ( !_allowedToWork )
 	{
-		const sf::Color color(255, 0, 0, 50);
-		const auto position = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
-		scene.Submit(position, color, static_cast<float>(_obstacleBrushSize));
+		OnRenderPathfinders(scene);
+
+		if ( _editState == EditState::Obstacles && _obstacleBrushEnabled )
+		{
+			const sf::Color color(255, 0, 0, 50);
+			const auto position = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
+			scene.Submit(position, color, static_cast<float>(_obstacleBrushSize));
+		}
+
+		if ( _editState == EditState::Weights && _weightBrushEnabled )
+		{
+			const sf::Color color(0, 255, 0, 50);
+			const auto position = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
+			scene.Submit(position, color, static_cast<float>(_weightBrushSize));
+		}
 	}
 
-	if ( _editState == EditState::Weights && _weightBrushEnabled )
-	{
-		const sf::Color color(0, 255, 0, 50);
-		const auto position = scene.GetCamera().ScreenToWorld(scene.GetViewportPane().GetMousePosition());
-		scene.Submit(position, color, static_cast<float>(_weightBrushSize));
-	}
+	_allowedToWork = true;
 }
 
 void PathfinderManager::OnRenderPathfinders(Scene &scene)
@@ -223,7 +235,10 @@ void PathfinderManager::OnRenderPathfinders(Scene &scene)
 	{
 		for ( auto &pathfinder : activePathfinder )
 		{
-			(*pathfinder)->OnRenderNeighbors(scene);
+			if ( !(*pathfinder)->IsDone() )
+			{
+				(*pathfinder)->OnRenderNeighbors(scene);
+			}
 		}
 	}
 	if ( _drawViaConnections )
@@ -292,18 +307,27 @@ void PathfinderManager::OnGuiRender()
 
 	ImGui::Separator();
 
-	if ( String(_traverseGridNames[_activeTraverseGridIndex]) == "Square" )
+	ImGui::Columns(1, "SquareGenerateMaze");
+	if ( ImGui::Button("Generate Maze", { ImGui::GetContentRegionAvailWidth(), 0 }) )
 	{
-		ImGui::Columns(1, "SquareGenerateMaze");
-		if ( ImGui::Button("Generate Maze", { ImGui::GetContentRegionAvailWidth(), 0 }) )
-		{
-			std::dynamic_pointer_cast<SquareGrid>(GetActiveTraverseGrid())->GenerateMaze();
-		}
-		ImGui::Separator();
+		CollectWorker();
+		_finishedWorking = false;
+		_worker = Thread([this]
+						 {
+							 while ( !_allowedToWork )
+							 {
+							 }
+							 Reset();
+							 GetActiveTraverseGrid()->GenerateMaze();
+							 _allowedToWork = false;
+							 _didOnFinishWorkingUpdate = false;
+							 _finishedWorking = true;
+						 });
 	}
+	ImGui::Separator();
 
 	Gui::BeginPropertyGrid("Time");
-	if ( Gui::Property("Sleep delay (microseconds)", _sleepDelayMicroseconds, 0.0f, 1000000.0f, 1.0f,
+	if ( Gui::Property("Sleep delay", _sleepDelayMicroseconds, 0.0f, 1000000.0f, 1.0f,
 					   Gui::PropertyFlag_Slider | Gui::PropertyFlag_Logarithmic) )
 	{
 		SetSleepDelay(sf::microseconds(_sleepDelayMicroseconds));
@@ -443,9 +467,13 @@ void PathfinderManager::OnRenderTargetResize(const sf::Vector2f &size)
 		_finishedWorking = false;
 		_worker = Thread([this, size]
 						 {
+							 while ( !_allowedToWork )
+							 {
+							 }
 							 GetActiveTraverseGrid()->OnRenderTargetResize(size);
-							 _finishedWorking = true;
+							 _allowedToWork = false;
 							 _didOnFinishWorkingUpdate = false;
+							 _finishedWorking = true;
 						 });
 
 		_renderTargetSize = size;
@@ -532,9 +560,13 @@ void PathfinderManager::SetActiveTraverseGrid(const String &name)
 	_finishedWorking = false;
 	_worker = Thread([this, activeGrid]
 					 {
+						 while ( !_allowedToWork )
+						 {
+						 }
 						 activeGrid->OnRenderTargetResize(_renderTargetSize);
-						 _finishedWorking = true;
+						 _allowedToWork = false;
 						 _didOnFinishWorkingUpdate = false;
+						 _finishedWorking = true;
 					 });
 }
 
@@ -553,6 +585,7 @@ ArrayList<ArrayList<Unique<Pathfinder>>::iterator> PathfinderManager::GetActiveP
 
 void PathfinderManager::CollectWorker()
 {
+	_allowedToWork = true;
 	if ( _worker.joinable() ) _worker.join();
 }
 }

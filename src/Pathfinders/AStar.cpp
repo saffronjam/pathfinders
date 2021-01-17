@@ -26,7 +26,7 @@ void AStar::FindPath(int startUID, int goalUID)
 			SleepDelay();
 
 			Node &neighbor = GetNode(neighborUID);
-			if ( !_traverseGrid->IsObstacle(neighborUID) && neighborUID != activeNode.GetViaUID() )
+			if ( !_traverseGrid->IsEdgeObstacle(_activeNodeUID, neighborUID) && neighborUID != activeNode.GetViaUID() )
 			{
 				const float suggestedTentativeCost = activeNode.GetCost("Tentative") + activeNode.GetNeighborCost(neighborUID);
 				if ( suggestedTentativeCost < neighbor.GetCost("Tentative") )

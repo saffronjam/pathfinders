@@ -26,7 +26,7 @@ void BestFirstSearch::FindPath(int startUID, int goalUID)
 			SleepDelay();
 
 			Node &neighbor = GetNode(neighborUID);
-			if ( !_traverseGrid->IsObstacle(neighborUID) && neighborUID != activeNode.GetViaUID() )
+			if ( !_traverseGrid->IsEdgeObstacle(_activeNodeUID, neighborUID) && neighborUID != activeNode.GetViaUID() )
 			{
 				neighbor.SetCost("Heuristic",
 								 VecUtils::Length(neighbor.GetPosition() - GetNode(goalUID).GetPosition()));

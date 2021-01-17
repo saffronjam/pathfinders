@@ -41,6 +41,8 @@ public:
 		const sf::Vector2f &GetVoronoiPoint() const { return _voronoiPoint; }
 		void SetVoronoiPoint(const sf::Vector2f &voronoiPoint) { _voronoiPoint = voronoiPoint; }
 
+		Pair<sf::Vector2f, sf::Vector2f> GetClosestEdge(const sf::Vector2f &position) const;
+
 	private:
 		UUID _uuid;
 

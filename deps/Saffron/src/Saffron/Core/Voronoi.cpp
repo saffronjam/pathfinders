@@ -26,6 +26,39 @@ void Voronoi::Polygon::ClearFillColor(sf::Color color)
 	SetFillColor(sf::Color::Transparent);
 }
 
+Pair<sf::Vector2f, sf::Vector2f> Voronoi::Polygon::GetClosestEdge(const sf::Vector2f &position) const
+{
+	constexpr float inf = std::numeric_limits<float>::infinity();
+	Pair<float, float> distCache{ inf, inf };
+	Pair<int, int> closestIndices{ -1, -1 };
+
+	for ( int i = 0; i < _points.size(); i++ )
+	{
+		const float firstCandidate = VecUtils::LengthSq(position - _points[i]);
+		if ( closestIndices.first == -1 || firstCandidate < distCache.first )
+		{
+			closestIndices.first = i;
+			distCache.first = firstCandidate;
+		}
+	}
+
+	for ( int i = 0; i < _points.size(); i++ )
+	{
+		if ( i != closestIndices.first )
+		{
+			const float secondCandidate = VecUtils::LengthSq(position - _points[i]);
+			if ( closestIndices.second == -1 || secondCandidate < distCache.second )
+			{
+				closestIndices.second = i;
+				distCache.second = secondCandidate;
+			}
+		}
+	}
+
+	return { _points[closestIndices.first], _points[closestIndices.second] };
+
+}
+
 Voronoi::Voronoi() :
 	_boundingBox(0.0f, 0.0f, 0.0f, 0.0f)
 {

@@ -22,6 +22,7 @@ public:
 
 public:
 	explicit PathfinderManager();
+	~PathfinderManager();
 
 	void OnUpdate(Scene &scene);
 
@@ -64,6 +65,7 @@ private:
 	Thread _worker;
 	Atomic<bool> _finishedWorking = false;
 	Atomic<bool> _didOnFinishWorkingUpdate = false;
+	Atomic<bool> _allowedToWork = false;
 
 	ArrayList<Shared<TraverseGrid>> _traverseGrids;
 	ArrayList<Shared<TraverseGrid>>::iterator _activeTraverseGrid;
@@ -77,7 +79,7 @@ private:
 	sf::Time _timer;
 	Deque<String> _oldResults;
 
-	Pair<int, int> _weightEditPair = { 0,0 };
+	Pair<int, int> _editPair = { 0,0 };
 
 	// Cache
 	sf::Vector2f _renderTargetSize = { 0.0f, 0.0f };

@@ -4,9 +4,7 @@ namespace Se
 {
 SquareGrid::SquareGrid() :
 	TraverseGrid("Square"),
-	_noBoxes(50, 50),
-	_lineVA(sf::PrimitiveType::Lines),
-	_filledSquaresVA(sf::PrimitiveType::Quads)
+	_noBoxes(50, 50)
 {
 	SquareGrid::GenerateGrid();
 	SquareGrid::GenerateNodes();
@@ -25,6 +23,7 @@ void SquareGrid::OnRender(Scene &scene)
 	if ( _drawFlags & DrawFlag_Objects )
 	{
 		scene.Submit(_filledSquaresVA);
+		scene.Submit(_filledEdgesVA);
 	}
 }
 
@@ -38,11 +37,8 @@ void SquareGrid::OnRenderTargetResize(const sf::Vector2f &size)
 		_noBoxes = { boxesX, boxesY };
 		_filledSquares.clear();
 		_filledSquaresVA.clear();
-
-		// Reset Maze
-		_alwaysPath.clear();
-		_alwaysObstacle.clear();
-		_maybeObstacle.clear();
+		_filledEdges.clear();
+		_filledEdgesVA.clear();
 	}
 
 	TraverseGrid::OnRenderTargetResize(size);
@@ -54,10 +50,11 @@ void SquareGrid::ClearNodeColor(int uid)
 	const auto findResult = _filledSquares.find(uid);
 	if ( findResult != _filledSquares.end() )
 	{
-		_filledSquaresVA[findResult->second.VAIndex].color = sf::Color::Transparent;
-		_filledSquaresVA[findResult->second.VAIndex + 1].color = sf::Color::Transparent;
-		_filledSquaresVA[findResult->second.VAIndex + 2].color = sf::Color::Transparent;
-		_filledSquaresVA[findResult->second.VAIndex + 3].color = sf::Color::Transparent;
+		const int VAIndex = findResult->second.VAIndex;
+		_filledSquaresVA[VAIndex].color = sf::Color::Transparent;
+		_filledSquaresVA[VAIndex + 1].color = sf::Color::Transparent;
+		_filledSquaresVA[VAIndex + 2].color = sf::Color::Transparent;
+		_filledSquaresVA[VAIndex + 3].color = sf::Color::Transparent;
 	}
 }
 
@@ -82,143 +79,63 @@ void SquareGrid::SetNodeColor(int uid, const sf::Color &color)
 	}
 	else
 	{
-		_filledSquaresVA[_filledSquares.at(uid).VAIndex].color = color;
-		_filledSquaresVA[_filledSquares.at(uid).VAIndex + 1].color = color;
-		_filledSquaresVA[_filledSquares.at(uid).VAIndex + 2].color = color;
-		_filledSquaresVA[_filledSquares.at(uid).VAIndex + 3].color = color;
+		const int VAIndex = _filledSquares.at(uid).VAIndex;
+		_filledSquaresVA[VAIndex].color = color;
+		_filledSquaresVA[VAIndex + 1].color = color;
+		_filledSquaresVA[VAIndex + 2].color = color;
+		_filledSquaresVA[VAIndex + 3].color = color;
 	}
 }
 
-std::random_device rd;
-std::mt19937 g(rd());
-void SquareGrid::RecursiveMazeExploration(Map<int, MazeNode> &allNodes, Set<int> &maybeObstacle, MazeNode &mazeNode)
+void SquareGrid::ClearNodeEdgeColor(int fromUid, int toUid)
 {
-	ArrayList<int> shuffledNeighbors(mazeNode.neighbors.begin(), mazeNode.neighbors.end());
-
-	std::shuffle(shuffledNeighbors.begin(), shuffledNeighbors.end(), g);
-
-	for ( const auto &neighbor : shuffledNeighbors )
+	SE_CORE_ASSERT(fromUid != -1 && toUid != -1, "Invalid uid");
+	const auto findResult = _filledEdges.find({ fromUid, toUid });
+	if ( findResult != _filledEdges.end() )
 	{
-		MazeNode &neighborNode = allNodes.at(neighbor);
-		if ( !neighborNode.visited )
-		{
-			mazeNode.chosenPathUid = neighbor;
-			neighborNode.visited = true;
-
-			const int uidDiff = neighborNode.uid - mazeNode.uid;
-			maybeObstacle.erase(mazeNode.uid + uidDiff / 2);
-			RecursiveMazeExploration(allNodes, maybeObstacle, allNodes.at(neighbor));
-		}
+		const int VAIndex = findResult->second;
+		_filledEdgesVA[VAIndex].color = sf::Color::Transparent;
+		_filledEdgesVA[VAIndex + 1].color = sf::Color::Transparent;
+		_filledEdgesVA[VAIndex + 2].color = sf::Color::Transparent;
+		_filledEdgesVA[VAIndex + 3].color = sf::Color::Transparent;
 	}
-};
+}
 
-void SquareGrid::GenerateMaze()
+void SquareGrid::SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &color)
 {
-	ClearObstacles();
-	ClearSubGoals();
-
-	_alwaysPath.clear();
-	_alwaysObstacle.clear();
-	_maybeObstacle.clear();
-
-	for ( int i = 0, newIndex = 0; i < _nodes.size(); i++ )
+	SE_CORE_ASSERT(fromUid != -1 && toUid != -1, "Invalid uid");
+	if ( _filledEdges.find({ fromUid, toUid }) == _filledEdges.end() )
 	{
-		const int x = i % _noBoxes.x;
-		const int y = i / _noBoxes.x;
+		const auto &firstPosition = GetNode(fromUid).GetPosition();
+		const auto &secondPosition = GetNode(toUid).GetPosition();
 
-		if ( x % 2 == 0 && y % 2 == 0 )
-		{
-			_alwaysPath[newIndex++] = MazeNode{ _nodes.at(i).GetUID(), {} };
-		}
-		else if ( x % 2 == 1 && y % 2 == 1 )
-		{
-			_alwaysObstacle.emplace(_nodes.at(i).GetUID());
-		}
-		else
-		{
-			_maybeObstacle.emplace(_nodes.at(i).GetUID());
-		}
+		const auto boxSize = GetBoxSize();
+		sf::Vector2f halfRectSize(boxSize.x / 2.0f, boxSize.y / 6.0f);
+		halfRectSize.x += halfRectSize.y;
+
+		const auto fromTo = secondPosition - firstPosition;
+		const auto fromToNorm = VecUtils::Unit(fromTo);
+
+		const auto firstLine = fromTo / 2.0f - fromToNorm * halfRectSize.y;
+		const auto secondLine = fromTo / 2.0f + fromToNorm * halfRectSize.y;
+		const auto perpendicularFromToNorm = VecUtils::Perpendicular(fromToNorm);
+
+		const auto VAIndex = _filledEdgesVA.getVertexCount();
+
+		_filledEdgesVA.append({ firstPosition + firstLine + perpendicularFromToNorm * halfRectSize.x,color });
+		_filledEdgesVA.append({ firstPosition + firstLine - perpendicularFromToNorm * halfRectSize.x, color });
+		_filledEdgesVA.append({ firstPosition + secondLine - perpendicularFromToNorm * halfRectSize.x , color });
+		_filledEdgesVA.append({ firstPosition + secondLine + perpendicularFromToNorm * halfRectSize.x , color });
+
+		_filledEdges.emplace(CreatePair(fromUid, toUid), VAIndex);
 	}
-
-	const sf::Vector2i newSize = (sf::Vector2i(_noBoxes) + sf::Vector2i(1, 1)) / 2;
-
-
-	for ( int i = 0; i < _alwaysPath.size(); i++ )
+	else
 	{
-		auto &neighbors = _alwaysPath.at(i).neighbors;
-
-		const bool isTopRow = i < newSize.x;
-		const bool isBottomRow = i >= newSize.x * (newSize.y - 1) && i < newSize.x *newSize.y;
-		const bool isLeftMostColumn = i % newSize.x == 0;
-		const bool isRightMostColumn = (i + 1) % newSize.x == 0;
-
-		if ( isTopRow )
-		{
-			neighbors.emplace(i + newSize.x);
-
-			if ( isLeftMostColumn )
-			{
-				neighbors.emplace(i + 1);
-			}
-			else if ( isRightMostColumn )
-			{
-				neighbors.emplace(i - 1);
-			}
-			else
-			{
-				neighbors.emplace(i + 1);
-				neighbors.emplace(i - 1);
-			}
-		}
-		else if ( isBottomRow )
-		{
-			neighbors.emplace(i - newSize.x);
-
-			if ( isLeftMostColumn )
-			{
-				neighbors.emplace(i + 1);
-			}
-			else if ( isRightMostColumn )
-			{
-				neighbors.emplace(i - 1);
-			}
-			else
-			{
-				neighbors.emplace(i + 1);
-				neighbors.emplace(i - 1);
-			}
-		}
-		else if ( isLeftMostColumn )
-		{
-			neighbors.emplace(i + newSize.x);
-			neighbors.emplace(i - newSize.x);
-			neighbors.emplace(i + 1);
-		}
-		else if ( isRightMostColumn )
-		{
-			neighbors.emplace(i + newSize.x);
-			neighbors.emplace(i - newSize.x);
-			neighbors.emplace(i - 1);
-		}
-		else
-		{
-			neighbors.emplace(i + newSize.x);
-			neighbors.emplace(i - newSize.x);
-			neighbors.emplace(i + 1);
-			neighbors.emplace(i - 1);
-		}
-	}
-
-	_alwaysPath[0].visited = true;
-	RecursiveMazeExploration(_alwaysPath, _maybeObstacle, _alwaysPath[0]);
-
-	for ( auto &uid : _maybeObstacle )
-	{
-		AddObstacle(uid);
-	}
-	for ( auto &uid : _alwaysObstacle )
-	{
-		AddObstacle(uid);
+		const int VAIndex = _filledEdges.at({ fromUid, toUid });
+		_filledEdgesVA[VAIndex].color = color;
+		_filledEdgesVA[VAIndex + 1].color = color;
+		_filledEdgesVA[VAIndex + 2].color = color;
+		_filledEdgesVA[VAIndex + 3].color = color;
 	}
 }
 
@@ -300,25 +217,25 @@ void SquareGrid::CalculateNeighbors()
 				GetNode(i).AddNeighbor(i - 1, boxSize.x);
 				break;
 			case 1:
-				GetNode(i).AddNeighbor(i - 1 - _noBoxes.x, diagonalLength);
+				//GetNode(i).AddNeighbor(i - 1 - _noBoxes.x, diagonalLength);
 				break;
 			case 2:
 				GetNode(i).AddNeighbor(i - _noBoxes.x, boxSize.y);
 				break;
 			case 3:
-				GetNode(i).AddNeighbor(i + 1 - _noBoxes.x, diagonalLength);
+				//GetNode(i).AddNeighbor(i + 1 - _noBoxes.x, diagonalLength);
 				break;
 			case 4:
 				GetNode(i).AddNeighbor(i + 1, boxSize.x);
 				break;
 			case 5:
-				GetNode(i).AddNeighbor(i + 1 + _noBoxes.x, diagonalLength);
+				//GetNode(i).AddNeighbor(i + 1 + _noBoxes.x, diagonalLength);
 				break;
 			case 6:
 				GetNode(i).AddNeighbor(i + _noBoxes.x, boxSize.y);
 				break;
 			case 7:
-				GetNode(i).AddNeighbor(i - 1 + _noBoxes.x, diagonalLength);
+				//GetNode(i).AddNeighbor(i - 1 + _noBoxes.x, diagonalLength);
 				break;
 			default:
 				break;
@@ -331,5 +248,4 @@ sf::Vector2f SquareGrid::GetBoxSize() const
 {
 	return { _visRect.width / static_cast<float>(_noBoxes.x), _visRect.height / static_cast<float>(_noBoxes.y) };
 }
-
 }

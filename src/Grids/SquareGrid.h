@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics/RectangleShape.hpp>
-
 #include "TraverseGrid.h"
 
 namespace Se
@@ -15,14 +13,6 @@ private:
 		sf::FloatRect Shape;
 	};
 
-	struct MazeNode
-	{
-		int uid;
-		int chosenPathUid;
-		Set<int> neighbors;
-		bool visited;
-	};
-
 public:
 	SquareGrid();
 
@@ -32,7 +22,8 @@ public:
 	void ClearNodeColor(int uid) override;
 	void SetNodeColor(int uid, const sf::Color &color) override;
 
-	void GenerateMaze();
+	void ClearNodeEdgeColor(int fromUid, int toUid) override;
+	void SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &color) override;
 
 private:
 	void GenerateNodes() override;
@@ -41,20 +32,17 @@ private:
 
 	sf::Vector2f GetBoxSize() const;
 
-	void RecursiveMazeExploration(Map<int, MazeNode> &allNodes, Set<int> &maybeObstacle, MazeNode &mazeNode);
-
 private:
 	Map<int, Square> _filledSquares;
 
+	// <from, to>, VAIndex
+	Map<Pair<int, int>, int> _filledEdges;
+
 	sf::Vector2i _noBoxes;
 
-	sf::VertexArray _lineVA;
-	sf::VertexArray _filledSquaresVA;
+	sf::VertexArray _lineVA{ sf::PrimitiveType::Lines };
+	sf::VertexArray _filledSquaresVA{ sf::PrimitiveType::Quads };
 
-
-	// Maze generation
-	Map<int, MazeNode> _alwaysPath;
-	Set<int> _alwaysObstacle;
-	Set<int> _maybeObstacle;
+	sf::VertexArray _filledEdgesVA{ sf::PrimitiveType::Quads };
 };
 }
