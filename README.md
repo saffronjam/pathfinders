@@ -1,4 +1,4 @@
-# V-Pathfinder
+# Pathfinder
 Visualizing path-finding algorithms
 
 
