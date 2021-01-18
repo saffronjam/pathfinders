@@ -1,37 +1,51 @@
 # V-Pathfinder
 Visualizing path-finding algorithms
 
-<img src="https://github.com/viesa/V-Pathfinders/blob/master/preview0.png">
-<img src="https://github.com/viesa/V-Pathfinders/blob/master/preview1.png">
-<img src="https://github.com/viesa/V-Pathfinders/blob/master/previewGif1.gif">
 
+<p align="center">
+ <img src="https://img.shields.io/badge/language-C++-blue.svg" alt="language">
+ <img src="https://img.shields.io/badge/std-C++17-blue.svg" alt="c++std">
+ <img src="https://img.shields.io/badge/mvsc-2017+-ff69b4.svg" alt="msvc2017+">
+ <img src="https://img.shields.io/badge/gcc-8.0+-ff69b4.svg" alt="gcc-8.0+">
+</p>
 
+## Preview
+
+<p align="center">  
+  <img src="https://github.com/viesa/V-Pathfinders/blob/master/previewGif0.gif" width="75%">
+  <img src="https://github.com/viesa/V-Pathfinders/blob/master/preview0.png" width="75%">
+  <img src="https://github.com/viesa/V-Pathfinders/blob/master/preview1.png" width="75%">
+</p>
+  
 ## Setting up
-Prerequisite: CLion with [Prebuilt 7.3.0 MinGW Compiler](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/7.3.0/threads-posix/seh/x86_64-7.3.0-release-posix-seh-rt_v5-rev0.7z/download)
-
-### Linux
-<b> 1. </b> Install SFML using <i>sudo apt-get install libsfml-dev</i>
-
-<b> 2. </b> Install Box2D using <i>sudo apt-get install libbox2d-dev</i>
-
-<b> 3. </b> Run <i>Client</i> in CLion
-
-<img src="https://github.com/viesa/V-Fractals/blob/master/startCLion.png">
-
+<p align="center">
+    <img src="https://github.com/saffronjam/SaffronEngine2D/blob/master/startCMakeProjectCLion.png" width="30%">
+    <img width="2%">
+    <img src="https://github.com/saffronjam/SaffronEngine2D/blob/master/startCMakeProjectVS.png" width="30%">
+    <img width="2%">
+    <img src="https://github.com/saffronjam/SaffronEngine2D/blob/master/startCMakeProjectVSCode.png" width="30%">
+</p>
 
 ### Windows
-Run <i>Client</i> in CLion
+Prerequisites: 
+- Visual Studio, CLion or Visual Studio Code*
+- C++17 compiler
 
-<img src="https://github.com/viesa/V-Fractals/blob/master/startCLion.png">
+Just run <i>Client</i> in IDE
+
+### Linux
+Prerequisites: 
+- CLion or Visual Studio Code*
+
+<b> 1. </b> Install SFML using ``sudo apt-get install libsfml-dev``
+
+<b> 2. </b> Run <i>Client</i> in IDE
+
 
 ### Mac
-Should be similar to Linux
+To be supported
 
+##
 
-### Alternatively Visual Studio Code
+\* Requires <i>CMake Tools</i> plugin
 
-Follow previous steps, but make sure you have CMake installed.  
-  
-Start the application by running <i>Client</i> using <i>CMake Tools</i> plugin
-
-<img src="https://github.com/viesa/V-Algorithms/blob/master/startCMakeProject.png">
