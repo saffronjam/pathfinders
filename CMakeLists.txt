@@ -1,199 +1,92 @@
 cmake_minimum_required(VERSION 3.1.0)
-project(V-Pathfinders VERSION 0.1.0)
+project(Pathfinders VERSION 0.1.0)
 
-set(CMAKE_CXX_STANDARD 20)
+### DIRECTORIES ###
+set(BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
+set(RESOURCES_DIR "res")
+set(LIBRARIES_DIR "lib")
+set(SUBDIRECTORIES_DIR "deps")
+set(INCLUDES_DIR "src")
 
+### Saffron Engine ###
+add_subdirectory("${SUBDIRECTORIES_DIR}/Saffron")
+
+### FLAGS ###
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 set(CMAKE_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  file(GLOB SDL2_SHARED_BINARIES
-    "deps/SFML/bin/*.dll"
-    "deps/Box2D/bin/*.dll"
-  )
-  file(COPY ${SDL2_SHARED_BINARIES} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
-  file(COPY "res" DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}")
-else()
-  find_package(SFML REQUIRED network audio graphics window system)
-  find_package(Box2D REQUIRED)
-endif()
+### VARIABLES ###
+set(PLATFORM_MACRO SE_PLATFORM)
 
+### COMPILER SPECIFIC ###
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
+    set(COMPILER_LIB_DIR "msvc")
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(/w44244)
+    add_compile_options(/w44267)
+
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL GNU)
+    set(COMPILER_LIB_DIR "mingw")
+else ()
+    message(FATAL_ERROR "Bad compiler selected. Supported is GNU and MSVC")
+endif ()
+
+### BUILD TYPE SPECIFIC ###
+if (${CMAKE_BUILD_TYPE} MATCHES Debug)
+    add_definitions(
+            -DSE_DEBUG
+    )
+elseif (${CMAKE_BUILD_TYPE} MATCHES Release)
+    add_definitions(
+            -DSE_RELEASE
+    )
+elseif (${CMAKE_BUILD_TYPE} MATCHES Dist)
+    add_definitions(
+            -DSE_DIST
+    )
+else ()
+    message(FATAL_ERROR "Bad configuration selected")
+endif ()
+
+### OS SPECIFIC ###
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    add_definitions(-D${PLATFORM_MACRO}_WINDOWS)
+
+    file(COPY ${SAFFRON_SHARED_BINARES} DESTINATION ${BUILD_DIR})
+
+else ()
+    add_definitions(-D${PLATFORM_MACRO}_LINUX)
+
+endif ()
+
+file(COPY ${SAFFRON_RESOURCES_DIR} DESTINATION ${BUILD_DIR})
+file(COPY ${RESOURCES_DIR} DESTINATION ${BUILD_DIR})
 find_package(Threads REQUIRED)
 
-add_definitions(
-  -DSFML_STATIC
-  -DSFGUI_STATIC
-  -DLOG_EXCEPTION
-)
+### DEFINITIONS ###
+add_definitions()
 
-
+### EXECUTABLE ###
 file(GLOB_RECURSE ALL_SOURCES "${CMAKE_SOURCE_DIR}/*.cpp")
-
-
 set(ClientSRC "${ALL_SOURCES}")
-list(REMOVE_ITEM ClientSRC "${CMAKE_SOURCE_DIR}/MainServer.cpp")
-
-set(ServerSRC "${ALL_SOURCES}")
-list(REMOVE_ITEM ServerSRC "${CMAKE_SOURCE_DIR}/MainClient.cpp")
-
 add_executable(Client "${ClientSRC}")
-add_executable(Server "${ServerSRC}")
+target_precompile_headers(Saffron PUBLIC "deps/Saffron/src/SaffronPCH.cpp")
 
-
-############
-## CLIENT ##
-############
-
+### INCLUDES ###
 target_include_directories(Client PRIVATE
-  src
-  src/apps
-  src/core
-  src/etc
-  src/input
-  src/interfaces
-  src/lightning
-  src/net
-  src/netmodules
-  src/physics
-  src/project
-  src/project/pathfinders
-  src/res
-  src/screens
-  src/throwmacros
-)
+        ${INCLUDES_DIR}
+        ${SAFFRON_INCLUDE_DIRS}
+        ${SAFFRON_INCLUDE_DIRS_EXT}
+        )
 
+### LIBRARIES ###
+target_link_libraries(Client PRIVATE Saffron)
+
+### OUTPUT DIRECTORIES ###
 set_target_properties(Client PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
-  )
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  target_include_directories(Client PRIVATE
-    deps/SFML/include
-    deps/SFGUI/include
-    deps/Box2D/include
-    deps/JCash/include
-  )
-  target_link_directories(Client PRIVATE
-    deps/SFML/lib
-    deps/SFGUI/lib
-    deps/Box2D/lib
-  )
-  target_link_libraries(Client PRIVATE
-    Box2D
-    SFGUI
-    sfml-graphics-s
-    sfml-window-s
-    sfml-audio-s
-    sfml-network-s
-    sfml-system-s
-    opengl32
-    freetype
-    winmm
-    gdi32
-    openal32
-    flac
-    vorbisenc
-    vorbisfile
-    vorbis
-    ogg
-    ws2_32
-  )
-else()
-  target_include_directories(Client PRIVATE
-    ${SFML_INCLUDE_DIR}
-    deps/SFGUI/include
-    ${BOX2D_INCLUDE_DIR}
-    deps/JCash/include
-  )
-  target_link_directories(Client PRIVATE
-    deps/SFGUI/lib
-  )
-  target_link_libraries(Client PRIVATE
-    ${BOX2D_LIBRARY}
-    SFGUI
-    ${SFML_LIBRARIES}
-    Threads::Threads
-  )
-endif()
-
-
-############
-## SERVER ##
-############
-
-target_include_directories(Server PRIVATE
-  src
-  src/apps
-  src/core
-  src/etc
-  src/input
-  src/interfaces
-  src/lightning
-  src/net
-  src/netmodules
-  src/physics
-  src/project
-  src/project/pathfinders
-  src/res
-  src/screens
-  src/throwmacros
-)
-
-set_target_properties(Server PROPERTIES
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE}"
-  )
-
-  if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  target_include_directories(Server PRIVATE
-    deps/SFML/include
-    deps/SFGUI/include
-    deps/Box2D/include
-    deps/JCash/include
-  )
-  target_link_directories(Server PRIVATE
-    deps/SFML/lib
-    deps/SFGUI/lib
-    deps/Box2D/lib
-  )
-  target_link_libraries(Server PRIVATE
-    Box2D
-    SFGUI
-    sfml-graphics-s
-    sfml-window-s
-    sfml-audio-s
-    sfml-network-s
-    sfml-system-s
-    opengl32
-    freetype
-    winmm
-    gdi32
-    openal32
-    flac
-    vorbisenc
-    vorbisfile
-    vorbis
-    ogg
-    ws2_32
-  )
-else()
-  target_include_directories(Server PRIVATE
-    ${SFML_INCLUDE_DIR}
-    deps/SFGUI/include
-    ${BOX2D_INCLUDE_DIR}
-    deps/JCash/include
-  )
-  target_link_directories(Server PRIVATE
-    deps/SFGUI/lib
-  )
-  target_link_libraries(Server PRIVATE
-    ${BOX2D_LIBRARY}
-    SFGUI
-    ${SFML_LIBRARIES}
-    Threads::Threads
-  )
-endif()
+        ARCHIVE_OUTPUT_DIRECTORY ${BUILD_DIR}
+        LIBRARY_OUTPUT_DIRECTORY ${BUILD_DIR}
+        RUNTIME_OUTPUT_DIRECTORY ${BUILD_DIR}
+        )
