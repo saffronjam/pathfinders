@@ -137,7 +137,7 @@ void PathfinderManager::OnUpdate(Scene &scene)
 							{
 								for ( const auto &neighborUID : node.GetNeighbors() )
 								{
-									activeGrid->AddObstacle(uid, neighborUID);
+									shiftDown ? activeGrid->RemoveObstacle(uid, neighborUID) : activeGrid->AddObstacle(uid, neighborUID);
 								}
 							}
 						}
