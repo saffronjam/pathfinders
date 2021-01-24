@@ -1,5 +1,5 @@
 # Pathfinder
-Visualizing path-finding algorithms
+Visualizing pathfinding algorithms
 
 
 <p align="center">
