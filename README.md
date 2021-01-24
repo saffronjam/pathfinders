@@ -12,9 +12,9 @@ Visualizing pathfinding algorithms
 ## Preview
 
 <p align="center">  
-  <img src="https://github.com/viesa/V-Pathfinders/blob/master/previewGif0.gif" width="75%">
-  <img src="https://github.com/viesa/V-Pathfinders/blob/master/preview0.png" width="75%">
-  <img src="https://github.com/viesa/V-Pathfinders/blob/master/preview1.png" width="75%">
+  <img src="https://github.com/saffronjam/Pathfinders/blob/master/previewGif0.gif" width="75%">
+  <img src="https://github.com/saffronjam/Pathfinders/blob/master/preview0.png" width="75%">
+  <img src="https://github.com/saffronjam/Pathfinders/blob/master/preview1.png" width="75%">
 </p>
   
 ## Setting up
