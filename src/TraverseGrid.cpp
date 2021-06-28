@@ -13,23 +13,23 @@ TraverseGrid::TraverseGrid(String name) :
 
 void TraverseGrid::OnUpdate()
 {
-	if ( _wantNewWeightLinesVA )
+	if (_wantNewWeightLinesVA)
 	{
 		_weightLinesCacheVA.clear();
 		int noTotalNeighbors = 0;
-		for ( const auto &[uid, node] : _nodes )
+		for (const auto& node : _nodes | std::views::values)
 		{
-			noTotalNeighbors += node.GetNeighbors().size();
+			noTotalNeighbors += node.Neighbors().size();
 		}
 		_weightLinesVA.resize(noTotalNeighbors * 2);
 		int i = 0;
-		for ( const auto &[uid, node] : _nodes )
+		for (const auto& [uid, node] : _nodes)
 		{
-			for ( const auto &neighborUID : node.GetNeighbors() )
+			for (const auto& neighborUID : node.Neighbors())
 			{
-				const auto color = GetWeightColor(node.GetNeighborCost(neighborUID));
-				_weightLinesVA[i] = { node.GetPosition(), color };
-				_weightLinesVA[i + 1] = { GetNode(neighborUID).GetPosition(), color };
+				const auto color = WeightColor(node.NeighborCostByUid(neighborUID));
+				_weightLinesVA[i] = {node.Position(), color};
+				_weightLinesVA[i + 1] = {NodeByUid(neighborUID).Position(), color};
 				_weightLinesCacheVA.emplace(CreatePair(uid, neighborUID), CreatePair(i, i + 1));
 				i += 2;
 			}
@@ -39,17 +39,17 @@ void TraverseGrid::OnUpdate()
 	}
 }
 
-void TraverseGrid::OnRender(Scene &scene)
+void TraverseGrid::OnRender(Scene& scene)
 {
-	if ( _drawFlags & DrawFlag_Weights )
+	if (_drawFlags & TraverseGridDrawFlag_Weights)
 	{
 		OnRenderWeights(scene);
 	}
 }
 
-void TraverseGrid::OnRenderTargetResize(const sf::Vector2f &size)
+void TraverseGrid::OnRenderTargetResize(const sf::Vector2f& size)
 {
-	if ( _renderTargetSize != size )
+	if (_renderTargetSize != size)
 	{
 		_visRect = sf::FloatRect(-size / 2.0f, size);
 		ClearSubGoals();
@@ -69,7 +69,7 @@ void TraverseGrid::OnRenderTargetResize(const sf::Vector2f &size)
 
 void TraverseGrid::Reset()
 {
-	for ( auto &[uid, node] : _nodes )
+	for (auto& node : _nodes | std::views::values)
 	{
 		node.ResetPath();
 		node.ResetNeighborsCost();
@@ -83,9 +83,9 @@ void TraverseGrid::GenerateMaze()
 	ClearObstacles();
 	_visitedNodes.clear();
 
-	for ( auto &[uid, node] : _nodes )
+	for (auto& [uid, node] : _nodes)
 	{
-		for ( const auto &neighborUid : node.GetNeighbors() )
+		for (const auto& neighborUid : node.Neighbors())
 		{
 			AddObstacle(uid, neighborUid);
 		}
@@ -99,15 +99,15 @@ void TraverseGrid::GenerateMaze()
 	{
 		int neighborFound = -1;
 
-		const  auto &neighbors = GetNode(uid).GetNeighbors();
+		const auto& neighbors = NodeByUid(uid).Neighbors();
 
-		ArrayList<int> shuffledNeighbors(neighbors.begin(), neighbors.end());
-		std::shuffle(shuffledNeighbors.begin(), shuffledNeighbors.end(), _randomEngine);
+		List<int> shuffledNeighbors(neighbors.begin(), neighbors.end());
+		std::ranges::shuffle(shuffledNeighbors, _randomEngine);
 
-		for ( int neighbor : shuffledNeighbors )
+		for (int neighbor : shuffledNeighbors)
 		{
 			auto result = _visitedNodes.find(neighbor);
-			if ( result == _visitedNodes.end() )
+			if (result == _visitedNodes.end())
 			{
 				neighborFound = neighbor;
 				break;
@@ -120,12 +120,12 @@ void TraverseGrid::GenerateMaze()
 	sf::Time currentSleep = sf::Time::Zero;
 	Clock loopClock;
 
-	int active = GetStartUID();
-	while ( !checkStack.empty() )
+	int active = StartUid();
+	while (!checkStack.empty())
 	{
 		const auto elapsed = loopClock.Restart();
 		currentSleep += elapsed;
-		if ( currentSleep > sf::microseconds(400) )
+		if (currentSleep > sf::microseconds(400))
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(1000));
 			currentSleep = sf::Time::Zero;
@@ -133,7 +133,7 @@ void TraverseGrid::GenerateMaze()
 		}
 
 		const int neighbor = getRandomNeighbor(active);
-		if ( neighbor == -1 )
+		if (neighbor == -1)
 		{
 			active = checkStack.top();
 			checkStack.pop();
@@ -151,81 +151,111 @@ void TraverseGrid::GenerateMaze()
 	}
 
 
-	for ( int i = 0; i < _noToSmash; i++ )
+	for (int i = 0; i < _noToSmash; i++)
 	{
 		const int randomIndex = Random::Integer(0, static_cast<int>(_nodes.size()) - 1);
-		for ( int neighbor : GetNode(randomIndex).GetNeighbors() )
+		for (int neighbor : NodeByUid(randomIndex).Neighbors())
 		{
 			RemoveObstacle(randomIndex, neighbor);
 		}
 	}
-
 }
 
-int TraverseGrid::GetClosestNeighborUID(int uid, const sf::Vector2f &position) const
+void TraverseGrid::SetNoWallsToSmash(int no)
 {
-	const Node &node = GetNode(uid);
-	const auto &neighbors = node.GetNeighbors();
-	SE_CORE_ASSERT(!node.GetNeighbors().empty(), "No neighbors in node. Generate neighbors before querying the closest.");
+	_noToSmash = no;
+}
+
+auto TraverseGrid::Nodes() -> TreeMap<int, Node>& { return _nodes; }
+
+auto TraverseGrid::Nodes() const -> const TreeMap<int, Node>& { return _nodes; }
+
+auto TraverseGrid::NodeByUid(int uid) -> Node& { return _nodes.at(uid); }
+
+auto TraverseGrid::NodeByUid(int uid) const -> const Node& { return _nodes.at(uid); }
+
+auto TraverseGrid::StartUid() const -> int { return _startUID; }
+
+auto TraverseGrid::GoalUid() const -> int { return _goalUID; }
+
+auto TraverseGrid::ObstacleUids() -> const TreeSet<Pair<int, int>>& { return _obstacleUIDs; }
+
+auto TraverseGrid::SubGoalUids() -> const List<int>& { return _subGoalUIDs; }
+
+auto TraverseGrid::EditedWeightUids() -> const TreeSet<int>& { return _editedWeightUIDs; }
+
+auto TraverseGrid::DrawFlags() const -> TraverseGridDrawFlags { return _drawFlags; }
+
+auto TraverseGrid::Name() const -> const String& { return _name; }
+
+auto TraverseGrid::IsStart(int uid) const -> bool { return _startUID == uid; }
+
+auto TraverseGrid::IsGoal(int uid) const -> bool { return _goalUID == uid; }
+
+int TraverseGrid::ClosestNeighborUID(int uid, const sf::Vector2f& position) const
+{
+	const Node& node = NodeByUid(uid);
+	const auto& neighbors = node.Neighbors();
+	Debug::Assert(!node.Neighbors().empty(), "No neighbors in node. Generate neighbors before querying the closest.");
 
 	float closestDistance = std::numeric_limits<float>::infinity();
 	int closestUID = -1;
 
-	for ( const int neighborUid : neighbors )
+	for (const int neighborUid : neighbors)
 	{
-		const Node &neighbor = GetNode(neighborUid);
-		const float candidateDistance = VecUtils::LengthSq(position - neighbor.GetPosition());
-		if ( candidateDistance < closestDistance )
+		const Node& neighbor = NodeByUid(neighborUid);
+		const float candidateDistance = VecUtils::LengthSq(position - neighbor.Position());
+		if (candidateDistance < closestDistance)
 		{
 			closestUID = neighborUid;
 			closestDistance = candidateDistance;
 		}
 	}
 
-	SE_CORE_ASSERT(closestUID != -1, "Somehow failed to find node");
+	Debug::Assert(closestUID != -1, "Somehow failed to find node");
 	return closestUID;
 }
 
-int TraverseGrid::GetNodeUID(const sf::Vector2f &position) const
+int TraverseGrid::NodeUidByPosition(const sf::Vector2f& position) const
 {
 	float closestDistance = std::numeric_limits<float>::infinity();
 	int closestUID = -1;
 
-	for ( const auto &[uid, node] : GetNodes() )
+	for (const auto& [uid, node] : Nodes())
 	{
-		const float candidate = VecUtils::LengthSq(node.GetPosition() - position);
-		if ( candidate < closestDistance )
+		const float candidate = VecUtils::LengthSq(node.Position() - position);
+		if (candidate < closestDistance)
 		{
 			closestUID = uid;
 			closestDistance = candidate;
 		}
 	}
 
-	SE_CORE_ASSERT(closestUID != -1, "Somehow failed to find node");
+	Debug::Assert(closestUID != -1, "Somehow failed to find node");
 	return closestUID;
 }
 
-void TraverseGrid::SetDrawFlags(DrawFlags drawFlags)
+void TraverseGrid::SetDrawFlags(TraverseGridDrawFlags drawFlags)
 {
 	_drawFlags = drawFlags;
 }
 
-void TraverseGrid::AddDrawFlags(DrawFlags drawFlags)
+void TraverseGrid::AddDrawFlags(TraverseGridDrawFlags drawFlags)
 {
-	SetDrawFlags(GetDrawFlags() | drawFlags);
+	SetDrawFlags(DrawFlags() | drawFlags);
 }
 
-void TraverseGrid::RemoveDrawFlags(DrawFlags drawFlags)
+void TraverseGrid::RemoveDrawFlags(TraverseGridDrawFlags drawFlags)
 {
-	SetDrawFlags(GetDrawFlags() & ~drawFlags);
+	SetDrawFlags(DrawFlags() & ~drawFlags);
 }
 
 void TraverseGrid::SetWeight(int uidFirst, int uidSecond, float weight)
 {
-	GetNode(uidFirst).SetNeighborCost(weight, uidSecond);
-	GetNode(uidSecond).SetNeighborCost(weight, uidFirst);
+	NodeByUid(uidFirst).SetNeighborCost(weight, uidSecond);
+	NodeByUid(uidSecond).SetNeighborCost(weight, uidFirst);
 
-	const auto color = GetWeightColor(weight);
+	const auto color = WeightColor(weight);
 
 	_weightLinesVA[_weightLinesCacheVA[{uidFirst, uidSecond}].first].color = color;
 	_weightLinesVA[_weightLinesCacheVA[{uidFirst, uidSecond}].second].color = color;
@@ -234,9 +264,9 @@ void TraverseGrid::SetWeight(int uidFirst, int uidSecond, float weight)
 	_editedWeightUIDs.emplace(uidSecond);
 }
 
-void TraverseGrid::SetWeightColorAlpha(Uint8 alpha)
+void TraverseGrid::SetWeightColorAlpha(uchar alpha)
 {
-	if ( alpha != _weightLinesColorAlpha )
+	if (alpha != _weightLinesColorAlpha)
 	{
 		_weightLinesColorAlpha = alpha;
 		_wantNewWeightLinesColor = true;
@@ -250,16 +280,12 @@ bool TraverseGrid::IsSubGoal(int uid) const
 
 bool TraverseGrid::IsClear(int uid) const
 {
-	return
-		uid != -1 &&
-		!IsStart(uid) &&
-		!IsGoal(uid) &&
-		!IsSubGoal(uid);
+	return uid != -1 && !IsStart(uid) && !IsGoal(uid) && !IsSubGoal(uid);
 }
 
 bool TraverseGrid::IsEdgeObstacle(int fromUid, int toUid) const
 {
-	return _obstacleUIDs.find({ fromUid, toUid }) != _obstacleUIDs.end();
+	return _obstacleUIDs.find({fromUid, toUid}) != _obstacleUIDs.end();
 }
 
 bool TraverseGrid::IsEdgeClear(int fromUid, int toUid) const
@@ -269,11 +295,11 @@ bool TraverseGrid::IsEdgeClear(int fromUid, int toUid) const
 
 bool TraverseGrid::HasFilledEdges(int uid)
 {
-	auto &node = GetNode(uid);
+	auto& node = NodeByUid(uid);
 	bool filled = true;
-	for ( int neighborUid : node.GetNeighbors() )
+	for (int neighborUid : node.Neighbors())
 	{
-		if ( IsEdgeClear(uid, neighborUid) )
+		if (IsEdgeClear(uid, neighborUid))
 		{
 			filled = false;
 			break;
@@ -282,16 +308,16 @@ bool TraverseGrid::HasFilledEdges(int uid)
 	return filled;
 }
 
-void TraverseGrid::SetStart(const sf::Vector2f &position)
+void TraverseGrid::SetStart(const sf::Vector2f& position)
 {
-	SetStart(GetNodeUID(position));
+	SetStart(NodeUidByPosition(position));
 }
 
 void TraverseGrid::SetStart(int uid)
 {
-	if ( IsClear(uid) )
+	if (IsClear(uid))
 	{
-		if ( _startUID != -1 )
+		if (_startUID != -1)
 		{
 			ClearNodeColor(_startUID);
 		}
@@ -300,16 +326,16 @@ void TraverseGrid::SetStart(int uid)
 	}
 }
 
-void TraverseGrid::SetGoal(const sf::Vector2f &position)
+void TraverseGrid::SetGoal(const sf::Vector2f& position)
 {
-	SetGoal(GetNodeUID(position));
+	SetGoal(NodeUidByPosition(position));
 }
 
 void TraverseGrid::SetGoal(int uid)
 {
-	if ( IsClear(uid) )
+	if (IsClear(uid))
 	{
-		if ( _goalUID != -1 )
+		if (_goalUID != -1)
 		{
 			ClearNodeColor(_goalUID);
 		}
@@ -320,11 +346,11 @@ void TraverseGrid::SetGoal(int uid)
 
 void TraverseGrid::ResetStartGoal()
 {
-	if ( _startUID != -1 )
+	if (_startUID != -1)
 	{
 		ClearNodeColor(_startUID);
 	}
-	if ( _goalUID != -1 )
+	if (_goalUID != -1)
 	{
 		ClearNodeColor(_goalUID);
 	}
@@ -335,28 +361,28 @@ void TraverseGrid::ResetStartGoal()
 	SetDefaultStartGoal();
 }
 
-void TraverseGrid::AddSubGoal(const sf::Vector2f &position)
+void TraverseGrid::AddSubGoal(const sf::Vector2f& position)
 {
-	AddSubGoal(GetNodeUID(position));
+	AddSubGoal(NodeUidByPosition(position));
 }
 
 void TraverseGrid::AddSubGoal(int uid)
 {
-	if ( IsClear(uid) )
+	if (IsClear(uid))
 	{
-		_subGoalUIDs.emplace(uid);
+		_subGoalUIDs.push_back(uid);
 		SetNodeColor(uid, sf::Color::Blue);
 	}
 }
 
-void TraverseGrid::RemoveSubGoal(const sf::Vector2f &position)
+void TraverseGrid::RemoveSubGoal(const sf::Vector2f& position)
 {
-	RemoveSubGoal(GetNodeUID(position));
+	RemoveSubGoal(NodeUidByPosition(position));
 }
 
 void TraverseGrid::RemoveSubGoal(int uid)
 {
-	if ( IsSubGoal(uid) )
+	if (IsSubGoal(uid))
 	{
 		_subGoalUIDs.erase(std::find(_subGoalUIDs.begin(), _subGoalUIDs.end(), uid));
 		ClearNodeColor(uid);
@@ -365,7 +391,7 @@ void TraverseGrid::RemoveSubGoal(int uid)
 
 void TraverseGrid::ClearSubGoals()
 {
-	for ( auto &uid : _subGoalUIDs )
+	for (auto& uid : _subGoalUIDs)
 	{
 		ClearNodeColor(uid);
 	}
@@ -374,7 +400,7 @@ void TraverseGrid::ClearSubGoals()
 
 void TraverseGrid::AddObstacle(int fromUid, int toUid)
 {
-	if ( IsEdgeClear(fromUid, toUid) )
+	if (IsEdgeClear(fromUid, toUid))
 	{
 		_obstacleUIDs.emplace(fromUid, toUid);
 		_obstacleUIDs.emplace(toUid, fromUid);
@@ -385,8 +411,8 @@ void TraverseGrid::AddObstacle(int fromUid, int toUid)
 
 void TraverseGrid::RemoveObstacle(int fromUid, int toUid)
 {
-	_obstacleUIDs.erase({ fromUid, toUid });
-	_obstacleUIDs.erase({ toUid, fromUid });
+	_obstacleUIDs.erase({fromUid, toUid});
+	_obstacleUIDs.erase({toUid, fromUid});
 	OnObstacleChange(fromUid, toUid);
 	ClearNodeEdgeColor(fromUid, toUid);
 	ClearNodeEdgeColor(toUid, fromUid);
@@ -394,14 +420,14 @@ void TraverseGrid::RemoveObstacle(int fromUid, int toUid)
 
 void TraverseGrid::ClearObstacles()
 {
-	for ( const auto &[fromUid, toUid] : _obstacleUIDs )
+	for (const auto& [fromUid, toUid] : _obstacleUIDs)
 	{
 		ClearNodeEdgeColor(fromUid, toUid);
 	}
 
-	for ( auto &[uid, node] : _nodes )
+	for (auto& [uid, node] : _nodes)
 	{
-		if ( IsClear(uid) )
+		if (IsClear(uid))
 		{
 			ClearNodeColor(uid);
 		}
@@ -410,12 +436,12 @@ void TraverseGrid::ClearObstacles()
 	_obstacleUIDs.clear();
 }
 
-sf::Color TraverseGrid::GetWeightColor(float weight)
+sf::Color TraverseGrid::WeightColor(float weight)
 {
 	const sf::Uint8 red = weight / MaxWeight * 255.0f;
 	const sf::Uint8 blue = 255.0f - weight / MaxWeight * 255.0f;
 
-	return { red, 0, blue, 170 };
+	return {red, 0, blue, 170};
 }
 
 void TraverseGrid::SetDefaultStartGoal()
@@ -423,15 +449,15 @@ void TraverseGrid::SetDefaultStartGoal()
 	const auto visRectTopLeft = _visRect.getPosition();
 	const auto visRectSize = _visRect.getSize();
 
-	SetStart(visRectTopLeft + sf::Vector2f{ 2.0f * visRectSize.x / 9.0f, visRectSize.y / 2.0f });
-	SetGoal(visRectTopLeft + sf::Vector2f{ 7.0f * visRectSize.x / 9.0f, visRectSize.y / 2.0f });
+	SetStart(visRectTopLeft + sf::Vector2f{2.0f * visRectSize.x / 9.0f, visRectSize.y / 2.0f});
+	SetGoal(visRectTopLeft + sf::Vector2f{7.0f * visRectSize.x / 9.0f, visRectSize.y / 2.0f});
 }
 
-void TraverseGrid::OnRenderWeights(Scene &scene)
+void TraverseGrid::OnRenderWeights(Scene& scene)
 {
-	if ( _wantNewWeightLinesColor )
+	if (_wantNewWeightLinesColor)
 	{
-		for ( int i = 0; i < _weightLinesVA.getVertexCount(); i++ )
+		for (int i = 0; i < _weightLinesVA.getVertexCount(); i++)
 		{
 			_weightLinesVA[i].color.a = _weightLinesColorAlpha;
 		}
@@ -442,9 +468,9 @@ void TraverseGrid::OnRenderWeights(Scene &scene)
 
 void TraverseGrid::OnObstacleChange(int fromUid, int toUid)
 {
-	if ( IsClear(fromUid) )
+	if (IsClear(fromUid))
 	{
-		if ( HasFilledEdges(fromUid) )
+		if (HasFilledEdges(fromUid))
 		{
 			SetNodeColor(fromUid, _fadedObstacleColor);
 		}
@@ -454,9 +480,9 @@ void TraverseGrid::OnObstacleChange(int fromUid, int toUid)
 		}
 	}
 
-	if ( IsClear(toUid) )
+	if (IsClear(toUid))
 	{
-		if ( HasFilledEdges(toUid) )
+		if (HasFilledEdges(toUid))
 		{
 			SetNodeColor(toUid, _fadedObstacleColor);
 		}

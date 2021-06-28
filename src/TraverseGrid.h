@@ -6,18 +6,20 @@
 
 namespace Se
 {
+
+typedef uint TraverseGridDrawFlags;
+enum TraverseGridDrawFlag_ : uint
+{
+	TraverseGridDrawFlag_None = 0u,
+	TraverseGridDrawFlag_Grid = 1u << 4u,
+	TraverseGridDrawFlag_Objects = 1u << 5u,
+	TraverseGridDrawFlag_Weights = 1u << 6u,
+	TraverseGridDrawFlag_All = 0xffffffff
+};
+
 class TraverseGrid
 {
 public:
-	typedef Uint32 DrawFlags;
-	enum DrawFlag_ : Uint32
-	{
-		DrawFlag_None = 0u,
-		DrawFlag_Grid = 1u << 4u,
-		DrawFlag_Objects = 1u << 5u,
-		DrawFlag_Weights = 1u << 6u,
-		DrawFlag_All = 0xffffffff
-	};
 
 public:
 	explicit TraverseGrid(String name);
@@ -30,41 +32,42 @@ public:
 	void Reset();
 
 	void GenerateMaze();
-	void SetNoWallsToSmash(int no) { _noToSmash = no; }
+	void SetNoWallsToSmash(int no);
 
-	Map<int, Node> &GetNodes() { return _nodes; }
-	const Map<int, Node> &GetNodes() const { return _nodes; }
+	auto Nodes() -> TreeMap<int, Node>&;
+	auto Nodes() const -> const TreeMap<int, Node>&;
 
-	Node &GetNode(int uid) { return _nodes.at(uid); }
-	const Node &GetNode(int uid) const { return _nodes.at(uid); }
-	int GetClosestNeighborUID(int uid, const sf::Vector2f &position) const;
+	auto NodeByUid(int uid) -> Node&;
+	auto NodeByUid(int uid) const -> const Node&;
 
-	int GetNodeUID(const sf::Vector2f &position) const;
-	int GetStartUID() const { return _startUID; }
-	int GetGoalUID() const { return _goalUID; }
+	auto ClosestNeighborUID(int uid, const sf::Vector2f &position) const -> int;
+	auto NodeUidByPosition(const sf::Vector2f &position) const -> int;
 
-	const Set<Pair<int, int>> &GetObstacleUIDs() { return _obstacleUIDs; }
-	const Set<int> &GetSubGoalUIDs() { return _subGoalUIDs; }
-	const Set<int> &GetEditedWeightUIDs() { return _editedWeightUIDs; }
+	auto StartUid() const -> int;
+	auto GoalUid() const -> int;
 
-	DrawFlags GetDrawFlags() const { return _drawFlags; }
-	virtual void SetDrawFlags(DrawFlags drawFlags);
-	void AddDrawFlags(DrawFlags drawFlags);
-	void RemoveDrawFlags(DrawFlags drawFlags);
+	auto ObstacleUids() -> const TreeSet<Pair<int, int>>&;
+	auto SubGoalUids() -> const List<int>&;
+	auto EditedWeightUids() -> const TreeSet<int>&;
+
+	auto DrawFlags() const -> TraverseGridDrawFlags;
+	virtual void SetDrawFlags(TraverseGridDrawFlags drawFlags);
+	void AddDrawFlags(TraverseGridDrawFlags drawFlags);
+	void RemoveDrawFlags(TraverseGridDrawFlags drawFlags);
 
 	void SetWeight(int uidFirst, int uidSecond, float weight);
-	void SetWeightColorAlpha(Uint8 alpha);
+	void SetWeightColorAlpha(uchar alpha);
 
-	const String &GetName() const { return _name; }
+	auto Name() const -> const String&;
+	
+	auto IsStart(int uid) const -> bool;
+	auto IsGoal(int uid) const -> bool;
+	auto IsSubGoal(int uid) const -> bool;
+	auto IsClear(int uid) const -> bool;
 
-	bool IsStart(int uid) const { return _startUID == uid; }
-	bool IsGoal(int uid) const { return _goalUID == uid; }
-	bool IsSubGoal(int uid) const;
-	bool IsClear(int uid) const;
-
-	bool IsEdgeObstacle(int fromUid, int toUid) const;
-	bool IsEdgeClear(int fromUid, int toUid) const;
-	bool HasFilledEdges(int uid);
+	auto IsEdgeObstacle(int fromUid, int toUid) const -> bool;
+	auto IsEdgeClear(int fromUid, int toUid) const -> bool;
+	auto HasFilledEdges(int uid) -> bool;
 
 	void SetStart(const sf::Vector2f &position);
 	void SetStart(int uid);
@@ -88,8 +91,8 @@ public:
 	virtual	void ClearNodeEdgeColor(int fromUid, int toUid) = 0;
 	virtual void SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &color) = 0;
 
-	static sf::Color GetWeightColor(float weight);
-	sf::Color GetGridColor() const { return _gridColor; }
+	static auto WeightColor(float weight) -> sf::Color;
+	auto GridColor() const -> sf::Color { return _gridColor; }
 
 	static constexpr float MaxWeight = 50.0f;
 
@@ -105,18 +108,18 @@ private:
 	void OnObstacleChange(int fromUid, int toUid);
 
 protected:
-	Map<int, Node> _nodes;
+	TreeMap<int, Node> _nodes;
 	sf::FloatRect _visRect;
 	sf::Vector2f _renderTargetSize = { 0.0f, 0.0f };
-	DrawFlags _drawFlags = DrawFlag_All;
+	TraverseGridDrawFlags _drawFlags = TraverseGridDrawFlag_All;
 	sf::Color _gridColor = { 50, 0, 220, 100 };
 
 private:
 	String _name;
 
-	Set<Pair<int, int>> _obstacleUIDs;
-	Set<int> _subGoalUIDs;
-	Set<int> _editedWeightUIDs;
+	TreeSet<Pair<int, int>> _obstacleUIDs;
+	List<int> _subGoalUIDs;
+	TreeSet<int> _editedWeightUIDs;
 
 	sf::Color _obstacleColor{ 40, 40, 40 };
 	sf::Color _fadedObstacleColor{ _obstacleColor.r, _obstacleColor.g, _obstacleColor.b, _obstacleColor.a * 0.6f };
@@ -127,15 +130,15 @@ private:
 	bool _wantNewWeightLinesVA = true;
 	// Caching VA-index with costs to minimize recreation of VA
 	// < <uidFrom, uidTo>, <VA-index1, VA-index2> >
-	Map<Pair<int, int>, Pair<int, int>> _weightLinesCacheVA;
-	Uint8 _weightLinesColorAlpha = 255;
+	TreeMap<Pair<int, int>, Pair<int, int>> _weightLinesCacheVA;
+	uchar _weightLinesColorAlpha = 255;
 	bool _wantNewWeightLinesColor = true;
 
 	int _startUID;
 	int _goalUID;
 
 	// Maze Generation
-	Set<int> _visitedNodes;
+	TreeSet<int> _visitedNodes;
 	int _noToSmash = 0;
 	Random::Device _randomDevice;
 	Random::Engine _randomEngine{ _randomDevice() };

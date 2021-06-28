@@ -4,6 +4,7 @@
 
 namespace Se
 {
+
 class VoronoiGrid : public TraverseGrid
 {
 public:
@@ -29,7 +30,9 @@ private:
 	int _noRelaxIterations = 4;
 
 	// <from, to>, VAIndex
-	Map<Pair<int, int>, int> _filledEdges;
+	TreeMap<Pair<int, int>, int> _filledEdges;
 	sf::VertexArray _filledEdgesVA{ sf::PrimitiveType::Quads };
 };
+
 }
+

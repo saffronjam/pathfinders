@@ -2,19 +2,30 @@
 
 namespace Se
 {
+DFS::DFS() :
+	Pathfinder("DFS")
+{
+	SetBodyColor(sf::Color::Blue);
+}
+
 void DFS::FindPath(int startUID, int goalUID)
 {
-
 	auto getUnvisitedNeighbor = [&](int uid)
 	{
 		int neighborFound = -1;
 
-		const  auto &neighbors = GetNode(uid).GetNeighbors();
+		const auto& neighbors = NodeByUid(uid).Neighbors();
 
-		for ( int neighbor : neighbors )
+		for (int neighbor : neighbors)
 		{
+			if( _state == PathfinderState::BeingCollected)
+			{
+				return 0;
+			}
+
 			auto result = _visited.find(neighbor);
-			if ( result == _visited.end() && !_traverseGrid->IsEdgeObstacle(_activeNodeUID, neighbor) && neighbor != _activeNodeUID )
+			if (result == _visited.end() && !_traverseGrid->IsEdgeObstacle(_activeNodeUID, neighbor) && neighbor !=
+				_activeNodeUID)
 			{
 				neighborFound = neighbor;
 				break;
@@ -28,22 +39,20 @@ void DFS::FindPath(int startUID, int goalUID)
 
 	_checkingStack.push(_activeNodeUID);
 	_visited.emplace(_activeNodeUID);
-	GetNode(_activeNodeUID).SetCost("Tentative", 0.0f);
-	while ( !_checkingStack.empty() && _state != State::BeingCollected )
+	NodeByUid(_activeNodeUID).SetCost("Tentative", 0.0f);
+	while (!_checkingStack.empty() && _state != PathfinderState::BeingCollected)
 	{
-
-		if ( _state == State::BeingCollected )
-		{
-			break;
-		}
-
 		PauseCheck();
 		SleepDelay();
 
-
-		Node &activeNode = GetNode(_activeNodeUID);
+		Node& activeNode = NodeByUid(_activeNodeUID);
 		const int neighborUid = getUnvisitedNeighbor(_activeNodeUID);
-		if ( neighborUid == -1 )
+		if( _state == PathfinderState::BeingCollected)
+		{
+			return;
+		}
+		
+		if (neighborUid == -1)
 		{
 			_activeNodeUID = _checkingStack.top();
 			_checkingStack.pop();
@@ -54,9 +63,10 @@ void DFS::FindPath(int startUID, int goalUID)
 			_visited.emplace(_activeNodeUID);
 			_checkingStack.push(_activeNodeUID);
 
-			Node &neighbor = GetNode(neighborUid);
-			const float suggestedTentativeCost = activeNode.GetCost("Tentative") + activeNode.GetNeighborCost(neighborUid);
-			if ( suggestedTentativeCost < neighbor.GetCost("Tentative") )
+			Node& neighbor = NodeByUid(neighborUid);
+			const float suggestedTentativeCost = activeNode.Cost("Tentative") + activeNode.NeighborCostByUid(
+				neighborUid);
+			if (suggestedTentativeCost < neighbor.Cost("Tentative"))
 			{
 				neighbor.SetVia(_activeNodeUID);
 				neighbor.SetCost("Tentative", suggestedTentativeCost);
@@ -64,10 +74,8 @@ void DFS::FindPath(int startUID, int goalUID)
 
 			_activeNodeUID = neighborUid;
 		}
-
-
 	}
-	while ( !_checkingStack.empty() )
+	while (!_checkingStack.empty())
 	{
 		_checkingStack.pop();
 	}

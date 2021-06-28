@@ -9,7 +9,7 @@ namespace Se
 class ProjectLayer : public BaseLayer
 {
 public:
-	void OnAttach(std::shared_ptr<BatchLoader> &loader) override;
+	void OnAttach(Shared<BatchLoader> &loader) override;
 	void OnDetach() override;
 
 	void OnUpdate() override;
@@ -18,6 +18,6 @@ public:
 	void OnRenderTargetResize(const sf::Vector2f &newSize) override;
 
 private:
-	std::shared_ptr<PathfinderManager> _pathfinderManager;
+	Shared<PathfinderManager> _pathfinderManager;
 };
 }

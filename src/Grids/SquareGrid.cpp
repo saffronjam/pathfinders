@@ -15,12 +15,12 @@ void SquareGrid::OnRender(Scene &scene)
 {
 	TraverseGrid::OnRender(scene);
 
-	if ( _drawFlags & DrawFlag_Grid )
+	if ( _drawFlags & TraverseGridDrawFlag_Grid )
 	{
 		scene.Submit(_lineVA);
 	}
 
-	if ( _drawFlags & DrawFlag_Objects )
+	if ( _drawFlags & TraverseGridDrawFlag_Objects )
 	{
 		scene.Submit(_filledSquaresVA);
 		scene.Submit(_filledEdgesVA);
@@ -46,7 +46,7 @@ void SquareGrid::OnRenderTargetResize(const sf::Vector2f &size)
 
 void SquareGrid::ClearNodeColor(int uid)
 {
-	SE_CORE_ASSERT(uid != -1, "Invalid uid");
+	Debug::Assert(uid != -1, "Invalid uid");
 	const auto findResult = _filledSquares.find(uid);
 	if ( findResult != _filledSquares.end() )
 	{
@@ -60,11 +60,11 @@ void SquareGrid::ClearNodeColor(int uid)
 
 void SquareGrid::SetNodeColor(int uid, const sf::Color &color)
 {
-	SE_CORE_ASSERT(uid != -1, "Invalid uid");
+	Debug::Assert(uid != -1, "Invalid uid");
 	if ( _filledSquares.find(uid) == _filledSquares.end() )
 	{
-		const auto &position = GetNode(uid).GetPosition();
-		const auto boxSize = GetBoxSize();
+		const auto &position = NodeByUid(uid).Position();
+		const auto boxSize = BoxSize();
 		const auto halfBoxSize = boxSize / 2.0f;
 
 		const auto square = Square{ _filledSquaresVA.getVertexCount(), sf::FloatRect{ position, boxSize } };
@@ -89,7 +89,7 @@ void SquareGrid::SetNodeColor(int uid, const sf::Color &color)
 
 void SquareGrid::ClearNodeEdgeColor(int fromUid, int toUid)
 {
-	SE_CORE_ASSERT(fromUid != -1 && toUid != -1, "Invalid uid");
+	Debug::Assert(fromUid != -1 && toUid != -1, "Invalid uid");
 	const auto findResult = _filledEdges.find({ fromUid, toUid });
 	if ( findResult != _filledEdges.end() )
 	{
@@ -103,13 +103,13 @@ void SquareGrid::ClearNodeEdgeColor(int fromUid, int toUid)
 
 void SquareGrid::SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &color)
 {
-	SE_CORE_ASSERT(fromUid != -1 && toUid != -1, "Invalid uid");
+	Debug::Assert(fromUid != -1 && toUid != -1, "Invalid uid");
 	if ( _filledEdges.find({ fromUid, toUid }) == _filledEdges.end() )
 	{
-		const auto &firstPosition = GetNode(fromUid).GetPosition();
-		const auto &secondPosition = GetNode(toUid).GetPosition();
+		const auto &firstPosition = NodeByUid(fromUid).Position();
+		const auto &secondPosition = NodeByUid(toUid).Position();
 
-		const auto boxSize = GetBoxSize();
+		const auto boxSize = BoxSize();
 		sf::Vector2f halfRectSize(boxSize.x / 2.0f, boxSize.y / 6.0f);
 		halfRectSize.x += halfRectSize.y;
 
@@ -142,7 +142,7 @@ void SquareGrid::SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &color
 void SquareGrid::GenerateGrid()
 {
 	const sf::Vector2f topLeft = _visRect.getPosition();
-	const auto boxSize = GetBoxSize();
+	const auto boxSize = BoxSize();
 	const sf::Vector2f lineLength = _visRect.getSize();
 
 
@@ -179,7 +179,7 @@ void SquareGrid::GenerateNodes()
 	_nodes.clear();
 
 	int uid = 0;
-	const auto boxSize = GetBoxSize();
+	const auto boxSize = BoxSize();
 	const auto topLeft = sf::Vector2f(_visRect.left, _visRect.top) + sf::Vector2f(boxSize.x, boxSize.y) / 2.0f;
 
 	for ( int i = 0; i < _noBoxes.y; i++ )
@@ -194,7 +194,7 @@ void SquareGrid::GenerateNodes()
 
 void SquareGrid::CalculateNeighbors()
 {
-	const auto boxSize = GetBoxSize();
+	const auto boxSize = BoxSize();
 	const float diagonalLength = VecUtils::Length(boxSize);
 	for ( int i = 0; i < _noBoxes.x * _noBoxes.y; i++ )
 	{
@@ -214,25 +214,25 @@ void SquareGrid::CalculateNeighbors()
 			switch ( j )
 			{
 			case 0:
-				GetNode(i).AddNeighbor(i - 1, boxSize.x);
+				NodeByUid(i).AddNeighbor(i - 1, boxSize.x);
 				break;
 			case 1:
 				//GetNode(i).AddNeighbor(i - 1 - _noBoxes.x, diagonalLength);
 				break;
 			case 2:
-				GetNode(i).AddNeighbor(i - _noBoxes.x, boxSize.y);
+				NodeByUid(i).AddNeighbor(i - _noBoxes.x, boxSize.y);
 				break;
 			case 3:
 				//GetNode(i).AddNeighbor(i + 1 - _noBoxes.x, diagonalLength);
 				break;
 			case 4:
-				GetNode(i).AddNeighbor(i + 1, boxSize.x);
+				NodeByUid(i).AddNeighbor(i + 1, boxSize.x);
 				break;
 			case 5:
 				//GetNode(i).AddNeighbor(i + 1 + _noBoxes.x, diagonalLength);
 				break;
 			case 6:
-				GetNode(i).AddNeighbor(i + _noBoxes.x, boxSize.y);
+				NodeByUid(i).AddNeighbor(i + _noBoxes.x, boxSize.y);
 				break;
 			case 7:
 				//GetNode(i).AddNeighbor(i - 1 + _noBoxes.x, diagonalLength);
@@ -244,7 +244,7 @@ void SquareGrid::CalculateNeighbors()
 	}
 }
 
-sf::Vector2f SquareGrid::GetBoxSize() const
+auto SquareGrid::BoxSize() const -> sf::Vector2f
 {
 	return { _visRect.width / static_cast<float>(_noBoxes.x), _visRect.height / static_cast<float>(_noBoxes.y) };
 }

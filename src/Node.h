@@ -15,46 +15,46 @@ class Node
 public:
 	Node(int uid, const sf::Vector2f &position);
 
-	bool operator==(int uid) const { return _uid == uid; }
+	auto operator==(int uid) const -> bool;
 
 	void AddNeighbor(int uid, float cost);
-	void RemoveNeighbor(int uid) { _neighbors.erase(uid); }
+	void RemoveNeighbor(int uid);
 
 	void ResetCosts();
 	void ResetNeighborsCost();
 	void ResetPath();
 
-	int GetUID() const { return _uid; }
-	const sf::Vector2f &GetPosition() const { return _position; }
-	int GetViaUID() const { return _viaUID; }
-	float GetCost(const String &type);
-	bool HasCost(const String &type);
+	auto Uid() const -> int;
+	auto Position() const -> const sf::Vector2f&;
+	auto ViaUID() const -> int;
+	auto Cost(const String& type) -> float;
+	auto HasCost(const String& type) -> bool;
 
-	const Set<int> &GetNeighbors() const { return _neighbors; }
-	float GetNeighborCost(int uid) const { return _neighborCosts.at(uid); }
-	void SetWeight(int uidNeighbor, float weight) { _neighborCosts.at(uidNeighbor) = weight; }
+	auto Neighbors() const -> const HashSet<int>&;
+	auto NeighborCostByUid(int uid) const -> float;
+	void SetWeight(int uidNeighbor, float weight);
 
-	bool WasVisited() const { return _viaUID != -1; }
-	bool WasVisitedBy(Node &node) const;
+	auto Visited() const -> bool;
+	auto VisitedBy(Node& node) const -> bool;
 
-	void SetVia(int uid) { _viaUID = uid; }
+	void SetVia(int uid);
 	void SetCost(const String &type, float cost);
 	void SetNeighborCost(float cost, int uid);
 
-	void AddVisitedNeighbor(int uid) { _visitedNeighbors.emplace(uid); }
-	void RemoveVisitedNeighbor(int uid) { _visitedNeighbors.erase(uid); }
-	void ClearVisitedNeighbors() { _visitedNeighbors.clear(); }
+	void AddVisitedNeighbor(int uid);
+	void RemoveVisitedNeighbor(int uid);
+	void ClearVisitedNeighbors();
 
 private:
 	int _uid;
 	sf::Vector2f _position;
-	Set<int> _neighbors;
-	Set<int> _visitedNeighbors;
+	HashSet<int> _neighbors;
+	HashSet<int> _visitedNeighbors;
 
 	int _viaUID;
 
-	Map<String, float> _costs;
-	Map<int, float> _neighborCosts;
-	Map<int, float> _resetNeighborCosts;
+	HashMap<String, float> _costs;
+	HashMap<int, float> _neighborCosts;
+	HashMap<int, float> _resetNeighborCosts;
 };
 }

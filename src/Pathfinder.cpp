@@ -5,7 +5,7 @@
 namespace Se
 {
 Pathfinder::Pathfinder(String name) :
-	_state(State::WaitingForStart),
+	_state(PathfinderState::WaitingForStart),
 	_activeNodeUID(-1),
 	_name(Move(name)),
 	_sleepDelay(sf::seconds(0.01f)),
@@ -24,18 +24,18 @@ Pathfinder::~Pathfinder()
 
 void Pathfinder::OnUpdate()
 {
-	if ( _pathWasFound )
+	if (_pathWasFound)
 	{
-		_finalPathTimer += Global::Clock::GetFrameTime();
+		_finalPathTimer += Global::Clock::FrameTime();
 
-		while ( _finalPathTimer > _finalPathTimerUpdateInterval )
+		while (_finalPathTimer > _finalPathTimerUpdateInterval)
 		{
-			if ( _noFinalPathNodes < _finalPath.size() - 1 )
+			if (_noFinalPathNodes < _finalPath.size() - 1)
 			{
 				_noFinalPathNodes++;
 			}
 			_bigCircleNodeIndex++;
-			if ( _bigCircleNodeIndex >= _finalPath.size() - 1 )
+			if (_bigCircleNodeIndex >= _finalPath.size() - 1)
 			{
 				_bigCircleNodeIndex = 0;
 			}
@@ -45,141 +45,147 @@ void Pathfinder::OnUpdate()
 	}
 }
 
-void Pathfinder::OnRenderAnticipation(Scene &scene)
+void Pathfinder::OnRenderAnticipation(Scene& scene)
 {
-	if ( _activeNodeUID != -1 && _state == State::Searching || _state == State::Paused || _state == State::Finished )
+	if (_activeNodeUID != -1 && _state == PathfinderState::Searching || _state == PathfinderState::Paused || _state ==
+		PathfinderState::Finished)
 	{
 		_bodyVA.clear();
-		_bodyVA.append({ GetNode(_activeNodeUID).GetPosition(), _bodyColor });
-		int viaID = GetNode(_activeNodeUID).GetViaUID();
-		for ( Node *node; viaID != -1; node = &GetNode(viaID), viaID = node->GetViaUID() )
+		_bodyVA.append({NodeByUid(_activeNodeUID).Position(), _bodyColor});
+		int viaID = NodeByUid(_activeNodeUID).ViaUID();
+		for (Node* node; viaID != -1; node = &NodeByUid(viaID), viaID = node->ViaUID())
 		{
-			_bodyVA.append({ GetNode(viaID).GetPosition(), _bodyColor });
+			_bodyVA.append({NodeByUid(viaID).Position(), _bodyColor});
 		}
 		scene.Submit(_bodyVA);
 
 		RenderFinishedBodyHelper(scene, _bodyColor, _finalPath.size());
-		scene.Submit(GetNode(_activeNodeUID).GetPosition(), _bodyColor, 5.0f);
+		scene.Submit(NodeByUid(_activeNodeUID).Position(), _bodyColor, 5.0f);
 	}
 }
 
-void Pathfinder::OnRenderViaConnections(Scene &scene)
+void Pathfinder::OnRenderViaConnections(Scene& scene)
 {
 	_viaVA.clear();
-	for ( auto &[uid, node] : _nodes )
+	for (auto& [uid, node] : _nodes)
 	{
-		const int via = node.GetViaUID();
-		if ( via != -1 )
+		const int via = node.ViaUID();
+		if (via != -1)
 		{
 			auto color = sf::Color(150, 150, 150, 20);
-			_viaVA.append({ node.GetPosition(), color });
-			_viaVA.append({ GetNode(via).GetPosition(), color });
+			_viaVA.append({node.Position(), color});
+			_viaVA.append({NodeByUid(via).Position(), color});
 		}
 	}
 	scene.Submit(_viaVA);
 }
 
-void Pathfinder::OnRenderBody(Scene &scene)
+void Pathfinder::OnRenderBody(Scene& scene)
 {
-	IsDone() ? OnRenderResult(scene) : OnRenderAnticipation(scene);
+	Done() ? OnRenderResult(scene) : OnRenderAnticipation(scene);
 }
 
-void Pathfinder::OnRenderResult(Scene &scene)
+void Pathfinder::OnRenderResult(Scene& scene)
 {
-	if ( _pathWasFound )
+	if (_pathWasFound)
 	{
-		auto bc = GetBodyColor();
+		auto bc = BodyColor();
 		bc.a = 140.0f;
 		RenderFinishedBodyHelper(scene, bc, _noFinalPathNodes);
 		bc.a = 255.0f;
-		scene.Submit(_finalPath[_bigCircleNodeIndex]->GetPosition(), bc, 5.0f);
+		scene.Submit(_finalPath[_bigCircleNodeIndex]->Position(), bc, 5.0f);
 	}
 }
 
-String Pathfinder::GetStateString() const
+auto Pathfinder::State() const -> PathfinderState
 {
-	switch ( _state )
+	return _state;
+}
+
+auto Pathfinder::Name() -> const String&
+{
+	return _name;
+}
+
+auto Pathfinder::StateString() const -> String
+{
+	switch (_state)
 	{
-	case State::Searching:
-		return "Searching";
-	case State::WaitingForStart:
-		return "Waiting";
-	case State::Paused:
-		return "Paused";
-	case State::Finished:
-		return _pathWasFound ? "Finished" : "Failed";
-	case State::BeingCollected:
-		return "Collecting";
-	default:
-		return "INVALID STATE";
+	case PathfinderState::Searching: return "Searching";
+	case PathfinderState::WaitingForStart: return "Waiting";
+	case PathfinderState::Paused: return "Paused";
+	case PathfinderState::Finished: return _pathWasFound ? "Finished" : "Failed";
+	case PathfinderState::BeingCollected: return "Collecting";
+	default: return "INVALID STATE";
 	}
 }
 
-String Pathfinder::GetResult()
+auto Pathfinder::Result() -> String
 {
-	if ( _pathWasFound )
+	if (_pathWasFound)
 	{
-		OutputStringStream oss;
-		oss << "Cost: " << GetFinalCost();
+		OStringStream oss;
+		oss << "Cost: " << FinalCost();
 		return oss.str();
 	}
 	return "No path found";
 }
 
-void Pathfinder::AssignNodes(Map<int, Node> nodes)
+void Pathfinder::AssignNodes(TreeMap<int, Node> nodes)
 {
 	_nodes = Move(nodes);
 }
 
-void Pathfinder::SetTraverseGrid(const Shared<const TraverseGrid> &traverseGrid)
+void Pathfinder::SetTraverseGrid(const Shared<const TraverseGrid>& traverseGrid)
 {
 	_activeNodeUID = -1;
 	_traverseGrid = traverseGrid;
 }
 
-void Pathfinder::Start(int startUID, int goalUID, const Set<int> &subGoalsUIDs)
+void Pathfinder::Start(int startUID, int goalUID, const List<int>& subGoalsUIDs)
 {
-	if ( _state == State::Finished )
+	if (_state == PathfinderState::Finished)
 	{
 		Restart();
 	}
-	if ( _state == State::WaitingForStart )
+	if (_state == PathfinderState::WaitingForStart)
 	{
 		CollectFinder();
-		_state = State::Searching;
+		_state = PathfinderState::Searching;
 		_finder = Thread(&Pathfinder::FindPathThreadFn, this, startUID, goalUID, subGoalsUIDs);
 	}
 }
 
 void Pathfinder::Pause()
 {
-	if ( _state == State::Searching )
+	if (_state == PathfinderState::Searching)
 	{
-		_state = State::Paused;
+		_state = PathfinderState::Paused;
 	}
 }
 
 void Pathfinder::Resume()
 {
-	if ( _state == State::Paused )
+	if (_state == PathfinderState::Paused)
 	{
-		_state = State::Searching;
+		_state = PathfinderState::Searching;
 	}
 }
 
 void Pathfinder::Restart()
 {
-	if ( _state == State::Searching || _state == State::Paused || _state == State::Finished )
+	if (_state == PathfinderState::Searching || _state == PathfinderState::Paused || _state == PathfinderState::Finished
+	)
 	{
-		ScopedLock scopedLock(_mutex);
+		std::scoped_lock scopedLock(_mutex);
 		_pathWasFound = false;
 		_finalPathTimer = sf::Time::Zero;
 		_noFinalPathNodes = 0;
 		_bigCircleNodeIndex = 0;
 		_finalPath.clear();
 		CollectFinder();
-		_state = State::WaitingForStart;
-		for ( auto &[uid, node] : _nodes )
+		_state = PathfinderState::WaitingForStart;
+		for (auto& [uid, node] : _nodes)
 		{
 			node.ResetPath();
 			node.ClearVisitedNeighbors();
@@ -190,10 +196,11 @@ void Pathfinder::Restart()
 void Pathfinder::Reset()
 {
 	Restart();
-	if ( _state == State::Searching || _state == State::Paused || _state == State::Finished )
+	if (_state == PathfinderState::Searching || _state == PathfinderState::Paused || _state == PathfinderState::Finished
+	)
 	{
-		ScopedLock scopedLock(_mutex);
-		for ( auto &[uid, node] : _nodes )
+		std::scoped_lock scopedLock(_mutex);
+		for (auto& [uid, node] : _nodes)
 		{
 			node.ResetNeighborsCost();
 		}
@@ -210,6 +217,41 @@ void Pathfinder::Deactivate()
 	_active = false;
 }
 
+auto Pathfinder::Done() const -> bool
+{
+	return _state == PathfinderState::Finished;
+}
+
+bool Pathfinder::Active() const
+{
+	return _active;
+}
+
+auto Pathfinder::BodyColor() const -> sf::Color
+{
+	return _bodyColor;
+}
+
+void Pathfinder::SetBodyColor(sf::Color color)
+{
+	_bodyColor = color;
+}
+
+auto Pathfinder::Nodes() -> TreeMap<int, Node>&
+{
+	return _nodes;
+}
+
+auto Pathfinder::Nodes() const -> const TreeMap<int, Node>&
+{
+	return const_cast<Pathfinder&>(*this).Nodes();
+}
+
+auto Pathfinder::NodeByUid(int uid) -> Node&
+{
+	return Nodes().at(uid);
+}
+
 void Pathfinder::SetSleepDelay(sf::Time delay)
 {
 	_sleepDelay = delay;
@@ -218,13 +260,13 @@ void Pathfinder::SetSleepDelay(sf::Time delay)
 
 void Pathfinder::SetWeight(int uidFirst, int uidSecond, float weight)
 {
-	GetNode(uidFirst).SetNeighborCost(weight, uidSecond);
-	GetNode(uidSecond).SetNeighborCost(weight, uidFirst);
+	NodeByUid(uidFirst).SetNeighborCost(weight, uidSecond);
+	NodeByUid(uidSecond).SetNeighborCost(weight, uidFirst);
 }
 
 void Pathfinder::PauseCheck()
 {
-	while ( _state == State::Paused && _state != State::BeingCollected )
+	while (_state == PathfinderState::Paused && _state != PathfinderState::BeingCollected)
 	{
 		sf::sleep(sf::seconds(0.01f));
 	}
@@ -232,14 +274,14 @@ void Pathfinder::PauseCheck()
 
 void Pathfinder::SleepDelay()
 {
-	if ( !_minorDelay )
+	if (!_minorDelay)
 	{
 		std::this_thread::sleep_for(std::chrono::microseconds(_sleepDelay.asMicroseconds()));
 	}
 	else
 	{
 		_minorDelayTimer += _sleepDelay.asMicroseconds();
-		while ( _minorDelayTimer > 1000 )
+		while (_minorDelayTimer > 1000)
 		{
 			std::this_thread::sleep_for(std::chrono::microseconds(1000));
 			_minorDelayTimer -= 1000;
@@ -247,55 +289,55 @@ void Pathfinder::SleepDelay()
 	}
 }
 
-float Pathfinder::GetFinalCost()
+auto Pathfinder::FinalCost() -> float
 {
-	ScopedLock scopedLock(_mutex);
+	std::scoped_lock scopedLock(_mutex);
 
-	SE_CORE_ASSERT(!_finalPath.empty(), "Cost can only be calculated if path is found");
+	Debug::Assert(!_finalPath.empty(), "Cost can only be calculated if path is found");
 
 	float cost = 0.0f;
-	for ( int i = 0; i < _finalPath.size() - 1; i++ )
+	for (int i = 0; i < _finalPath.size() - 1; i++)
 	{
-		cost += _finalPath[i]->GetNeighborCost(_finalPath[i + 1]->GetUID());
+		cost += _finalPath[i]->NeighborCostByUid(_finalPath[i + 1]->Uid());
 	}
 	return cost;
 }
 
-void Pathfinder::RenderFinishedBodyHelper(Scene &scene, sf::Color color, int limit)
+void Pathfinder::RenderFinishedBodyHelper(Scene& scene, sf::Color color, int limit)
 {
 	// Finished body
 	_bodyFinishedVA.clear();
 	_bodyFinishedVA.resize(_finalPath.size() * 4);
 	const float halfSize = 1.5f;
 	auto finalPathCopy = _finalPath;
-	for ( int i = 0; i < limit; i++ )
+	for (int i = 0; i < limit; i++)
 	{
-		const sf::Vector2f position = finalPathCopy[i]->GetPosition();
+		const sf::Vector2f position = finalPathCopy[i]->Position();
 
-		_bodyFinishedVA[i * 4] = { position - sf::Vector2f{halfSize, 0.0f}, color };
-		_bodyFinishedVA[i * 4 + 1] = { position - sf::Vector2f{0.0f, halfSize}, color };
-		_bodyFinishedVA[i * 4 + 2] = { position + sf::Vector2f{halfSize, 0.0f}, color };
-		_bodyFinishedVA[i * 4 + 3] = { position + sf::Vector2f{0.0f, halfSize}, color };
+		_bodyFinishedVA[i * 4] = {position - sf::Vector2f{halfSize, 0.0f}, color};
+		_bodyFinishedVA[i * 4 + 1] = {position - sf::Vector2f{0.0f, halfSize}, color};
+		_bodyFinishedVA[i * 4 + 2] = {position + sf::Vector2f{halfSize, 0.0f}, color};
+		_bodyFinishedVA[i * 4 + 3] = {position + sf::Vector2f{0.0f, halfSize}, color};
 	}
 	scene.Submit(_bodyFinishedVA);
 }
 
-void Pathfinder::FindPathThreadFn(int startUID, int goalUID, const Set<int> &subGoalsUIDs)
+void Pathfinder::FindPathThreadFn(int startUID, int goalUID, const List<int>& subGoalsUIDs)
 {
 	_finalPath.clear();
 
 	int fromUID = startUID;
 	int toUID;
 
-	for ( int subGoalsUID : subGoalsUIDs )
+	for (int subGoalsUID : subGoalsUIDs)
 	{
 		toUID = subGoalsUID;
 		FindPath(fromUID, toUID);
 		const bool result = CheckFindPathResult(fromUID, toUID);
-		if ( !result )
+		if (!result)
 		{
 			_pathWasFound = false;
-			_state = State::Finished;
+			_state = PathfinderState::Finished;
 			return;
 		}
 		fromUID = subGoalsUID;
@@ -304,29 +346,29 @@ void Pathfinder::FindPathThreadFn(int startUID, int goalUID, const Set<int> &sub
 	FindPath(fromUID, toUID);
 	_pathWasFound = CheckFindPathResult(fromUID, toUID);
 
-	if ( _pathWasFound )
+	if (_pathWasFound)
 	{
-		_finalPath.push_front(&GetNode(startUID));
+		_finalPath.push_front(&NodeByUid(startUID));
 	}
 
 	_noFinalPathNodes = 0;
 	_finalPathTimer = sf::Time::Zero;
 
-	_state = State::Finished;
+	_state = PathfinderState::Finished;
 }
 
-bool Pathfinder::CheckFindPathResult(int fromUID, int toUID)
+auto Pathfinder::CheckFindPathResult(int fromUID, int toUID) -> bool
 {
-	if ( _state == State::BeingCollected )
+	if (_state == PathfinderState::BeingCollected)
 	{
 		return false;
 	}
 
-	const bool foundPath = GetNodes().at(toUID).WasVisited();
-	if ( foundPath )
+	const bool foundPath = Nodes().at(toUID).Visited();
+	if (foundPath)
 	{
 		AppendFinalPath(fromUID, toUID);
-		for ( auto &[uid, node] : _nodes )
+		for (auto& [uid, node] : _nodes)
 		{
 			node.ResetPath();
 		}
@@ -337,8 +379,8 @@ bool Pathfinder::CheckFindPathResult(int fromUID, int toUID)
 
 void Pathfinder::AppendFinalPath(int startUID, int goalUID)
 {
-	ArrayList<const Node *> tmp;
-	for ( const Node *node = &GetNode(goalUID); node != &GetNode(startUID); node = &GetNode(node->GetViaUID()) )
+	List<const Node*> tmp;
+	for (const Node* node = &NodeByUid(goalUID); node != &NodeByUid(startUID); node = &NodeByUid(node->ViaUID()))
 	{
 		tmp.push_back(node);
 	}
@@ -348,9 +390,8 @@ void Pathfinder::AppendFinalPath(int startUID, int goalUID)
 void Pathfinder::CollectFinder()
 {
 	const auto savedState = _state;
-	_state = State::BeingCollected;
-	if ( _finder.joinable() )
-		_finder.join();
+	_state = PathfinderState::BeingCollected;
+	if (_finder.joinable()) _finder.join();
 	_state = savedState;
 }
 }

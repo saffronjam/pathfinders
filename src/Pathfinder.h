@@ -10,18 +10,17 @@
 
 namespace Se
 {
+enum class PathfinderState
+{
+	Searching,
+	WaitingForStart,
+	Paused,
+	Finished,
+	BeingCollected
+};
+	
 class Pathfinder
 {
-public:
-	enum class State
-	{
-		Searching,
-		WaitingForStart,
-		Paused,
-		Finished,
-		BeingCollected
-	};
-
 public:
 	explicit Pathfinder(String name);
 	virtual ~Pathfinder();
@@ -33,17 +32,17 @@ public:
 	void OnRenderBody(Scene &scene);
 	void OnRenderResult(Scene &scene);
 
-	State GetState() const { return _state; }
-	String GetStateString() const;
-	const String &GetName() { return _name; }
-	String GetResult();
+	auto State() const -> PathfinderState;
+	auto StateString() const -> String;
+	auto Name() -> const String&;
+	auto Result() -> String;
 
-	void AssignNodes(Map<int, Node> nodes);
+	void AssignNodes(TreeMap<int, Node> nodes);
 	void SetTraverseGrid(const Shared<const TraverseGrid> &traverseGrid);
 	void SetSleepDelay(sf::Time delay);
 	void SetWeight(int uidFirst, int uidSecond, float weight);
 
-	void Start(int startUID, int goalUID, const Set<int> &subGoalsUIDs);
+	void Start(int startUID, int goalUID, const List<int> &subGoalsUIDs);
 	void Pause();
 	void Resume();
 	void Restart();
@@ -51,31 +50,33 @@ public:
 	void Activate();
 	void Deactivate();
 
-	bool IsDone() const { return _state == State::Finished; }
-	bool IsActive() const { return _active; }
+	bool Done() const;
+	bool Active() const;
 
-	sf::Color GetBodyColor() const { return _bodyColor; }
-	void SetBodyColor(sf::Color color) { _bodyColor = color; }
+	auto BodyColor() const -> sf::Color;
+	void SetBodyColor(sf::Color color);
 
 protected:
-	Map<int, Node> &GetNodes() { return _nodes; }
-	Node &GetNode(int uid) { return GetNodes().at(uid); }
+	auto Nodes() -> TreeMap<int, Node>&;
+	auto Nodes() const -> const TreeMap<int, Node>&;
+
+	auto NodeByUid(int uid) -> Node&;
 	virtual void FindPath(int startUID, int goalUID) = 0;
 
 	void PauseCheck();
 	void SleepDelay();
 
-	float GetFinalCost();
+	auto FinalCost() -> float;
 
 private:
 	void RenderFinishedBodyHelper(Scene &scene, sf::Color color, int limit);
-	void FindPathThreadFn(int startUID, int goalUID, const Set<int> &subGoalsUIDs);
+	void FindPathThreadFn(int startUID, int goalUID, const List<int> &subGoalsUIDs);
 	bool CheckFindPathResult(int fromUID, int toUID);
 	void AppendFinalPath(int startUID, int goalUID);
 	void CollectFinder();
 
 protected:
-	State _state;
+	PathfinderState _state;
 	Shared<const TraverseGrid> _traverseGrid;
 	int _activeNodeUID;
 
@@ -92,7 +93,7 @@ private:
 	bool _minorDelay;
 	sf::Int64 _minorDelayTimer;
 
-	Map<int, Node> _nodes;
+	TreeMap<int, Node> _nodes;
 	Deque<const Node *> _finalPath;
 
 	sf::Time _finalPathTimer;

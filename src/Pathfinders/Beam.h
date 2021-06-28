@@ -4,15 +4,11 @@
 
 namespace Se
 {
-template<int BeamWidth>
+template <int BeamWidth>
 class Beam : public Pathfinder
 {
 public:
-	Beam() : Pathfinder("Beam " + std::to_string(BeamWidth))
-	{
-		const float shade = static_cast<float>(_beamWidth) / 512.0f * 255.0f;
-		SetBodyColor(sf::Color(255, 128, shade));
-	}
+	Beam();
 
 	void FindPath(int startUID, int goalUID) override;
 
@@ -22,56 +18,62 @@ private:
 };
 
 template <int BeamWidth>
+Beam<BeamWidth>::Beam() :
+	Pathfinder("Beam " + std::to_string(BeamWidth))
+{
+	const float shade = static_cast<float>(_beamWidth) / 512.0f * 255.0f;
+	SetBodyColor(sf::Color(255, 128, shade));
+}
+
+template <int BeamWidth>
 void Beam<BeamWidth>::FindPath(int startUID, int goalUID)
 {
 	_checkingQueue.push_front(startUID);
-	GetNode(startUID).SetCost("Tentative", 0.0f);
-	while ( !_checkingQueue.empty() && _state != State::BeingCollected )
+	NodeByUid(startUID).SetCost("Tentative", 0.0f);
+	while (!_checkingQueue.empty() && _state != PathfinderState::BeingCollected)
 	{
 		PauseCheck();
 		_activeNodeUID = _checkingQueue.front();
-		if ( _activeNodeUID == goalUID )
+		if (_activeNodeUID == goalUID)
 		{
 			break;
 		}
 
-		Node &activeNode = GetNode(_activeNodeUID);
+		Node& activeNode = NodeByUid(_activeNodeUID);
 		_checkingQueue.pop_front();
 
-		for ( const auto &neighborUID : activeNode.GetNeighbors() )
+		for (const auto& neighborUID : activeNode.Neighbors())
 		{
-			if ( _state == State::BeingCollected )
-				break;
+			if (_state == PathfinderState::BeingCollected) return;
 			PauseCheck();
 			SleepDelay();
 
-			Node &neighbor = GetNode(neighborUID);
-			if ( !_traverseGrid->IsEdgeObstacle(_activeNodeUID, neighborUID) && neighborUID != activeNode.GetViaUID() )
+			Node& neighbor = NodeByUid(neighborUID);
+			if (!_traverseGrid->IsEdgeObstacle(_activeNodeUID, neighborUID) && neighborUID != activeNode.ViaUID())
 			{
-				float suggestedTentativeCost =
-					activeNode.GetCost("Tentative") + activeNode.GetNeighborCost(neighborUID);
-				if ( suggestedTentativeCost < neighbor.GetCost("Tentative") )
+				const auto suggestedTentativeCost = activeNode.Cost("Tentative") + activeNode.NeighborCostByUid(
+					neighborUID);
+				if (suggestedTentativeCost < neighbor.Cost("Tentative"))
 				{
-					if ( std::find(_checkingQueue.begin(), _checkingQueue.end(), neighborUID) == _checkingQueue.end() )
+					if (std::ranges::find(_checkingQueue, neighborUID) == _checkingQueue.end())
 						_checkingQueue.push_back(neighborUID);
 
 					neighbor.SetVia(_activeNodeUID);
 					neighbor.SetCost("Tentative", suggestedTentativeCost);
-					neighbor.SetCost("Heuristic",
-									 VecUtils::Length(neighbor.GetPosition() - GetNode(goalUID).GetPosition()));
-					neighbor.SetCost("Total", suggestedTentativeCost + neighbor.GetCost("Heuristic"));
+					neighbor.SetCost("Heuristic", VecUtils::Length(neighbor.Position() - NodeByUid(goalUID).Position()));
+					neighbor.SetCost("Total", suggestedTentativeCost + neighbor.Cost("Heuristic"));
 				}
 			}
 			activeNode.AddVisitedNeighbor(neighborUID);
 		}
-		std::sort(_checkingQueue.begin(), _checkingQueue.end(), [this](const auto &lhs, const auto &rhs)
-				  {
-					  return GetNode(lhs).GetCost("Total") < GetNode(rhs).GetCost("Total");
-				  });
-
-		if ( _checkingQueue.size() > _beamWidth )
+		std::sort(_checkingQueue.begin(), _checkingQueue.end(), [this](const auto& lhs, const auto& rhs)
 		{
-			int toErase = _checkingQueue.size() - _beamWidth;
+			return NodeByUid(lhs).Cost("Total") < NodeByUid(rhs).Cost("Total");
+		});
+
+		if (_checkingQueue.size() > _beamWidth)
+		{
+			const auto toErase = _checkingQueue.size() - _beamWidth;
 			_checkingQueue.erase(_checkingQueue.end() - toErase, _checkingQueue.end());
 		}
 	}
