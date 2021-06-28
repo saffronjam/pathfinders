@@ -9,6 +9,71 @@ Node::Node(int uid, const sf::Vector2f &position)
 {
 }
 
+bool Node::operator==(int uid) const
+{
+	return _uid == uid;
+}
+
+void Node::RemoveNeighbor(int uid)
+{
+	_neighbors.erase(uid);
+}
+
+int Node::Uid() const
+{
+	return _uid;
+}
+
+const sf::Vector2f& Node::Position() const
+{
+	return _position;
+}
+
+int Node::ViaUID() const
+{
+	return _viaUID;
+}
+
+const HashSet<int>& Node::Neighbors() const
+{
+	return _neighbors;
+}
+
+float Node::NeighborCostByUid(int uid) const
+{
+	return _neighborCosts.at(uid);
+}
+
+void Node::SetWeight(int uidNeighbor, float weight)
+{
+	_neighborCosts.at(uidNeighbor) = weight;
+}
+
+bool Node::Visited() const
+{
+	return _viaUID != -1;
+}
+
+void Node::SetVia(int uid)
+{
+	_viaUID = uid;
+}
+
+void Node::AddVisitedNeighbor(int uid)
+{
+	_visitedNeighbors.emplace(uid);
+}
+
+void Node::RemoveVisitedNeighbor(int uid)
+{
+	_visitedNeighbors.erase(uid);
+}
+
+void Node::ClearVisitedNeighbors()
+{
+	_visitedNeighbors.clear();
+}
+
 void Node::AddNeighbor(int uid, float cost)
 {
 	_neighbors.emplace(uid);
@@ -32,7 +97,7 @@ void Node::ResetPath()
 	SetVia(-1);
 }
 
-float Node::GetCost(const String &type)
+float Node::Cost(const String &type)
 {
 	if ( !HasCost(type) )
 	{
@@ -46,7 +111,7 @@ bool Node::HasCost(const String &type)
 	return _costs.find(type) != _costs.end();
 }
 
-bool Node::WasVisitedBy(Node &node) const
+bool Node::VisitedBy(Node &node) const
 {
 	return node._visitedNeighbors.find(_uid) != node._visitedNeighbors.end();
 }

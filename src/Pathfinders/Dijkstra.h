@@ -7,10 +7,7 @@ namespace Se
 class Dijkstra : public Pathfinder
 {
 public:
-	Dijkstra() : Pathfinder("Dijkstra")
-	{
-		SetBodyColor(sf::Color::Yellow);
-	}
+	Dijkstra();
 
 	void FindPath(int startUID, int goalUID) override;
 

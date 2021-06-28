@@ -7,15 +7,12 @@ namespace Se
 class DFS : public Pathfinder
 {
 public:
-	DFS() : Pathfinder("DFS")
-	{
-		SetBodyColor(sf::Color::Blue);
-	}
+	DFS();
 
 	void FindPath(int startUID, int goalUID) override;
 
 private:
 	Stack<int> _checkingStack;
-	Set<int> _visited;
+	HashSet<int> _visited;
 };
 }

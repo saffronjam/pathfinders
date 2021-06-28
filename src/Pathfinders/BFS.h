@@ -7,10 +7,7 @@ namespace Se
 class BFS : public Pathfinder
 {
 public:
-	BFS() : Pathfinder("BFS")
-	{
-		SetBodyColor(sf::Color::Green);
-	}
+	BFS();
 
 	void FindPath(int startUID, int goalUID) override;
 

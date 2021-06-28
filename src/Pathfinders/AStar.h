@@ -7,10 +7,7 @@ namespace Se
 class AStar : public Pathfinder
 {
 public:
-	AStar() : Pathfinder("A*")
-	{
-		SetBodyColor(sf::Color::Cyan);
-	}
+	AStar();
 
 	void FindPath(int startUID, int goalUID) override;
 

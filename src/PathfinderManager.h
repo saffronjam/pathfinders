@@ -6,30 +6,29 @@
 
 namespace Se
 {
-class PathfinderManager : public Signaller
+enum class PathfinderManagerEditState
 {
-public:
-	enum class EditState
-	{
-		None,
-		Obstacles,
-		SubGoal,
-		Weights,
-		Start,
-		Goal,
-		Count
-	};
+	None,
+	Obstacles,
+	SubGoal,
+	Weights,
+	Start,
+	Goal,
+	Count
+};
 
+class PathfinderManager
+{
 public:
 	explicit PathfinderManager();
 	~PathfinderManager();
 
-	void OnUpdate(Scene &scene);
+	void OnUpdate(Scene& scene);
 
-	void OnRender(Scene &scene);
-	void OnRenderPathfinders(Scene &scene);
+	void OnRender(Scene& scene);
+	void OnRenderPathfinders(Scene& scene);
 	void OnGuiRender();
-	void OnRenderTargetResize(const sf::Vector2f &size);
+	void OnRenderTargetResize(const sf::Vector2f& size);
 
 	void Start();
 	void Pause();
@@ -37,58 +36,60 @@ public:
 	void Restart();
 	void Reset();
 
-	const auto &GetPathfinders() const { return _pathfinders; }
-	EditState GetEditState() const { return _editState; }
-	const sf::Time &GetTimer() const { return _timer; }
+	auto Pathfinders() const -> const List<Unique<Pathfinder>>&;
+
+	auto EditState() const -> PathfinderManagerEditState;
+	auto RunningDuration() const -> const sf::Time&;
 
 	void SetSleepDelay(sf::Time delay);
-	void SetEditState(EditState editState) { _editState = editState; }
+	void SetEditState(PathfinderManagerEditState editState);
 	void SetWeight(int uidFirst, int uidSecond, float weight);
 
-	void SetActiveTraverseGrid(const String &name);
-	Shared<TraverseGrid> &GetActiveTraverseGrid() { return *_activeTraverseGrid; }
-	const Shared<TraverseGrid> &GetActiveTraverseGrid() const { return *_activeTraverseGrid; }
+	void SetActiveTraverseGrid(const String& name);
+	auto ActiveTraverseGrid() -> Shared<TraverseGrid>&;
+	auto ActiveTraverseGrid() const -> const Shared<TraverseGrid>&;
 
-	void ClearTimerResults() { _oldResults.clear(); }
+	void ClearTimerResults();
 
 private:
-	template<class T>
-	auto SetActiveHelper(ArrayList<T> &list, const String &name);
+	template <class T>
+	auto SetActiveHelper(List<T>& list, const String& name);
 
-	ArrayList<ArrayList<Unique<Pathfinder>>::iterator> GetActivePathfinders();
+	auto ActivePathfinders() -> List<List<Unique<Pathfinder>>::iterator>;
 
 	void CollectWorker();
 
 private:
-	EditState _editState;
+	PathfinderManagerEditState _editState;
 
 	Thread _worker;
 	Atomic<bool> _finishedWorking = false;
 	Atomic<bool> _didOnFinishWorkingUpdate = false;
 	Atomic<bool> _allowedToWork = false;
 
-	ArrayList<Shared<TraverseGrid>> _traverseGrids;
-	ArrayList<Shared<TraverseGrid>>::iterator _activeTraverseGrid;
+	List<Shared<TraverseGrid>> _traverseGrids;
+	List<Shared<TraverseGrid>>::iterator _activeTraverseGrid;
 
-	ArrayList<Unique<Pathfinder>> _pathfinders;
+	List<Unique<Pathfinder>> _pathfinders;
 
 	bool _drawWorker = true;
 	bool _drawViaConnections = true;
 
-	sf::Time _timer;
+	sf::Time _runningDuration;
 	Deque<String> _oldResults;
 
-	Pair<int, int> _editPair = { 0,0 };
+	Pair<int, int> _editPair = {0, 0};
 
 	// Cache
-	sf::Vector2f _renderTargetSize = { 0.0f, 0.0f };
+	sf::Vector2f _renderTargetSize{0.0f, 0.0f};
+	sf::Vector2f _desiredRenderTargetSize{0.0f, 0.0f};
 
 	// Gui cache
-	ArrayList<const char *> _traverseGridNames;
+	List<const char*> _traverseGridNames;
 	int _activeTraverseGridIndex = 0;
 	float _sleepDelayMicroseconds = 10000;
-	ArrayList<const char *> _editStateNames;
-	int _editStateIndex = static_cast<int>(EditState::None);
+	List<const char*> _editStateNames;
+	int _editStateIndex = static_cast<int>(PathfinderManagerEditState::None);
 
 	bool _drawWeights = false;
 	bool _drawFadedWeights = false;
@@ -100,19 +101,17 @@ private:
 	int _obstacleBrushSize = 10;
 
 	int _mazeNewPaths = 0;
-
 };
 
 template <class T>
-auto PathfinderManager::SetActiveHelper(ArrayList<T> &list, const String &name)
+auto PathfinderManager::SetActiveHelper(List<T>& list, const String& name)
 {
-	const auto candidate = std::find_if(list.begin(), list.end(),
-										[&name](const auto &current)
-										{
-											return current->GetName() == name;
-										});
+	const auto candidate = std::find_if(list.begin(), list.end(), [&name](const auto& current)
+	{
+		return current->Name() == name;
+	});
 
-	SE_CORE_ASSERT(candidate != list.end(), "Invalid name");
+	Debug::Assert(candidate != list.end(), "Invalid name");
 
 	auto iter = list.begin();
 	std::advance(iter, std::distance(list.begin(), candidate));
