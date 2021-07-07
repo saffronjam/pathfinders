@@ -1,5 +1,7 @@
 #include "PathfinderManager.h"
 
+#include <SFML/System/Sleep.hpp>
+
 #include "Grids/SquareGrid.h"
 #include "Grids/VoronoiGrid.h"
 
@@ -30,7 +32,7 @@ PathfinderManager::PathfinderManager() :
 	SetActiveTraverseGrid("Square");
 
 
-	const auto activeGrid = ActiveTraverseGrid();
+	const auto& activeGrid = ActiveTraverseGrid();
 	for (auto& pathfinder : _pathfinders)
 	{
 		pathfinder->SetTraverseGrid(activeGrid);
@@ -52,19 +54,14 @@ PathfinderManager::PathfinderManager() :
 	_editStateNames[static_cast<int>(PathfinderManagerEditState::Goal)] = "Goal";
 }
 
-PathfinderManager::~PathfinderManager()
-{
-	CollectWorker();
-}
-
 void PathfinderManager::OnUpdate(Scene& scene)
 {
 	const bool shiftDown = Keyboard::IsDown(sf::Keyboard::Key::LShift) || Keyboard::IsDown(sf::Keyboard::Key::RShift);
 	const auto& activeGrid = ActiveTraverseGrid();
 
-	if (_finishedWorking && !_didOnFinishWorkingUpdate)
+	if (!_working && !_didOnFinishWorkingUpdate)
 	{
-		CollectWorker();
+		_threadPool.CollectAll();
 
 		for (auto& pathfinder : _pathfinders)
 		{
@@ -92,7 +89,7 @@ void PathfinderManager::OnUpdate(Scene& scene)
 	}
 
 
-	if (_finishedWorking)
+	if (!_working)
 	{
 		// Reset before check hovered
 		if (activeGrid->IsEdgeClear(_editPair.first, _editPair.second))
@@ -196,31 +193,26 @@ void PathfinderManager::OnUpdate(Scene& scene)
 			}
 		}
 
-
 		ActiveTraverseGrid()->OnUpdate();
 
 		for (auto& pathfinder : _pathfinders)
 		{
 			pathfinder->OnUpdate();
 		}
-		
+
 		if (VecUtils::LengthSq(_renderTargetSize - _desiredRenderTargetSize) > 0.1f)
 		{
 			Reset();
 
-			CollectWorker();
+			_threadPool.CollectAll();
 
-			_finishedWorking = false;
-			_worker = Thread([this]
-				{
-					while (!_allowedToWork)
-					{
-					}
-					ActiveTraverseGrid()->OnRenderTargetResize(_desiredRenderTargetSize);
-					_allowedToWork = false;
-					_didOnFinishWorkingUpdate = false;
-					_finishedWorking = true;
-				});
+			_threadPool.DispatchWork("PathFinderManager::OnUpdate::RenderTargetReisze", [this]
+			{
+				std::scoped_lock scoped(_workerMutex);
+				ScopedBool scopedBool(_working);
+				ActiveTraverseGrid()->OnRenderTargetResize(_desiredRenderTargetSize);
+				_didOnFinishWorkingUpdate = false;
+			});
 
 			_renderTargetSize = _desiredRenderTargetSize;
 		}
@@ -229,11 +221,9 @@ void PathfinderManager::OnUpdate(Scene& scene)
 
 void PathfinderManager::OnRender(Scene& scene)
 {
-	_allowedToWork = !_finishedWorking;
-
 	ActiveTraverseGrid()->OnRender(scene);
 
-	if (!_allowedToWork)
+	if (!_working)
 	{
 		OnRenderPathfinders(scene);
 
@@ -251,8 +241,6 @@ void PathfinderManager::OnRender(Scene& scene)
 			scene.Submit(position, color, static_cast<float>(_weightBrushSize));
 		}
 	}
-
-	_allowedToWork = true;
 }
 
 void PathfinderManager::OnRenderPathfinders(Scene& scene)
@@ -277,9 +265,9 @@ void PathfinderManager::OnRenderPathfinders(Scene& scene)
 
 void PathfinderManager::OnGuiRender()
 {
-	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, !_finishedWorking);
+	ImGui::PushItemFlag(ImGuiItemFlags_Disabled, _working);
 
-	auto activeGrid = ActiveTraverseGrid();
+	const auto &activeGrid = ActiveTraverseGrid();
 
 	Gui::BeginPropertyGrid("Grid");
 	ImGui::Text("Traverse Grid");
@@ -329,18 +317,13 @@ void PathfinderManager::OnGuiRender()
 	ImGui::Columns(1, "SquareGenerateMaze");
 	if (ImGui::Button("Generate Maze", {ImGui::GetContentRegionAvailWidth(), 0}))
 	{
-		CollectWorker();
-		_finishedWorking = false;
-		_worker = Thread([this]
+		_threadPool.DispatchWork("PathFinderManager::OnGuiRender::GenerateMaze", [this]
 		{
-			while (!_allowedToWork)
-			{
-			}
+			std::scoped_lock scoped(_workerMutex);
+			ScopedBool scopedBool(_working);
 			Reset();
 			ActiveTraverseGrid()->GenerateMaze();
-			_allowedToWork = false;
 			_didOnFinishWorkingUpdate = false;
-			_finishedWorking = true;
 		});
 	}
 	Gui::BeginPropertyGrid("MazeGeneration");
@@ -482,6 +465,17 @@ void PathfinderManager::OnRenderTargetResize(const sf::Vector2f& size)
 	_desiredRenderTargetSize = size;
 }
 
+void PathfinderManager::OnExit()
+{
+	for (auto& grid : _traverseGrids)
+	{
+		grid->OnExit();
+	}
+
+	_threadPool.CollectAll();
+	Reset();
+}
+
 void PathfinderManager::Start()
 {
 	const auto& activeGrid = ActiveTraverseGrid();
@@ -577,22 +571,18 @@ void PathfinderManager::SetActiveTraverseGrid(const String& name)
 	}
 
 	_activeTraverseGrid = SetActiveHelper(_traverseGrids, name);
-	auto activeGrid = ActiveTraverseGrid();
+	const auto &activeGrid = ActiveTraverseGrid();
 	activeGrid->SetNoWallsToSmash(_mazeNewPaths);
 
 	Restart();
-	CollectWorker();
+	_threadPool.CollectAll();
 
-	_finishedWorking = false;
-	_worker = Thread([this, activeGrid]
+	_threadPool.DispatchWork("PathFinderManager::SetActiveTravserseGrid::RenderTargetReisze", [this, activeGrid]
 	{
-		while (!_allowedToWork)
-		{
-		}
+		std::scoped_lock scoped(_workerMutex);
+		ScopedBool scopedBool(_working);
 		activeGrid->OnRenderTargetResize(_renderTargetSize);
-		_allowedToWork = false;
 		_didOnFinishWorkingUpdate = false;
-		_finishedWorking = true;
 	});
 }
 
@@ -607,14 +597,5 @@ auto PathfinderManager::ActivePathfinders() -> List<List<Unique<Pathfinder>>::it
 		}
 	}
 	return activePathfinders;
-}
-
-void PathfinderManager::CollectWorker()
-{
-	_allowedToWork = true;
-	if (_worker.joinable())
-	{
-		_worker.join();
-	}
 }
 }

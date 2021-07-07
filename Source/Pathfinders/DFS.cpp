@@ -36,7 +36,7 @@ void DFS::FindPath(int startUID, int goalUID)
 	};
 
 	_activeNodeUID = startUID;
-
+	
 	_checkingStack.push(_activeNodeUID);
 	_visited.emplace(_activeNodeUID);
 	NodeByUid(_activeNodeUID).SetCost("Tentative", 0.0f);
@@ -49,7 +49,7 @@ void DFS::FindPath(int startUID, int goalUID)
 		const int neighborUid = getUnvisitedNeighbor(_activeNodeUID);
 		if( _state == PathfinderState::BeingCollected)
 		{
-			return;
+			break;
 		}
 		
 		if (neighborUid == -1)

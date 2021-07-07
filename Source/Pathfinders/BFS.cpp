@@ -1,14 +1,14 @@
-#include "Pathfinders/Dijkstra.h"
+#include "Pathfinders/BFS.h"
 
 namespace Se
 {
-Dijkstra::Dijkstra() :
-	Pathfinder("Dijkstra")
+BFS::BFS() :
+	Pathfinder("BFS")
 {
-	SetBodyColor(sf::Color::Yellow);
+	SetBodyColor(sf::Color::Green);
 }
 
-void Dijkstra::FindPath(int startUID, int goalUID)
+void BFS::FindPath(int startUID, int goalUID)
 {
 	_checkingQueue.push_front(startUID);
 	NodeByUid(startUID).SetCost("Tentative", 0.0f);
@@ -26,7 +26,10 @@ void Dijkstra::FindPath(int startUID, int goalUID)
 
 		for (const auto& neighborUID : activeNode.Neighbors())
 		{
-			if (_state == PathfinderState::BeingCollected) return;
+			if (_state == PathfinderState::BeingCollected)
+			{
+				break;
+			}
 			PauseCheck();
 			SleepDelay();
 
@@ -37,8 +40,10 @@ void Dijkstra::FindPath(int startUID, int goalUID)
 					neighborUID);
 				if (suggestedTentativeCost < neighbor.Cost("Tentative"))
 				{
-					if (std::ranges::find(_checkingQueue, neighborUID) == _checkingQueue.end()) _checkingQueue.
-						push_back(neighborUID);
+					if (std::ranges::find(_checkingQueue, neighborUID) == _checkingQueue.end())
+					{
+						_checkingQueue.push_back(neighborUID);
+					}
 
 					neighbor.SetVia(_activeNodeUID);
 					neighbor.SetCost("Tentative", suggestedTentativeCost);
@@ -46,10 +51,6 @@ void Dijkstra::FindPath(int startUID, int goalUID)
 			}
 			activeNode.AddVisitedNeighbor(neighborUID);
 		}
-		std::ranges::sort(_checkingQueue, [this](const auto& lhs, const auto& rhs)
-		{
-			return NodeByUid(lhs).Cost("Tentative") < NodeByUid(rhs).Cost("Tentative");
-		});
 	}
 	_checkingQueue.clear();
 }

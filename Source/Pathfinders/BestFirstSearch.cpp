@@ -27,7 +27,10 @@ void BestFirstSearch::FindPath(int startUID, int goalUID)
 
 		for (const auto& neighborUID : activeNode.Neighbors())
 		{
-			if (_state == PathfinderState::BeingCollected) return;
+			if (_state == PathfinderState::BeingCollected)
+			{
+				break;
+			}
 			PauseCheck();
 			SleepDelay();
 

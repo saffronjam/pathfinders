@@ -1,14 +1,14 @@
-#include "Pathfinders/AStar.h"
+#include "Pathfinders/Dijkstra.h"
 
 namespace Se
 {
-AStar::AStar() :
-	Pathfinder("A*")
+Dijkstra::Dijkstra() :
+	Pathfinder("Dijkstra")
 {
-	SetBodyColor(sf::Color::Cyan);
+	SetBodyColor(sf::Color::Yellow);
 }
 
-void AStar::FindPath(int startUID, int goalUID)
+void Dijkstra::FindPath(int startUID, int goalUID)
 {
 	_checkingQueue.push_front(startUID);
 	NodeByUid(startUID).SetCost("Tentative", 0.0f);
@@ -25,8 +25,11 @@ void AStar::FindPath(int startUID, int goalUID)
 		_checkingQueue.pop_front();
 
 		for (const auto& neighborUID : activeNode.Neighbors())
-		{			
-			if (_state == PathfinderState::BeingCollected) return;
+		{
+			if (_state == PathfinderState::BeingCollected)
+			{
+				break;
+			}
 			PauseCheck();
 			SleepDelay();
 
@@ -37,26 +40,18 @@ void AStar::FindPath(int startUID, int goalUID)
 					neighborUID);
 				if (suggestedTentativeCost < neighbor.Cost("Tentative"))
 				{
-					if (std::ranges::find(_checkingQueue, neighborUID) == _checkingQueue.end())
-					{
-						_checkingQueue.push_back(neighborUID);
-					}
+					if (std::ranges::find(_checkingQueue, neighborUID) == _checkingQueue.end()) _checkingQueue.
+						push_back(neighborUID);
 
 					neighbor.SetVia(_activeNodeUID);
 					neighbor.SetCost("Tentative", suggestedTentativeCost);
-					if (!neighbor.HasCost("Heuristic"))
-					{
-						neighbor.SetCost("Heuristic",
-						                 VecUtils::Length(neighbor.Position() - NodeByUid(goalUID).Position()));
-					}
-					neighbor.SetCost("Total", suggestedTentativeCost + neighbor.Cost("Heuristic"));
 				}
 			}
 			activeNode.AddVisitedNeighbor(neighborUID);
 		}
-		std::ranges::sort(_checkingQueue, [this](const int& lhs, const int& rhs)
+		std::ranges::sort(_checkingQueue, [this](const auto& lhs, const auto& rhs)
 		{
-			return NodeByUid(lhs).Cost("Total") < NodeByUid(rhs).Cost("Total");
+			return NodeByUid(lhs).Cost("Tentative") < NodeByUid(rhs).Cost("Tentative");
 		});
 	}
 	_checkingQueue.clear();

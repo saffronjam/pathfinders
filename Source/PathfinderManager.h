@@ -20,8 +20,7 @@ enum class PathfinderManagerEditState
 class PathfinderManager
 {
 public:
-	explicit PathfinderManager();
-	~PathfinderManager();
+	PathfinderManager();
 
 	void OnUpdate(Scene& scene);
 
@@ -29,6 +28,7 @@ public:
 	void OnRenderPathfinders(Scene& scene);
 	void OnGuiRender();
 	void OnRenderTargetResize(const sf::Vector2f& size);
+	void OnExit();
 
 	void Start();
 	void Pause();
@@ -57,15 +57,31 @@ private:
 
 	auto ActivePathfinders() -> List<List<Unique<Pathfinder>>::iterator>;
 
-	void CollectWorker();
-
 private:
 	PathfinderManagerEditState _editState;
 
-	Thread _worker;
-	Atomic<bool> _finishedWorking = false;
+	ThreadPool _threadPool;
+	Mutex _workerMutex;
+
+	struct ScopedBool
+	{
+		explicit ScopedBool(Atomic<bool>& value) :
+			_value(value)
+		{
+			value = true;
+		}
+
+		~ScopedBool()
+		{
+			_value = false;
+		}
+
+	private:
+		Atomic<bool>& _value;
+	};
+
 	Atomic<bool> _didOnFinishWorkingUpdate = false;
-	Atomic<bool> _allowedToWork = false;
+	Atomic<bool> _working = false;
 
 	List<Shared<TraverseGrid>> _traverseGrids;
 	List<Shared<TraverseGrid>>::iterator _activeTraverseGrid;

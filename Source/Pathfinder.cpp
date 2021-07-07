@@ -67,7 +67,7 @@ void Pathfinder::OnRenderAnticipation(Scene& scene)
 void Pathfinder::OnRenderViaConnections(Scene& scene)
 {
 	_viaVA.clear();
-	for (auto& [uid, node] : _nodes)
+	for (auto& node : _nodes | std::views::values)
 	{
 		const int via = node.ViaUID();
 		if (via != -1)
@@ -116,8 +116,9 @@ auto Pathfinder::StateString() const -> String
 	case PathfinderState::Paused: return "Paused";
 	case PathfinderState::Finished: return _pathWasFound ? "Finished" : "Failed";
 	case PathfinderState::BeingCollected: return "Collecting";
-	default: return "INVALID STATE";
 	}
+	Debug::Break("Invalid state");
+	return "";
 }
 
 auto Pathfinder::Result() -> String
@@ -185,7 +186,7 @@ void Pathfinder::Restart()
 		_finalPath.clear();
 		CollectFinder();
 		_state = PathfinderState::WaitingForStart;
-		for (auto& [uid, node] : _nodes)
+		for (auto& node : _nodes | std::views::values)
 		{
 			node.ResetPath();
 			node.ClearVisitedNeighbors();
@@ -200,7 +201,7 @@ void Pathfinder::Reset()
 	)
 	{
 		std::scoped_lock scopedLock(_mutex);
-		for (auto& [uid, node] : _nodes)
+		for (auto& node : _nodes | std::views::values)
 		{
 			node.ResetNeighborsCost();
 		}
@@ -222,7 +223,7 @@ auto Pathfinder::Done() const -> bool
 	return _state == PathfinderState::Finished;
 }
 
-bool Pathfinder::Active() const
+auto Pathfinder::Active() const -> bool
 {
 	return _active;
 }
@@ -368,7 +369,7 @@ auto Pathfinder::CheckFindPathResult(int fromUID, int toUID) -> bool
 	if (foundPath)
 	{
 		AppendFinalPath(fromUID, toUID);
-		for (auto& [uid, node] : _nodes)
+		for (auto& node : _nodes | std::views::values)
 		{
 			node.ResetPath();
 		}
@@ -384,7 +385,7 @@ void Pathfinder::AppendFinalPath(int startUID, int goalUID)
 	{
 		tmp.push_back(node);
 	}
-	std::reverse_copy(tmp.begin(), tmp.end(), std::back_inserter(_finalPath));
+	std::ranges::reverse_copy(tmp, std::back_inserter(_finalPath));
 }
 
 void Pathfinder::CollectFinder()

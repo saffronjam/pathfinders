@@ -28,7 +28,8 @@ public:
 	virtual void OnUpdate();
 	virtual	void OnRender(Scene &scene);
 	virtual void OnRenderTargetResize(const sf::Vector2f &size);
-
+	virtual void OnExit();
+	
 	void Reset();
 
 	void GenerateMaze();
@@ -142,5 +143,7 @@ private:
 	int _noToSmash = 0;
 	Random::Device _randomDevice;
 	Random::Engine _randomEngine{ _randomDevice() };
+
+	Atomic<bool> _shouldExit = false;
 };
 }
