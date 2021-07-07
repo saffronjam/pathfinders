@@ -2,6 +2,10 @@
 
 local ProjectName = "Pathfinders"
 
+local function GetBasePath()
+	return debug.getinfo(1).source:match("@?(.*/)")
+end
+
 workspace "Saffron"
 	architecture "x64"
 
@@ -34,17 +38,14 @@ project (ProjectName)
 	    targetdir (OutBin)
         SaffronEngine2D.PreBuild("Debug", OutBin, PrjLoc)
         SaffronEngine2D.PostBuild("Debug", OutBin, PrjLoc)
-        Utils.CopyAssetsToOutput("Debug", OutBin, PrjLoc)
 
         SaffronEngine2D.PreBuild("Release", OutBin, PrjLoc)
         SaffronEngine2D.PostBuild("Release", OutBin, PrjLoc)
-        Utils.CopyAssetsToOutput("Release", OutBin, PrjLoc)
 
     filter "configurations:Dist"
         targetdir (OutBinDist)
         SaffronEngine2D.PreBuild("Dist", OutBinDist, PrjLoc)
         SaffronEngine2D.PostBuild("Dist", OutBinDist, PrjLoc)
-        Utils.CopyAssetsToOutput("Dist", OutBinDist, PrjLoc)
 
     filter "configurations:Debug or Release or Dist"
 
@@ -62,6 +63,11 @@ project (ProjectName)
     SaffronEngine2D.Include()
     SaffronEngine2D.Link()
     SaffronEngine2D.AddDefines()
+
+    local from = GetBasePath() .. AstFol
+    CopyAssetsToOutput("Debug", from, OutBin .. AstFol, PrjLoc .. AstFol)
+    CopyAssetsToOutput("Release", from, OutBin  .. AstFol, PrjLoc .. AstFol)
+    CopyAssetsToOutput("Dist", from, OutBinDist  .. AstFol, PrjLoc .. AstFol)
 
     filter "configurations:Debug"
         symbols "On"
