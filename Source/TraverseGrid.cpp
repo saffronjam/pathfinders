@@ -67,6 +67,11 @@ void TraverseGrid::OnRenderTargetResize(const sf::Vector2f& size)
 	}
 }
 
+void TraverseGrid::OnExit()
+{
+	_shouldExit = true;
+}
+
 void TraverseGrid::Reset()
 {
 	for (auto& node : _nodes | std::views::values)
@@ -121,7 +126,7 @@ void TraverseGrid::GenerateMaze()
 	Clock loopClock;
 
 	int active = StartUid();
-	while (!checkStack.empty())
+	while (!checkStack.empty() && !_shouldExit)
 	{
 		const auto elapsed = loopClock.Restart();
 		currentSleep += elapsed;
@@ -192,7 +197,7 @@ auto TraverseGrid::IsStart(int uid) const -> bool { return _startUID == uid; }
 
 auto TraverseGrid::IsGoal(int uid) const -> bool { return _goalUID == uid; }
 
-int TraverseGrid::ClosestNeighborUID(int uid, const sf::Vector2f& position) const
+auto TraverseGrid::ClosestNeighborUID(int uid, const sf::Vector2f& position) const -> int
 {
 	const Node& node = NodeByUid(uid);
 	const auto& neighbors = node.Neighbors();
@@ -216,7 +221,7 @@ int TraverseGrid::ClosestNeighborUID(int uid, const sf::Vector2f& position) cons
 	return closestUID;
 }
 
-int TraverseGrid::NodeUidByPosition(const sf::Vector2f& position) const
+auto TraverseGrid::NodeUidByPosition(const sf::Vector2f& position) const -> int
 {
 	float closestDistance = std::numeric_limits<float>::infinity();
 	int closestUID = -1;
@@ -273,27 +278,27 @@ void TraverseGrid::SetWeightColorAlpha(uchar alpha)
 	}
 }
 
-bool TraverseGrid::IsSubGoal(int uid) const
+auto TraverseGrid::IsSubGoal(int uid) const -> bool
 {
-	return std::find(_subGoalUIDs.begin(), _subGoalUIDs.end(), uid) != _subGoalUIDs.end();
+	return std::ranges::find(_subGoalUIDs, uid) != _subGoalUIDs.end();
 }
 
-bool TraverseGrid::IsClear(int uid) const
+auto TraverseGrid::IsClear(int uid) const -> bool
 {
 	return uid != -1 && !IsStart(uid) && !IsGoal(uid) && !IsSubGoal(uid);
 }
 
-bool TraverseGrid::IsEdgeObstacle(int fromUid, int toUid) const
+auto TraverseGrid::IsEdgeObstacle(int fromUid, int toUid) const -> bool
 {
 	return _obstacleUIDs.find({fromUid, toUid}) != _obstacleUIDs.end();
 }
 
-bool TraverseGrid::IsEdgeClear(int fromUid, int toUid) const
+auto TraverseGrid::IsEdgeClear(int fromUid, int toUid) const -> bool
 {
 	return !IsEdgeObstacle(fromUid, toUid);
 }
 
-bool TraverseGrid::HasFilledEdges(int uid)
+auto TraverseGrid::HasFilledEdges(int uid) -> bool
 {
 	auto& node = NodeByUid(uid);
 	bool filled = true;
@@ -384,7 +389,7 @@ void TraverseGrid::RemoveSubGoal(int uid)
 {
 	if (IsSubGoal(uid))
 	{
-		_subGoalUIDs.erase(std::find(_subGoalUIDs.begin(), _subGoalUIDs.end(), uid));
+		_subGoalUIDs.erase(std::ranges::find(_subGoalUIDs, uid));
 		ClearNodeColor(uid);
 	}
 }
@@ -425,7 +430,7 @@ void TraverseGrid::ClearObstacles()
 		ClearNodeEdgeColor(fromUid, toUid);
 	}
 
-	for (auto& [uid, node] : _nodes)
+	for (const auto& uid : _nodes | std::views::keys)
 	{
 		if (IsClear(uid))
 		{
@@ -436,7 +441,7 @@ void TraverseGrid::ClearObstacles()
 	_obstacleUIDs.clear();
 }
 
-sf::Color TraverseGrid::WeightColor(float weight)
+auto TraverseGrid::WeightColor(float weight) -> sf::Color
 {
 	const sf::Uint8 red = weight / MaxWeight * 255.0f;
 	const sf::Uint8 blue = 255.0f - weight / MaxWeight * 255.0f;
