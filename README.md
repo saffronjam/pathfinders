@@ -19,7 +19,7 @@ Visualizing pathfinding algorithms
 </p>
 
 ## Try it out - No building needed
-Run the executable under ``examples/<platform>/`` 
+Run the executable under `examples/<platform>/`
   
 ## Build yourself
 
