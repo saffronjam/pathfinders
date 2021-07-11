@@ -8,7 +8,7 @@ BaseLayer::BaseLayer() :
 {
 }
 
-void BaseLayer::OnAttach(Shared<BatchLoader>& loader)
+void BaseLayer::OnAttach(Shared<Batch>& batch)
 {
 	_scene.ViewportPane().Resized += SE_EV_ACTION(BaseLayer::OnWantRenderTargetResize);
 	RenderTargetManager::Add(&_controllableRenderTexture);
