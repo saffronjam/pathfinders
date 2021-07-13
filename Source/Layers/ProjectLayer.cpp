@@ -2,11 +2,11 @@
 
 namespace Se
 {
-void ProjectLayer::OnAttach(Shared<BatchLoader>& loader)
+void ProjectLayer::OnAttach(Shared<Batch>& batch)
 {
-	BaseLayer::OnAttach(loader);
+	BaseLayer::OnAttach(batch);
 
-	loader->Submit([this]
+	batch->Submit([this]
 	{
 		_pathfinderManager = CreateShared<PathfinderManager>();
 		_pathfinderManager->OnUpdate(_scene);
