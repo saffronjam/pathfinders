@@ -30,7 +30,7 @@ private:
 	int _noRelaxIterations = 4;
 
 	// <from, to>, VAIndex
-	TreeMap<Pair<int, int>, int> _filledEdges;
+	std::map<std::pair<int, int>, int> _filledEdges;
 	sf::VertexArray _filledEdgesVA{ sf::PrimitiveType::Quads };
 };
 

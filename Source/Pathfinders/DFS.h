@@ -12,7 +12,7 @@ public:
 	void FindPath(int startUID, int goalUID) override;
 
 private:
-	Stack<int> _checkingStack;
-	HashSet<int> _visited;
+	std::stack<int> _checkingStack;
+	std::unordered_set<int> _visited;
 };
 }

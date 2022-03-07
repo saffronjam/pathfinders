@@ -13,7 +13,7 @@ public:
 	void FindPath(int startUID, int goalUID) override;
 
 private:
-	Deque<int> _checkingQueue;
+	std::deque<int> _checkingQueue;
 	static constexpr int _beamWidth = BeamWidth;
 };
 

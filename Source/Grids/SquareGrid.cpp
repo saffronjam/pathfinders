@@ -127,7 +127,7 @@ void SquareGrid::SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &color
 		_filledEdgesVA.append({ firstPosition + secondLine - perpendicularFromToNorm * halfRectSize.x , color });
 		_filledEdgesVA.append({ firstPosition + secondLine + perpendicularFromToNorm * halfRectSize.x , color });
 
-		_filledEdges.emplace(CreatePair(fromUid, toUid), VAIndex);
+		_filledEdges.emplace(std::make_pair(fromUid, toUid), VAIndex);
 	}
 	else
 	{

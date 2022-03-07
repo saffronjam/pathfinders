@@ -1,6 +1,9 @@
 #pragma once
 
+#include <stack>
+#include <deque>
 #include <thread>
+#include <unordered_set>
 
 #include <SFML/System/Time.hpp>
 
@@ -22,7 +25,7 @@ enum class PathfinderState
 class Pathfinder
 {
 public:
-	explicit Pathfinder(String name);
+	explicit Pathfinder(std::string name);
 	virtual ~Pathfinder();
 
 	void OnUpdate();
@@ -33,16 +36,16 @@ public:
 	void OnRenderResult(Scene &scene);
 
 	auto State() const -> PathfinderState;
-	auto StateString() const -> String;
-	auto Name() -> const String&;
-	auto Result() -> String;
+	auto StateString() const -> std::string;
+	auto Name() -> const std::string&;
+	auto Result() -> std::string;
 
-	void AssignNodes(TreeMap<int, Node> nodes);
-	void SetTraverseGrid(const Shared<const TraverseGrid> &traverseGrid);
+	void AssignNodes(std::map<int, Node> nodes);
+	void SetTraverseGrid(const std::shared_ptr<const TraverseGrid> &traverseGrid);
 	void SetSleepDelay(sf::Time delay);
 	void SetWeight(int uidFirst, int uidSecond, float weight);
 
-	void Start(int startUID, int goalUID, const List<int> &subGoalsUIDs);
+	void Start(int startUID, int goalUID, const std::vector<int> &subGoalsUIDs);
 	void Pause();
 	void Resume();
 	void Restart();
@@ -57,8 +60,8 @@ public:
 	void SetBodyColor(sf::Color color);
 
 protected:
-	auto Nodes() -> TreeMap<int, Node>&;
-	auto Nodes() const -> const TreeMap<int, Node>&;
+	auto Nodes() -> std::map<int, Node>&;
+	auto Nodes() const -> const std::map<int, Node>&;
 
 	auto NodeByUid(int uid) -> Node&;
 	virtual void FindPath(int startUID, int goalUID) = 0;
@@ -70,22 +73,22 @@ protected:
 
 private:
 	void RenderFinishedBodyHelper(Scene &scene, sf::Color color, int limit);
-	void FindPathThreadFn(int startUID, int goalUID, const List<int> &subGoalsUIDs);
+	void FindPathThreadFn(int startUID, int goalUID, const std::vector<int> &subGoalsUIDs);
 	bool CheckFindPathResult(int fromUID, int toUID);
 	void AppendFinalPath(int startUID, int goalUID);
 	void CollectFinder();
 
 protected:
 	PathfinderState _state;
-	Shared<const TraverseGrid> _traverseGrid;
+	std::shared_ptr<const TraverseGrid> _traverseGrid;
 	int _activeNodeUID;
 
 private:
-	String _name;
+	std::string _name;
 	bool _active = true;
 
-	Thread _finder;
-	Mutex _mutex;
+	std::thread _finder;
+	std::mutex _mutex;
 
 	sf::Color _bodyColor;
 
@@ -93,8 +96,8 @@ private:
 	bool _minorDelay;
 	sf::Int64 _minorDelayTimer;
 
-	TreeMap<int, Node> _nodes;
-	Deque<const Node *> _finalPath;
+	std::map<int, Node> _nodes;
+	std::deque<const Node *> _finalPath;
 
 	sf::Time _finalPathTimer;
 	int _noFinalPathNodes = 0;

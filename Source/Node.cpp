@@ -34,7 +34,7 @@ int Node::ViaUID() const
 	return _viaUID;
 }
 
-const HashSet<int>& Node::Neighbors() const
+const std::unordered_set<int>& Node::Neighbors() const
 {
 	return _neighbors;
 }
@@ -77,8 +77,8 @@ void Node::ClearVisitedNeighbors()
 void Node::AddNeighbor(int uid, float cost)
 {
 	_neighbors.emplace(uid);
-	_neighborCosts.emplace(CreatePair(uid, cost));
-	_resetNeighborCosts.emplace(CreatePair(uid, cost));
+	_neighborCosts.emplace(std::make_pair(uid, cost));
+	_resetNeighborCosts.emplace(std::make_pair(uid, cost));
 }
 
 void Node::ResetCosts()
@@ -97,16 +97,16 @@ void Node::ResetPath()
 	SetVia(-1);
 }
 
-float Node::Cost(const String &type)
+float Node::Cost(const std::string &type)
 {
 	if ( !HasCost(type) )
 	{
-		_costs.emplace(CreatePair(type, std::numeric_limits<float>::infinity()));
+		_costs.emplace(std::make_pair(type, std::numeric_limits<float>::infinity()));
 	}
 	return _costs.at(type);
 }
 
-bool Node::HasCost(const String &type)
+bool Node::HasCost(const std::string &type)
 {
 	return _costs.find(type) != _costs.end();
 }
@@ -116,11 +116,11 @@ bool Node::VisitedBy(Node &node) const
 	return node._visitedNeighbors.find(_uid) != node._visitedNeighbors.end();
 }
 
-void Node::SetCost(const String &type, float cost)
+void Node::SetCost(const std::string &type, float cost)
 {
 	if ( !HasCost(type) )
 	{
-		_costs.emplace(CreatePair(type, cost));
+		_costs.emplace(std::make_pair(type, cost));
 	}
 	else
 	{

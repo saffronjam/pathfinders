@@ -1,6 +1,6 @@
 #pragma once
 
-#include <set>
+#include <unordered_set>
 #include <map>
 #include <string>
 
@@ -27,10 +27,10 @@ public:
 	auto Uid() const -> int;
 	auto Position() const -> const sf::Vector2f&;
 	auto ViaUID() const -> int;
-	auto Cost(const String& type) -> float;
-	auto HasCost(const String& type) -> bool;
+	auto Cost(const std::string& type) -> float;
+	auto HasCost(const std::string& type) -> bool;
 
-	auto Neighbors() const -> const HashSet<int>&;
+	auto Neighbors() const -> const std::unordered_set<int>&;
 	auto NeighborCostByUid(int uid) const -> float;
 	void SetWeight(int uidNeighbor, float weight);
 
@@ -38,7 +38,7 @@ public:
 	auto VisitedBy(Node& node) const -> bool;
 
 	void SetVia(int uid);
-	void SetCost(const String &type, float cost);
+	void SetCost(const std::string &type, float cost);
 	void SetNeighborCost(float cost, int uid);
 
 	void AddVisitedNeighbor(int uid);
@@ -48,13 +48,13 @@ public:
 private:
 	int _uid;
 	sf::Vector2f _position;
-	HashSet<int> _neighbors;
-	HashSet<int> _visitedNeighbors;
+	std::unordered_set<int> _neighbors;
+	std::unordered_set<int> _visitedNeighbors;
 
 	int _viaUID;
 
-	HashMap<String, float> _costs;
-	HashMap<int, float> _neighborCosts;
-	HashMap<int, float> _resetNeighborCosts;
+	std::unordered_map<std::string, float> _costs;
+	std::unordered_map<int, float> _neighborCosts;
+	std::unordered_map<int, float> _resetNeighborCosts;
 };
 }
