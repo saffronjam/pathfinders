@@ -4,10 +4,10 @@
 
 namespace Se
 {
-Pathfinder::Pathfinder(String name) :
+Pathfinder::Pathfinder(std::string name) :
 	_state(PathfinderState::WaitingForStart),
 	_activeNodeUID(-1),
-	_name(Move(name)),
+	_name(std::move(name)),
 	_sleepDelay(sf::seconds(0.01f)),
 	_minorDelay(false),
 	_minorDelayTimer(0),
@@ -102,12 +102,12 @@ auto Pathfinder::State() const -> PathfinderState
 	return _state;
 }
 
-auto Pathfinder::Name() -> const String&
+auto Pathfinder::Name() -> const std::string&
 {
 	return _name;
 }
 
-auto Pathfinder::StateString() const -> String
+auto Pathfinder::StateString() const -> std::string
 {
 	switch (_state)
 	{
@@ -121,29 +121,29 @@ auto Pathfinder::StateString() const -> String
 	return "";
 }
 
-auto Pathfinder::Result() -> String
+auto Pathfinder::Result() -> std::string
 {
 	if (_pathWasFound)
 	{
-		OStringStream oss;
+		std::ostringstream oss;
 		oss << "Cost: " << FinalCost();
 		return oss.str();
 	}
 	return "No path found";
 }
 
-void Pathfinder::AssignNodes(TreeMap<int, Node> nodes)
+void Pathfinder::AssignNodes(std::map<int, Node> nodes)
 {
-	_nodes = Move(nodes);
+	_nodes = std::move(nodes);
 }
 
-void Pathfinder::SetTraverseGrid(const Shared<const TraverseGrid>& traverseGrid)
+void Pathfinder::SetTraverseGrid(const std::shared_ptr<const TraverseGrid>& traverseGrid)
 {
 	_activeNodeUID = -1;
 	_traverseGrid = traverseGrid;
 }
 
-void Pathfinder::Start(int startUID, int goalUID, const List<int>& subGoalsUIDs)
+void Pathfinder::Start(int startUID, int goalUID, const std::vector<int>& subGoalsUIDs)
 {
 	if (_state == PathfinderState::Finished)
 	{
@@ -153,7 +153,7 @@ void Pathfinder::Start(int startUID, int goalUID, const List<int>& subGoalsUIDs)
 	{
 		CollectFinder();
 		_state = PathfinderState::Searching;
-		_finder = Thread(&Pathfinder::FindPathThreadFn, this, startUID, goalUID, subGoalsUIDs);
+		_finder = std::thread(&Pathfinder::FindPathThreadFn, this, startUID, goalUID, subGoalsUIDs);
 	}
 }
 
@@ -238,12 +238,12 @@ void Pathfinder::SetBodyColor(sf::Color color)
 	_bodyColor = color;
 }
 
-auto Pathfinder::Nodes() -> TreeMap<int, Node>&
+auto Pathfinder::Nodes() -> std::map<int, Node>&
 {
 	return _nodes;
 }
 
-auto Pathfinder::Nodes() const -> const TreeMap<int, Node>&
+auto Pathfinder::Nodes() const -> const std::map<int, Node>&
 {
 	return const_cast<Pathfinder&>(*this).Nodes();
 }
@@ -323,7 +323,7 @@ void Pathfinder::RenderFinishedBodyHelper(Scene& scene, sf::Color color, int lim
 	scene.Submit(_bodyFinishedVA);
 }
 
-void Pathfinder::FindPathThreadFn(int startUID, int goalUID, const List<int>& subGoalsUIDs)
+void Pathfinder::FindPathThreadFn(int startUID, int goalUID, const std::vector<int>& subGoalsUIDs)
 {
 	_finalPath.clear();
 
@@ -380,7 +380,7 @@ auto Pathfinder::CheckFindPathResult(int fromUID, int toUID) -> bool
 
 void Pathfinder::AppendFinalPath(int startUID, int goalUID)
 {
-	List<const Node*> tmp;
+	std::vector<const Node*> tmp;
 	for (const Node* node = &NodeByUid(goalUID); node != &NodeByUid(startUID); node = &NodeByUid(node->ViaUID()))
 	{
 		tmp.push_back(node);

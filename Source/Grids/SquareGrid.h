@@ -33,10 +33,10 @@ private:
 	sf::Vector2f BoxSize() const;
 
 private:
-	TreeMap<int, Square> _filledSquares;
+	std::map<int, Square> _filledSquares;
 
 	// <from, to>, VAIndex
-	TreeMap<Pair<int, int>, int> _filledEdges;
+	std::map<std::pair<int, int>, int> _filledEdges;
 
 	sf::Vector2i _noBoxes;
 

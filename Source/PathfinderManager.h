@@ -36,7 +36,7 @@ public:
 	void Restart();
 	void Reset();
 
-	auto Pathfinders() const -> const List<Unique<Pathfinder>>&;
+	auto Pathfinders() const -> const std::vector<std::unique_ptr<Pathfinder>>&;
 
 	auto EditState() const -> PathfinderManagerEditState;
 	auto RunningDuration() const -> const sf::Time&;
@@ -45,27 +45,27 @@ public:
 	void SetEditState(PathfinderManagerEditState editState);
 	void SetWeight(int uidFirst, int uidSecond, float weight);
 
-	void SetActiveTraverseGrid(const String& name);
-	auto ActiveTraverseGrid() -> Shared<TraverseGrid>&;
-	auto ActiveTraverseGrid() const -> const Shared<TraverseGrid>&;
+	void SetActiveTraverseGrid(const std::string& name);
+	auto ActiveTraverseGrid() -> std::shared_ptr<TraverseGrid>&;
+	auto ActiveTraverseGrid() const -> const std::shared_ptr<TraverseGrid>&;
 
 	void ClearTimerResults();
 
 private:
 	template <class T>
-	auto SetActiveHelper(List<T>& list, const String& name);
+	auto SetActiveHelper(std::vector<T>& list, const std::string& name);
 
-	auto ActivePathfinders() -> List<List<Unique<Pathfinder>>::iterator>;
+	auto ActivePathfinders() -> std::vector<std::vector<std::unique_ptr<Pathfinder>>::iterator>;
 
 private:
 	PathfinderManagerEditState _editState;
 
 	ThreadPool _threadPool;
-	Mutex _workerMutex;
+	std::mutex _workerMutex;
 
 	struct ScopedBool
 	{
-		explicit ScopedBool(Atomic<bool>& value) :
+		explicit ScopedBool(std::atomic<bool>& value) :
 			_value(value)
 		{
 			value = true;
@@ -77,34 +77,34 @@ private:
 		}
 
 	private:
-		Atomic<bool>& _value;
+		std::atomic<bool>& _value;
 	};
 
-	Atomic<bool> _didOnFinishWorkingUpdate = false;
-	Atomic<bool> _working = false;
+	std::atomic<bool> _didOnFinishWorkingUpdate = false;
+	std::atomic<bool> _working = false;
 
-	List<Shared<TraverseGrid>> _traverseGrids;
-	List<Shared<TraverseGrid>>::iterator _activeTraverseGrid;
+	std::vector<std::shared_ptr<TraverseGrid>> _traverseGrids;
+	std::vector<std::shared_ptr<TraverseGrid>>::iterator _activeTraverseGrid;
 
-	List<Unique<Pathfinder>> _pathfinders;
+	std::vector<std::unique_ptr<Pathfinder>> _pathfinders;
 
 	bool _drawWorker = true;
 	bool _drawViaConnections = true;
 
 	sf::Time _runningDuration;
-	Deque<String> _oldResults;
+	std::deque<std::string> _oldResults;
 
-	Pair<int, int> _editPair = {0, 0};
+	std::pair<int, int> _editPair = {0, 0};
 
 	// Cache
 	sf::Vector2f _renderTargetSize{0.0f, 0.0f};
 	sf::Vector2f _desiredRenderTargetSize{0.0f, 0.0f};
 
 	// Gui cache
-	List<const char*> _traverseGridNames;
+	std::vector<const char*> _traverseGridNames;
 	int _activeTraverseGridIndex = 0;
 	float _sleepDelayMicroseconds = 10000;
-	List<const char*> _editStateNames;
+	std::vector<const char*> _editStateNames;
 	int _editStateIndex = static_cast<int>(PathfinderManagerEditState::None);
 
 	bool _drawWeights = false;
@@ -120,7 +120,7 @@ private:
 };
 
 template <class T>
-auto PathfinderManager::SetActiveHelper(List<T>& list, const String& name)
+auto PathfinderManager::SetActiveHelper(std::vector<T>& list, const std::string& name)
 {
 	const auto candidate = std::find_if(list.begin(), list.end(), [&name](const auto& current)
 	{

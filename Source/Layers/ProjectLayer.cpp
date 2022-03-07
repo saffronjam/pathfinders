@@ -2,13 +2,13 @@
 
 namespace Se
 {
-void ProjectLayer::OnAttach(Shared<Batch>& batch)
+void ProjectLayer::OnAttach(std::shared_ptr<Batch>& batch)
 {
 	BaseLayer::OnAttach(batch);
 
 	batch->Submit([this]
 	{
-		_pathfinderManager = CreateShared<PathfinderManager>();
+		_pathfinderManager = std::make_shared<PathfinderManager>();
 		_pathfinderManager->OnUpdate(_scene);
 		_pathfinderManager->OnRender(_scene);
 	}, "Creating Pathfinder Manager");

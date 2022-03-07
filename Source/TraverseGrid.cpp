@@ -1,10 +1,12 @@
 #include "TraverseGrid.h"
 
+#include <stack>
+
 namespace Se
 {
-TraverseGrid::TraverseGrid(String name) :
+TraverseGrid::TraverseGrid(std::string name) :
 	_visRect(-1.0f, -1.0f, 2.0f, 2.0f),
-	_name(Move(name)),
+	_name(std::move(name)),
 	_weightLinesVA(sf::PrimitiveType::Lines),
 	_startUID(-1),
 	_goalUID(-1)
@@ -30,7 +32,7 @@ void TraverseGrid::OnUpdate()
 				const auto color = WeightColor(node.NeighborCostByUid(neighborUID));
 				_weightLinesVA[i] = {node.Position(), color};
 				_weightLinesVA[i + 1] = {NodeByUid(neighborUID).Position(), color};
-				_weightLinesCacheVA.emplace(CreatePair(uid, neighborUID), CreatePair(i, i + 1));
+				_weightLinesCacheVA.emplace(std::make_pair(uid, neighborUID), std::make_pair(i, i + 1));
 				i += 2;
 			}
 		}
@@ -96,7 +98,7 @@ void TraverseGrid::GenerateMaze()
 		}
 	}
 
-	Stack<int> checkStack;
+	std::stack<int> checkStack;
 	checkStack.push(_nodes.begin()->first);
 	_visitedNodes.emplace(_nodes.begin()->first);
 
@@ -106,7 +108,7 @@ void TraverseGrid::GenerateMaze()
 
 		const auto& neighbors = NodeByUid(uid).Neighbors();
 
-		List<int> shuffledNeighbors(neighbors.begin(), neighbors.end());
+		std::vector<int> shuffledNeighbors(neighbors.begin(), neighbors.end());
 		std::ranges::shuffle(shuffledNeighbors, _randomEngine);
 
 		for (int neighbor : shuffledNeighbors)
@@ -171,9 +173,9 @@ void TraverseGrid::SetNoWallsToSmash(int no)
 	_noToSmash = no;
 }
 
-auto TraverseGrid::Nodes() -> TreeMap<int, Node>& { return _nodes; }
+auto TraverseGrid::Nodes() -> std::map<int, Node>& { return _nodes; }
 
-auto TraverseGrid::Nodes() const -> const TreeMap<int, Node>& { return _nodes; }
+auto TraverseGrid::Nodes() const -> const std::map<int, Node>& { return _nodes; }
 
 auto TraverseGrid::NodeByUid(int uid) -> Node& { return _nodes.at(uid); }
 
@@ -183,15 +185,15 @@ auto TraverseGrid::StartUid() const -> int { return _startUID; }
 
 auto TraverseGrid::GoalUid() const -> int { return _goalUID; }
 
-auto TraverseGrid::ObstacleUids() -> const TreeSet<Pair<int, int>>& { return _obstacleUIDs; }
+auto TraverseGrid::ObstacleUids() -> const std::set<std::pair<int, int>>& { return _obstacleUIDs; }
 
-auto TraverseGrid::SubGoalUids() -> const List<int>& { return _subGoalUIDs; }
+auto TraverseGrid::SubGoalUids() -> const std::vector<int>& { return _subGoalUIDs; }
 
-auto TraverseGrid::EditedWeightUids() -> const TreeSet<int>& { return _editedWeightUIDs; }
+auto TraverseGrid::EditedWeightUids() -> const std::set<int>& { return _editedWeightUIDs; }
 
 auto TraverseGrid::DrawFlags() const -> TraverseGridDrawFlags { return _drawFlags; }
 
-auto TraverseGrid::Name() const -> const String& { return _name; }
+auto TraverseGrid::Name() const -> const std::string& { return _name; }
 
 auto TraverseGrid::IsStart(int uid) const -> bool { return _startUID == uid; }
 

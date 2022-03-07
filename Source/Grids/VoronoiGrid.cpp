@@ -84,7 +84,7 @@ void VoronoiGrid::SetNodeEdgeColor(int fromUid, int toUid, const sf::Color &colo
 		_filledEdgesVA.append({ closestEdge.second - perpendicularLeftToRightNorm * thickness , color });
 		_filledEdgesVA.append({ closestEdge.second + perpendicularLeftToRightNorm * thickness , color });
 
-		_filledEdges.emplace(CreatePair(fromUid, toUid), VAIndex);
+		_filledEdges.emplace(std::make_pair(fromUid, toUid), VAIndex);
 	}
 	else
 	{

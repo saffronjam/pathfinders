@@ -17,16 +17,16 @@ namespace Se
 PathfinderManager::PathfinderManager() :
 	_editState(PathfinderManagerEditState::None)
 {
-	_pathfinders.push_back(CreateUnique<AStar>());
-	_pathfinders.push_back(CreateUnique<Dijkstra>());
-	_pathfinders.push_back(CreateUnique<BestFirstSearch>());
-	_pathfinders.push_back(CreateUnique<Beam<32>>());
-	_pathfinders.push_back(CreateUnique<Beam<512>>());
-	_pathfinders.push_back(CreateUnique<BFS>());
-	_pathfinders.push_back(CreateUnique<DFS>());
+	_pathfinders.push_back(std::make_unique<AStar>());
+	_pathfinders.push_back(std::make_unique<Dijkstra>());
+	_pathfinders.push_back(std::make_unique<BestFirstSearch>());
+	_pathfinders.push_back(std::make_unique<Beam<32>>());
+	_pathfinders.push_back(std::make_unique<Beam<512>>());
+	_pathfinders.push_back(std::make_unique<BFS>());
+	_pathfinders.push_back(std::make_unique<DFS>());
 
-	_traverseGrids.push_back(CreateShared<SquareGrid>());
-	_traverseGrids.push_back(CreateShared<VoronoiGrid>());
+	_traverseGrids.push_back(std::make_shared<SquareGrid>());
+	_traverseGrids.push_back(std::make_shared<VoronoiGrid>());
 	_activeTraverseGrid = _traverseGrids.end();
 
 	SetActiveTraverseGrid("Square");
@@ -368,7 +368,7 @@ void PathfinderManager::OnGuiRender()
 
 	Gui::BeginPropertyGrid("Edit");
 
-	String editText = "Edit";
+	std::string editText = "Edit";
 
 	switch (_editState)
 	{
@@ -419,12 +419,12 @@ void PathfinderManager::OnGuiRender()
 
 	for (auto& pathfinder : _pathfinders)
 	{
-		const String& name = pathfinder->Name();
+		const std::string& name = pathfinder->Name();
 		ImGui::Text(name.c_str());
 
 		ImGui::NextColumn();
 
-		String id = "##" + name;
+		std::string id = "##" + name;
 		bool active = pathfinder->Active();
 		if (ImGui::Checkbox(id.c_str(), &active))
 		{
@@ -523,7 +523,7 @@ void PathfinderManager::Reset()
 	activeGrid->ResetStartGoal();
 }
 
-auto PathfinderManager::Pathfinders() const -> const List<Unique<Pathfinder>>&
+auto PathfinderManager::Pathfinders() const -> const std::vector<std::unique_ptr<Pathfinder>>&
 {
 	return _pathfinders;
 }
@@ -537,9 +537,9 @@ void PathfinderManager::SetEditState(PathfinderManagerEditState editState)
 	_editState = editState;
 }
 
-auto PathfinderManager::ActiveTraverseGrid() -> Shared<TraverseGrid>& { return *_activeTraverseGrid; }
+auto PathfinderManager::ActiveTraverseGrid() -> std::shared_ptr<TraverseGrid>& { return *_activeTraverseGrid; }
 
-auto PathfinderManager::ActiveTraverseGrid() const -> const Shared<TraverseGrid>& { return *_activeTraverseGrid; }
+auto PathfinderManager::ActiveTraverseGrid() const -> const std::shared_ptr<TraverseGrid>& { return *_activeTraverseGrid; }
 
 void PathfinderManager::ClearTimerResults()
 {
@@ -563,7 +563,7 @@ void PathfinderManager::SetWeight(int uidFirst, int uidSecond, float weight)
 	ActiveTraverseGrid()->SetWeight(uidFirst, uidSecond, weight);
 }
 
-void PathfinderManager::SetActiveTraverseGrid(const String& name)
+void PathfinderManager::SetActiveTraverseGrid(const std::string& name)
 {
 	if (_activeTraverseGrid != _traverseGrids.end() && (*_activeTraverseGrid)->Name() == name)
 	{
@@ -586,9 +586,9 @@ void PathfinderManager::SetActiveTraverseGrid(const String& name)
 	});
 }
 
-auto PathfinderManager::ActivePathfinders() -> List<List<Unique<Pathfinder>>::iterator>
+auto PathfinderManager::ActivePathfinders() -> std::vector<std::vector<std::unique_ptr<Pathfinder>>::iterator>
 {
-	List<List<Unique<Pathfinder>>::iterator> activePathfinders;
+	std::vector<std::vector<std::unique_ptr<Pathfinder>>::iterator> activePathfinders;
 	for (auto iter = _pathfinders.begin(); iter != _pathfinders.end(); ++iter)
 	{
 		if ((*iter)->Active())

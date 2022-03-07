@@ -22,7 +22,7 @@ class TraverseGrid
 public:
 
 public:
-	explicit TraverseGrid(String name);
+	explicit TraverseGrid(std::string name);
 	virtual ~TraverseGrid() = default;
 
 	virtual void OnUpdate();
@@ -35,8 +35,8 @@ public:
 	void GenerateMaze();
 	void SetNoWallsToSmash(int no);
 
-	auto Nodes() -> TreeMap<int, Node>&;
-	auto Nodes() const -> const TreeMap<int, Node>&;
+	auto Nodes() -> std::map<int, Node>&;
+	auto Nodes() const -> const std::map<int, Node>&;
 
 	auto NodeByUid(int uid) -> Node&;
 	auto NodeByUid(int uid) const -> const Node&;
@@ -47,9 +47,9 @@ public:
 	auto StartUid() const -> int;
 	auto GoalUid() const -> int;
 
-	auto ObstacleUids() -> const TreeSet<Pair<int, int>>&;
-	auto SubGoalUids() -> const List<int>&;
-	auto EditedWeightUids() -> const TreeSet<int>&;
+	auto ObstacleUids() -> const std::set<std::pair<int, int>>&;
+	auto SubGoalUids() -> const std::vector<int>&;
+	auto EditedWeightUids() -> const std::set<int>&;
 
 	auto DrawFlags() const -> TraverseGridDrawFlags;
 	virtual void SetDrawFlags(TraverseGridDrawFlags drawFlags);
@@ -59,7 +59,7 @@ public:
 	void SetWeight(int uidFirst, int uidSecond, float weight);
 	void SetWeightColorAlpha(uchar alpha);
 
-	auto Name() const -> const String&;
+	auto Name() const -> const std::string&;
 	
 	auto IsStart(int uid) const -> bool;
 	auto IsGoal(int uid) const -> bool;
@@ -109,18 +109,18 @@ private:
 	void OnObstacleChange(int fromUid, int toUid);
 
 protected:
-	TreeMap<int, Node> _nodes;
+	std::map<int, Node> _nodes;
 	sf::FloatRect _visRect;
 	sf::Vector2f _renderTargetSize = { 0.0f, 0.0f };
 	TraverseGridDrawFlags _drawFlags = TraverseGridDrawFlag_All;
 	sf::Color _gridColor = { 50, 0, 220, 100 };
 
 private:
-	String _name;
+	std::string _name;
 
-	TreeSet<Pair<int, int>> _obstacleUIDs;
-	List<int> _subGoalUIDs;
-	TreeSet<int> _editedWeightUIDs;
+	std::set<std::pair<int, int>> _obstacleUIDs;
+	std::vector<int> _subGoalUIDs;
+	std::set<int> _editedWeightUIDs;
 
 	sf::Color _obstacleColor{ 40, 40, 40 };
 	sf::Color _fadedObstacleColor{ _obstacleColor.r, _obstacleColor.g, _obstacleColor.b, _obstacleColor.a * 0.6f };
@@ -131,7 +131,7 @@ private:
 	bool _wantNewWeightLinesVA = true;
 	// Caching VA-index with costs to minimize recreation of VA
 	// < <uidFrom, uidTo>, <VA-index1, VA-index2> >
-	TreeMap<Pair<int, int>, Pair<int, int>> _weightLinesCacheVA;
+	std::map<std::pair<int, int>, std::pair<int, int>> _weightLinesCacheVA;
 	uchar _weightLinesColorAlpha = 255;
 	bool _wantNewWeightLinesColor = true;
 
@@ -139,11 +139,11 @@ private:
 	int _goalUID;
 
 	// Maze Generation
-	TreeSet<int> _visitedNodes;
+	std::set<int> _visitedNodes;
 	int _noToSmash = 0;
 	Random::Device _randomDevice;
 	Random::Engine _randomEngine{ _randomDevice() };
 
-	Atomic<bool> _shouldExit = false;
+	std::atomic<bool> _shouldExit = false;
 };
 }
