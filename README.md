@@ -13,9 +13,9 @@ Visualizing pathfinding algorithms
 ## Preview
 
 <p align="center">  
-  <img src="https://github.com/saffronjam/pathfinders/blob/master/previewGif0.gif" width="75%">
-  <img src="https://github.com/saffronjam/pathfinders/blob/master/preview0.png" width="75%">
-  <img src="https://github.com/saffronjam/pathfinders/blob/master/preview1.png" width="75%">
+  <img src="https://github.com/saffronjam/pathfinders/blob/master/docs/preview_gif_0.gif" width="75%">
+  <img src="https://github.com/saffronjam/pathfinders/blob/master/docs/preview0.png" width="75%">
+  <img src="https://github.com/saffronjam/pathfinders/blob/master/docs/preview1.png" width="75%">
 </p>
 
 ## Try it out
